@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">App Template</string>
+
+    <string name="error_occurred">Something went wrong.</string>
+    <string name="error_loading_data">Could not load data. Please try again.</string>
+    <string name="error_required_field">Required field</string>
+    <string name="error_invalid_email">Enter a valid email address</string>
+    <string name="error_invalid_phone">Enter a valid phone number</string>
+    <string name="password_min_length">Password must have at least %1$d characters</string>
+    <string name="no_data">No data available.</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+
+    <string name="demo_list_title">Demo list</string>
+    <string name="demo_search_hint">Search…</string>
+    <string name="demo_open_docs">Open Compose Multiplatform docs</string>
+    <string name="demo_details_title">Demo details</string>
+    <string name="demo_submit">Submit</string>
+    <string name="demo_submit_success_title">Submitted</string>
+    <string name="demo_submit_success">Your request was sent successfully.</string>
+</resources>

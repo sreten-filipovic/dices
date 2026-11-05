@@ -1,0 +1,4 @@
+// Per-configuration values read by Info.plist and the build settings.
+AppName = App Template Debug
+BaseUrl = https:/$()/jsonplaceholder.typicode.com/
+BundleId = com.cubes.template.debug
