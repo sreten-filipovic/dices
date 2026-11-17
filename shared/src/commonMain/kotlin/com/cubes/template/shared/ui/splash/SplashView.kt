@@ -77,6 +77,7 @@ fun SplashView(
                         size = 52.dp,
                         highlighted = true,
                         startDelayMillis = index * DieAnimation.STAGGER_MILLIS,
+                        soundEnabled = false,
                     )
                 }
             }

@@ -28,13 +28,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.game_dice_poker
 import com.cubes.template.shared.resources.setup_add_player
 import com.cubes.template.shared.resources.setup_player_hint
 import com.cubes.template.shared.resources.setup_players
 import com.cubes.template.shared.resources.setup_remove_player
 import com.cubes.template.shared.resources.setup_start
 import com.cubes.template.shared.resources.setup_rounds
-import com.cubes.template.shared.resources.setup_title
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
@@ -63,7 +63,7 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
             .background(ColorBackground)
             .imePadding()
     ) {
-        Toolbar(title = stringResource(Res.string.setup_title), onBackClick = listener::onBackClick)
+        Toolbar(title = stringResource(Res.string.game_dice_poker), onBackClick = listener::onBackClick)
 
         Column(
             modifier = Modifier

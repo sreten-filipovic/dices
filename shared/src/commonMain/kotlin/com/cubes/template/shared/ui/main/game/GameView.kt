@@ -49,6 +49,7 @@ import com.cubes.template.shared.domain.game.HandEvaluator
 import com.cubes.template.shared.domain.game.Player
 import com.cubes.template.shared.domain.game.RoundPhase
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.game_dice_poker
 import com.cubes.template.shared.resources.game_done
 import com.cubes.template.shared.resources.game_home
 import com.cubes.template.shared.resources.game_keep
@@ -125,7 +126,8 @@ fun GameScreen(viewData: Game.ViewData) {
     Box(modifier = Modifier.fillMaxSize().background(ColorBackground)) {
         Column(modifier = Modifier.fillMaxSize().blur(blur)) {
             Toolbar(
-                title = if (state.isTiebreak) {
+                title = stringResource(Res.string.game_dice_poker),
+                subtitle = if (state.isTiebreak) {
                     stringResource(Res.string.game_tiebreak)
                 } else {
                     stringResource(Res.string.game_round, state.round, state.totalRounds)

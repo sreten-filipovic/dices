@@ -33,7 +33,6 @@
     <string name="dice_roll_hint">Tap “Roll” to roll the die</string>
     <string name="roll">Roll</string>
 
-    <string name="setup_title">New game</string>
     <string name="setup_players">Players</string>
     <string name="setup_player_hint">Player %1$d</string>
     <string name="setup_add_player">+ Add player</string>

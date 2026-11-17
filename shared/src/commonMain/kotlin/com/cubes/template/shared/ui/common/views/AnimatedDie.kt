@@ -23,9 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cubes.template.shared.ui.common.ColorBlack
+import com.cubes.template.shared.ui.common.sound.rememberDiceRollSound
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -46,7 +48,8 @@ object DieAnimation {
  * A die that tumbles every time [rollKey] changes: it jumps, spins, bounces twice, flickers through
  * random faces and lands on [value] with a small squash. Pass a counter that only grows when this
  * particular die is rolled. The first composition does not animate unless [animateOnAppear] is true
- * (for dice that appear together with the roll, e.g. inside a dialog).
+ * (for dice that appear together with the roll, e.g. inside a dialog). Every roll is accompanied
+ * by the sound of the die hitting the table unless [soundEnabled] is false.
  */
 @Composable
 fun AnimatedDie(
@@ -58,10 +61,13 @@ fun AnimatedDie(
     highlighted: Boolean = false,
     startDelayMillis: Int = 0,
     animateOnAppear: Boolean = false,
+    soundEnabled: Boolean = true,
     onClick: (() -> Unit)? = null,
 ) {
     val initialRollKey = remember { if (animateOnAppear) Int.MIN_VALUE else rollKey }
     val targetValue by rememberUpdatedState(value)
+    // No audio in IDE previews
+    val sound = if (soundEnabled && !LocalInspectionMode.current) rememberDiceRollSound() else null
 
     var rolling by remember { mutableStateOf(false) }
     var tumbleFace by remember { mutableStateOf(1) }
@@ -77,6 +83,7 @@ fun AnimatedDie(
         lift.snapTo(0f)
         squash.snapTo(1f)
         delay(startDelayMillis.toLong())
+        sound?.play()
 
         val direction = if (Random.nextBoolean()) 1f else -1f
         coroutineScope {
