@@ -1,7 +1,6 @@
 package com.cubes.template.shared.ui.main.dice_roll
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,12 +25,12 @@ import com.cubes.template.shared.resources.dice_roll_title
 import com.cubes.template.shared.resources.roll
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.ColorBackground
-import com.cubes.template.shared.ui.common.ColorTextPrimary
-import com.cubes.template.shared.ui.common.ColorTextSecondary
+import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.RegularFont
-import com.cubes.template.shared.ui.common.views.DieFace
+import com.cubes.template.shared.ui.common.views.AnimatedDie
+import com.cubes.template.shared.ui.common.views.DiceTable
 import com.cubes.template.shared.ui.common.views.Toolbar
 import com.cubes.template.shared.ui.common.views.buttons.Button
 import org.jetbrains.compose.resources.stringResource
@@ -55,20 +54,22 @@ fun DiceRollScreen(viewData: DiceRoll.ViewData) {
         Box(
             modifier = Modifier
                 .weight(1f)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(20.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-            ) {
-                DieFace(value = viewData.value, size = 140.dp)
+            DiceTable(modifier = Modifier.fillMaxWidth()) {
+                Spacer(Modifier.height(140.dp))
+                AnimatedDie(value = viewData.value, rollKey = viewData.rollKey, size = 140.dp)
+                Spacer(Modifier.height(12.dp))
+                val showResult = viewData.value != null && !viewData.rolling
                 Text(
-                    text = viewData.value?.toString() ?: stringResource(Res.string.dice_roll_hint),
-                    fontFamily = if (viewData.value != null) ExtraBoldFont() else RegularFont(),
-                    fontSize = if (viewData.value != null) 48.sp else 16.sp,
-                    color = if (viewData.value != null) ColorTextPrimary else ColorTextSecondary,
+                    text = if (showResult) viewData.value.toString() else stringResource(Res.string.dice_roll_hint),
+                    fontFamily = if (showResult) ExtraBoldFont() else RegularFont(),
+                    fontSize = if (showResult) 48.sp else 16.sp,
+                    color = ColorWhite,
                     textAlign = TextAlign.Center,
+                    modifier = Modifier.height(64.dp),
                 )
             }
         }
@@ -76,6 +77,7 @@ fun DiceRollScreen(viewData: DiceRoll.ViewData) {
         Button(
             text = stringResource(Res.string.roll),
             onClick = listener::onRollClick,
+            enabled = !viewData.rolling,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(20.dp)

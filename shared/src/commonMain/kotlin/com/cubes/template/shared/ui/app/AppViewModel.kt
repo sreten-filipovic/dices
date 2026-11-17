@@ -3,6 +3,7 @@ package com.cubes.template.shared.ui.app
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cubes.template.shared.data.local.LocalDataSource
+import com.cubes.template.shared.ui.splash.SplashAnimation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +38,8 @@ class AppViewModel(
     private fun start() {
         viewModelScope.launch {
             try {
-                delay(500)
+                // Keep the splash up long enough for the dice intro animation to finish
+                delay(SplashAnimation.totalMillis)
 
                 // Place startup logic here, e.g.:
                 // val loggedIn = authManager.userLoggedIn()

@@ -45,8 +45,8 @@ class MainNavigatorImpl(
     override fun showDiceRoll() = navigateTo(MainScreen.DiceRoll)
 
     // GameSetupScreenNavigator: setup is replaced by the game, so back from the game goes home
-    override fun startGame(playerNames: List<String>, targetWins: Int) {
-        backStack.update { it.dropLastWhile { screen -> screen is MainScreen.GameSetup } + MainScreen.Game(playerNames, targetWins) }
+    override fun startGame(playerNames: List<String>, totalRounds: Int) {
+        backStack.update { it.dropLastWhile { screen -> screen is MainScreen.GameSetup } + MainScreen.Game(playerNames, totalRounds) }
     }
 
     // GameScreenNavigator

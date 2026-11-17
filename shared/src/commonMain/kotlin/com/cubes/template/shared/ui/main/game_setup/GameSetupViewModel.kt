@@ -33,10 +33,9 @@ class GameSetupViewModel(
         }
     }
 
-    override fun onTargetWinsChanged(targetWins: Int) {
-        _viewData.update {
-            it.copy(targetWins = targetWins.coerceIn(GameSetup.MIN_TARGET_WINS, GameSetup.MAX_TARGET_WINS))
-        }
+    override fun onTotalRoundsChanged(totalRounds: Int) {
+        if (totalRounds !in GameSetup.ROUND_OPTIONS) return
+        _viewData.update { it.copy(totalRounds = totalRounds) }
     }
 
     override fun onStartClick() {
@@ -44,7 +43,7 @@ class GameSetupViewModel(
         val names = data.names.mapIndexed { index, name ->
             name.trim().ifEmpty { stringProvider.getString(Res.string.setup_player_hint, index + 1) }
         }
-        screenNavigator.startGame(playerNames = names, targetWins = data.targetWins)
+        screenNavigator.startGame(playerNames = names, totalRounds = data.totalRounds)
     }
 
     override fun onBackClick() = screenNavigator.back()

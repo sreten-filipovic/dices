@@ -33,7 +33,7 @@ import com.cubes.template.shared.resources.setup_player_hint
 import com.cubes.template.shared.resources.setup_players
 import com.cubes.template.shared.resources.setup_remove_player
 import com.cubes.template.shared.resources.setup_start
-import com.cubes.template.shared.resources.setup_target_wins
+import com.cubes.template.shared.resources.setup_rounds
 import com.cubes.template.shared.resources.setup_title
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.BoldFont
@@ -101,16 +101,16 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
                 }
             }
 
-            SectionTitle(stringResource(Res.string.setup_target_wins, viewData.targetWins))
+            SectionTitle(stringResource(Res.string.setup_rounds))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                (GameSetup.MIN_TARGET_WINS..GameSetup.MAX_TARGET_WINS).forEach { value ->
-                    val selected = value == viewData.targetWins
+                GameSetup.ROUND_OPTIONS.forEach { value ->
+                    val selected = value == viewData.totalRounds
                     Box(
                         modifier = Modifier
                             .size(48.dp)
                             .clip(CircleShape)
                             .background(if (selected) ColorPrimary else ColorPrimaryLight)
-                            .clickable { listener.onTargetWinsChanged(value) },
+                            .clickable { listener.onTotalRoundsChanged(value) },
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(

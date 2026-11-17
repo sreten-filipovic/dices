@@ -66,7 +66,7 @@ fun MainView(
                     val viewModel = viewModel {
                         screenCompositionRoot.getGameViewModel(
                             playerNames = screen.playerNames,
-                            targetWins = screen.targetWins,
+                            totalRounds = screen.totalRounds,
                             screenNavigator = mainScreenNavigator,
                         )
                     }

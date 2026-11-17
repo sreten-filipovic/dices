@@ -14,6 +14,11 @@
 	<string>en</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+	</dict>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
 	<key>NSAppTransportSecurity</key>

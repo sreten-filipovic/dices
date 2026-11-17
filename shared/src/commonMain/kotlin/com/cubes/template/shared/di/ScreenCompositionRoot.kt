@@ -44,11 +44,11 @@ class ScreenCompositionRoot(
 
     fun getGameViewModel(
         playerNames: List<String>,
-        targetWins: Int,
+        totalRounds: Int,
         screenNavigator: GameScreenNavigator,
     ) = GameViewModel(
         playerNames = playerNames,
-        targetWins = targetWins,
+        totalRounds = totalRounds,
         diceRoller = diceRoller,
         screenNavigator = screenNavigator,
     )

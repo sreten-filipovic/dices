@@ -34,29 +34,33 @@ object PreviewHelper {
             override fun onNameChanged(index: Int, name: String) = Unit
             override fun onAddPlayerClick() = Unit
             override fun onRemovePlayerClick(index: Int) = Unit
-            override fun onTargetWinsChanged(targetWins: Int) = Unit
+            override fun onTotalRoundsChanged(totalRounds: Int) = Unit
             override fun onStartClick() = Unit
             override fun onBackClick() = Unit
         },
     )
 
-    fun gameSecondRoll() = game(
+    fun gameTurn() = game(
         sampleGame()
-            .roll(5, 5, 2, 3, 6)
+            .roll(5, 5, 2, 3, 6).keep()
+    )
+
+    fun gameDialogFirstRoll() = game(
+        state = sampleGame()
+            .roll(5, 5, 2, 3, 6).keep()
             .roll(4, 4, 4, 1, 2)
-            .roll(1, 2, 3, 4, 6)
-            .let { GameEngine.reduce(it, GameAction.ToggleSelect(2), fixedRoller()) }
+            .let { GameEngine.reduce(it, GameAction.ToggleSelect(3), fixedRoller()) },
+        rollDialog = Game.RollDialog(playerId = "p2", stage = Game.Stage.FIRST_ROLL, animating = false),
     )
 
     fun gameRoundOver() = game(
         sampleGame()
-            .roll(5, 5, 2, 3, 6)
-            .roll(4, 4, 4, 1, 2)
-            .roll(1, 2, 3, 4, 6)
-            .keep().keep().keep()
+            .roll(5, 5, 2, 3, 6).keep()
+            .roll(4, 4, 4, 1, 2).keep()
+            .roll(1, 2, 3, 4, 6).keep()
     )
 
-    private fun sampleGame() = GameEngine.newGame(listOf("Ana", "Marko", "Jovan"), targetWins = 3)
+    private fun sampleGame() = GameEngine.newGame(listOf("Ana", "Marko", "Jovan"), totalRounds = 3)
 
     private fun GameState.roll(vararg dice: Int) = GameEngine.reduce(this, GameAction.RollFirst, fixedRoller(*dice))
 
@@ -67,14 +71,15 @@ object PreviewHelper {
         return DiceRoller { queue.removeFirstOrNull() ?: 1 }
     }
 
-    private fun game(state: GameState) = Game.ViewData(state = state, listener = noOpGameListener)
+    private fun game(state: GameState, rollDialog: Game.RollDialog? = null) =
+        Game.ViewData(state = state, rollDialog = rollDialog, listener = noOpGameListener)
 
     private val noOpGameListener = object : GameViewListener {
         override fun onRollClick() = Unit
         override fun onDieClick(index: Int) = Unit
         override fun onRerollClick() = Unit
         override fun onKeepClick() = Unit
-        override fun onReadyClick() = Unit
+        override fun onDoneClick() = Unit
         override fun onNextRoundClick() = Unit
         override fun onNewMatchClick() = Unit
         override fun onHomeClick() = Unit

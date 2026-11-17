@@ -19,3 +19,17 @@ val ColorDivider = Color(0xFFD8D8D8)
 val ColorSuccess = Color(0xFF3FB05A)
 val ColorError = Color(0xFFED1C24)
 val ColorWarning = Color(0xFFFFE065)
+
+// Dice table
+val ColorFeltLight = Color(0xFF2F8A5B)
+val ColorFeltDark = Color(0xFF17573A)
+val ColorDieBody = Color(0xFFFFFFFF)
+val ColorDieBodyShade = Color(0xFFE6E7EC)
+val ColorDieEmpty = Color(0x33FFFFFF)
+val ColorPip = Color(0xFF1A1A2E)
+val ColorPipLight = Color(0xFF4A4A63)
+
+// Ranking medals
+val ColorGold = Color(0xFFE6B422)
+val ColorSilver = Color(0xFFA8B0BA)
+val ColorBronze = Color(0xFFC07A45)

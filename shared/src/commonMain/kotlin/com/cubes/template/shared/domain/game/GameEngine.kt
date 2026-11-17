@@ -1,10 +1,18 @@
 package com.cubes.template.shared.domain.game
 
 /**
- * Pure game rules. Round flow: all players roll once (in turn order), then all players
- * in the same order either keep their dice or reroll the dice they selected. After the last
- * player the hands are compared; every player with the best hand gets a point. The match ends
- * when a single leader has at least `targetWins` points. The starting player rotates each round.
+ * Pure game rules.
+ *
+ * Round: each participant in turn order plays a full turn — rolls all five dice, then either keeps
+ * them or rerolls the dice they selected — before the next participant starts.
+ *
+ * Scoring: after the last turn the participants are ranked by their hands. With N participants
+ * 1st place gets N-1 points, each following place one point less, the last place 0. Equal hands
+ * share a place and get the same points.
+ *
+ * Match: [GameState.totalRounds] regular rounds (1, 3 or 5). If after the last one several players
+ * share the highest total, only they play a tiebreak round (scored the same way), repeated until
+ * a single leader remains. The starting player rotates every round.
  *
  * Invalid actions for the current phase are ignored (the same state is returned).
  */
@@ -12,17 +20,18 @@ object GameEngine {
 
     const val MIN_PLAYERS = 2
 
-    fun newGame(playerNames: List<String>, targetWins: Int): GameState {
+    fun newGame(playerNames: List<String>, totalRounds: Int): GameState {
         require(playerNames.size >= MIN_PLAYERS) { "At least $MIN_PLAYERS players required" }
-        require(targetWins >= 1) { "targetWins must be >= 1" }
+        require(totalRounds >= 1) { "totalRounds must be >= 1" }
         val players = playerNames.mapIndexed { index, name -> Player(id = "p${index + 1}", name = name) }
         return GameState(
             players = players,
-            targetWins = targetWins,
+            totalRounds = totalRounds,
             scores = players.associate { it.id to 0 },
             round = 1,
             startingPlayerIndex = 0,
-            currentPlayerIndex = 0,
+            participantIds = players.map { it.id },
+            currentTurnIndex = 0,
             phase = RoundPhase.FirstRoll,
             turns = players.associate { it.id to PlayerTurn() },
         )
@@ -37,16 +46,26 @@ object GameEngine {
             GameAction.NextRound -> nextRound(state)
         }
 
+    /** Points for a place when [participants] players are ranked: N-1 for 1st, ..., 0 for last. */
+    fun pointsForPlace(place: Int, participants: Int): Int = participants - place
+
+    /**
+     * Participants ordered from the best hand to the worst. Equal hands share a place and the next
+     * place is skipped (1, 1, 3). Players with equal hands stay in turn order.
+     */
+    fun roundRanking(state: GameState): List<RankedPlayer> {
+        val hands = state.turnOrder.mapNotNull { player -> state.turnOf(player.id).hand?.let { player.id to it } }
+        return hands
+            .sortedByDescending { it.second }
+            .map { (id, hand) ->
+                RankedPlayer(place = 1 + hands.count { it.second > hand }, playerId = id, hand = hand)
+            }
+    }
+
     private fun rollFirst(state: GameState, roller: DiceRoller): GameState {
         if (state.phase != RoundPhase.FirstRoll) return state
         val dice = List(HandEvaluator.DICE_COUNT) { roller.roll() }
-        val updated = state.updateCurrentTurn { PlayerTurn(dice = dice) }
-        val next = updated.nextPlayerIndex()
-        return if (next == updated.startingPlayerIndex) {
-            updated.copy(phase = RoundPhase.SecondRoll, currentPlayerIndex = updated.startingPlayerIndex)
-        } else {
-            updated.copy(currentPlayerIndex = next)
-        }
+        return state.updateCurrentTurn { PlayerTurn(dice = dice) }.copy(phase = RoundPhase.SecondRoll)
     }
 
     private fun toggleSelect(state: GameState, index: Int): GameState {
@@ -62,50 +81,51 @@ object GameEngine {
         val turn = state.currentTurn
         if (turn.selected.isEmpty()) return state
         val dice = turn.dice.mapIndexed { index, value -> if (index in turn.selected) roller.roll() else value }
-        return finishSecondTurn(state.updateCurrentTurn { it.copy(dice = dice, selected = emptySet(), rerolled = true) })
+        return finishTurn(state.updateCurrentTurn { it.copy(dice = dice, selected = emptySet(), rerolled = true) })
     }
 
     private fun keep(state: GameState): GameState {
         if (state.phase != RoundPhase.SecondRoll) return state
-        return finishSecondTurn(state.updateCurrentTurn { it.copy(selected = emptySet()) })
+        return finishTurn(state.updateCurrentTurn { it.copy(selected = emptySet()) })
     }
 
-    private fun finishSecondTurn(state: GameState): GameState {
-        val next = state.nextPlayerIndex()
-        if (next != state.startingPlayerIndex) return state.copy(currentPlayerIndex = next)
-
-        val winnerIds = roundWinners(state)
-        val scores = state.scores.mapValues { (id, score) -> if (id in winnerIds) score + 1 else score }
-        val maxScore = scores.values.max()
-        val leaders = scores.filterValues { it == maxScore }.keys
-        val phase = if (maxScore >= state.targetWins && leaders.size == 1) {
-            RoundPhase.MatchOver(winnerId = leaders.single(), roundWinnerIds = winnerIds)
-        } else {
-            RoundPhase.RoundOver(winnerIds = winnerIds)
+    private fun finishTurn(state: GameState): GameState {
+        if (state.currentTurnIndex < state.turnOrder.lastIndex) {
+            return state.copy(currentTurnIndex = state.currentTurnIndex + 1, phase = RoundPhase.FirstRoll)
         }
-        return state.copy(scores = scores, phase = phase)
+        return finishRound(state)
+    }
+
+    private fun finishRound(state: GameState): GameState {
+        val ranking = roundRanking(state)
+        val points = ranking.associate { it.playerId to pointsForPlace(it.place, ranking.size) }
+        val scores = state.scores.mapValues { (id, score) -> score + (points[id] ?: 0) }
+        val roundWinnerIds = ranking.filter { it.place == 1 }.map { it.playerId }
+        val scored = state.copy(scores = scores, lastRoundPoints = points)
+
+        val leaders = scored.leaderIds
+        val phase = if (state.round >= state.totalRounds && leaders.size == 1) {
+            RoundPhase.MatchOver(winnerId = leaders.single(), roundWinnerIds = roundWinnerIds)
+        } else {
+            RoundPhase.RoundOver(winnerIds = roundWinnerIds)
+        }
+        return scored.copy(phase = phase)
     }
 
     private fun nextRound(state: GameState): GameState {
         if (state.phase !is RoundPhase.RoundOver) return state
-        val start = (state.startingPlayerIndex + 1) % state.players.size
+        // After the regular rounds only the players tied for first place keep playing
+        val participants = if (state.round >= state.totalRounds) state.leaderIds else state.players.map { it.id }
         return state.copy(
             round = state.round + 1,
-            startingPlayerIndex = start,
-            currentPlayerIndex = start,
+            startingPlayerIndex = (state.startingPlayerIndex + 1) % state.players.size,
+            participantIds = participants,
+            currentTurnIndex = 0,
             phase = RoundPhase.FirstRoll,
             turns = state.players.associate { it.id to PlayerTurn() },
+            lastRoundPoints = emptyMap(),
         )
     }
-
-    /** Ids of all players holding the best hand, in turn order. */
-    fun roundWinners(state: GameState): List<String> {
-        val hands = state.turnOrder.associate { it.id to requireNotNull(state.turnOf(it.id).hand) }
-        val best = hands.values.max()
-        return hands.filterValues { it.compareTo(best) == 0 }.keys.toList()
-    }
-
-    private fun GameState.nextPlayerIndex() = (currentPlayerIndex + 1) % players.size
 
     private fun GameState.updateCurrentTurn(transform: (PlayerTurn) -> PlayerTurn): GameState =
         copy(turns = turns + (currentPlayer.id to transform(currentTurn)))

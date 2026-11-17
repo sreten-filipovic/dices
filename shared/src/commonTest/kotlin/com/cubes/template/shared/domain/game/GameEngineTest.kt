@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 class GameEngineTest {
 
@@ -18,22 +19,27 @@ class GameEngineTest {
 
     private fun GameState.rollFirst(vararg dice: Int) = act(GameAction.RollFirst, FakeRoller(*dice))
 
+    /** Full turn: roll and keep. */
+    private fun GameState.play(vararg dice: Int) = rollFirst(*dice).act(GameAction.Keep)
+
+    // Hands ordered from strong to weak, for readable tests
+    private val fiveOfAKind = intArrayOf(6, 6, 6, 6, 6)
+    private val threeOfAKind = intArrayOf(6, 6, 6, 1, 2)
+    private val pairOfTwos = intArrayOf(2, 2, 1, 3, 4)
+    private val nothing = intArrayOf(1, 2, 3, 4, 6)
+
     @Test
-    fun allPlayersRollFirstThenAllRollSecond() {
-        var s = GameEngine.newGame(listOf("A", "B", "C"), targetWins = 3)
+    fun eachPlayerPlaysBothRollsBeforeTheNextPlayer() {
+        var s = GameEngine.newGame(listOf("A", "B", "C"), totalRounds = 3)
         assertEquals("p1", s.currentPlayer.id)
-
-        s = s.rollFirst(1, 1, 2, 3, 4)
         assertEquals(RoundPhase.FirstRoll, s.phase)
-        assertEquals("p2", s.currentPlayer.id)
-        s = s.rollFirst(2, 2, 2, 3, 4)
-        assertEquals("p3", s.currentPlayer.id)
-        s = s.rollFirst(6, 5, 4, 1, 1)
 
+        // p1: first roll -> same player moves to the second roll
+        s = s.rollFirst(1, 1, 2, 3, 4)
         assertEquals(RoundPhase.SecondRoll, s.phase)
         assertEquals("p1", s.currentPlayer.id)
 
-        // Second-phase actions in first phase are ignored and vice versa
+        // Invalid actions are ignored
         assertSame(s, s.act(GameAction.RollFirst))
         assertSame(s, s.act(GameAction.RerollSelected)) // nothing selected
 
@@ -41,48 +47,88 @@ class GameEngineTest {
         assertEquals(setOf(3, 4), s.currentTurn.selected)
         s = s.act(GameAction.RerollSelected, FakeRoller(1, 1))
         assertEquals(listOf(1, 1, 2, 1, 1), s.turnOf("p1").dice)
+        assertEquals(true, s.turnOf("p1").rerolled)
+
+        // p2 starts with a fresh first roll
         assertEquals("p2", s.currentPlayer.id)
+        assertEquals(RoundPhase.FirstRoll, s.phase)
+        s = s.play(*pairOfTwos)
+        assertEquals("p3", s.currentPlayer.id)
+        s = s.play(*nothing)
 
-        s = s.act(GameAction.Keep)
-        s = s.act(GameAction.Keep)
-
-        // p1 has four of a kind (1s) and wins
         assertEquals(RoundPhase.RoundOver(listOf("p1")), s.phase)
-        assertEquals(1, s.scoreOf("p1"))
-        assertEquals(0, s.scoreOf("p2"))
     }
 
     @Test
-    fun tieGivesPointToAllBestPlayers() {
-        var s = GameEngine.newGame(listOf("A", "B"), targetWins = 2)
-        s = s.rollFirst(1, 2, 3, 4, 5).rollFirst(5, 4, 3, 2, 1)
-        s = s.act(GameAction.Keep).act(GameAction.Keep)
-        assertEquals(RoundPhase.RoundOver(listOf("p1", "p2")), s.phase)
-        assertEquals(1, s.scoreOf("p1"))
-        assertEquals(1, s.scoreOf("p2"))
+    fun placesAreWorthNMinusOneDownToZero() {
+        var s = GameEngine.newGame(listOf("A", "B", "C", "D"), totalRounds = 3)
+        s = s.play(*pairOfTwos).play(*fiveOfAKind).play(*nothing).play(*threeOfAKind)
+
+        // 4 players: 3, 2, 1, 0
+        assertEquals(mapOf("p2" to 3, "p4" to 2, "p1" to 1, "p3" to 0), s.lastRoundPoints)
+        assertEquals(3, s.scoreOf("p2"))
+        assertEquals(0, s.scoreOf("p3"))
     }
 
     @Test
-    fun startingPlayerRotatesAndMatchEndsWithSingleLeader() {
-        var s = GameEngine.newGame(listOf("A", "B"), targetWins = 1)
+    fun sharedPlaceGetsTheSamePoints() {
+        var s = GameEngine.newGame(listOf("A", "B", "C", "D"), totalRounds = 3)
+        s = s.play(*pairOfTwos)          // pair of 2s
+            .play(*threeOfAKind)         // best
+            .play(2, 2, 3, 1, 4)         // same pair, same rest -> shares 2nd place with A
+            .play(*nothing)
 
-        // Round 1: tie -> both at 1, no single leader -> round continues
-        s = s.rollFirst(6, 6, 1, 2, 3).rollFirst(6, 6, 3, 2, 1).act(GameAction.Keep).act(GameAction.Keep)
+        val ranking = GameEngine.roundRanking(s)
+        assertEquals(listOf("p2", "p1", "p3", "p4"), ranking.map { it.playerId })
+        assertEquals(listOf(1, 2, 2, 4), ranking.map { it.place })
+        assertEquals(mapOf("p2" to 3, "p1" to 2, "p3" to 2, "p4" to 0), s.lastRoundPoints)
+    }
+
+    @Test
+    fun matchEndsAfterTheChosenNumberOfRounds() {
+        var s = GameEngine.newGame(listOf("A", "B"), totalRounds = 3)
+
+        s = s.play(*fiveOfAKind).play(*nothing)         // round 1: A +1
         assertIs<RoundPhase.RoundOver>(s.phase)
-
         s = s.act(GameAction.NextRound)
         assertEquals(2, s.round)
-        assertEquals(RoundPhase.FirstRoll, s.phase)
-        assertEquals("p2", s.currentPlayer.id)
-        assertEquals(listOf("p2", "p1"), s.turnOrder.map { it.id })
-        assertEquals(emptyList(), s.turnOf("p1").dice)
+        assertEquals(listOf("p2", "p1"), s.turnOrder.map { it.id }) // starting player rotates
 
-        // Round 2: p2 (starting) loses, p1 wins -> match over
-        s = s.rollFirst(1, 2, 3, 4, 6).rollFirst(4, 4, 4, 1, 2).act(GameAction.Keep).act(GameAction.Keep)
+        s = s.play(*nothing).play(*fiveOfAKind)         // round 2: A +1
+        assertIs<RoundPhase.RoundOver>(s.phase)
+        s = s.act(GameAction.NextRound)
+
+        s = s.play(*fiveOfAKind).play(*nothing)         // round 3: A +1 -> match over
         assertEquals(RoundPhase.MatchOver(winnerId = "p1", roundWinnerIds = listOf("p1")), s.phase)
-        assertEquals(2, s.scoreOf("p1"))
-
-        // NextRound is ignored after the match ended
+        assertEquals(3, s.scoreOf("p1"))
+        assertEquals(0, s.scoreOf("p2"))
         assertSame(s, s.act(GameAction.NextRound))
+    }
+
+    @Test
+    fun tieAfterLastRoundIsDecidedByTiebreakBetweenLeadersOnly() {
+        var s = GameEngine.newGame(listOf("A", "B", "C"), totalRounds = 1)
+
+        // A and B share 1st place (2 points each), C is last
+        s = s.play(*threeOfAKind).play(*threeOfAKind).play(*nothing)
+        assertEquals(RoundPhase.RoundOver(listOf("p1", "p2")), s.phase)
+        assertEquals(listOf("p1", "p2"), s.leaderIds)
+
+        // Tiebreak: only A and B play
+        s = s.act(GameAction.NextRound)
+        assertTrue(s.isTiebreak)
+        assertEquals(listOf("p2", "p1"), s.turnOrder.map { it.id })
+        assertTrue(!s.isParticipant("p3"))
+
+        // Another draw -> one more tiebreak
+        s = s.play(*pairOfTwos).play(*pairOfTwos)
+        assertIs<RoundPhase.RoundOver>(s.phase)
+        s = s.act(GameAction.NextRound)
+        assertEquals(3, s.round)
+
+        // B wins the tiebreak (2 participants: 1 point for 1st)
+        s = s.play(*nothing).play(*fiveOfAKind)
+        assertEquals(RoundPhase.MatchOver(winnerId = "p2", roundWinnerIds = listOf("p2")), s.phase)
+        assertEquals(mapOf("p1" to 3, "p2" to 4, "p3" to 0), s.scores)
     }
 }
