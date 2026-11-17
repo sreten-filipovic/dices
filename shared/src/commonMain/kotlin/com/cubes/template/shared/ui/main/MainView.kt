@@ -14,8 +14,10 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.cubes.template.shared.di.ScreenCompositionRoot
 import com.cubes.template.shared.ui.common.ColorBackground
-import com.cubes.template.shared.ui.main.demo_details.DemoDetailsView
-import com.cubes.template.shared.ui.main.demo_list.DemoListView
+import com.cubes.template.shared.ui.main.dice_roll.DiceRollView
+import com.cubes.template.shared.ui.main.game.GameView
+import com.cubes.template.shared.ui.main.game_setup.GameSetupView
+import com.cubes.template.shared.ui.main.home.HomeView
 
 /**
  * Hosts the Main flow back stack. Each `entry` creates its ViewModel through
@@ -43,21 +45,32 @@ fun MainView(
             ),
             entryProvider = entryProvider {
 
-                entry<MainScreen.DemoList> {
-                    val viewModel = viewModel {
-                        screenCompositionRoot.getDemoListViewModel(mainScreenNavigator)
-                    }
-                    DemoListView(viewModel = viewModel)
+                entry<MainScreen.Home> {
+                    val viewModel = viewModel { screenCompositionRoot.getHomeViewModel(mainScreenNavigator) }
+                    HomeView(viewModel = viewModel)
                 }
 
-                entry<MainScreen.DemoDetails> { screen ->
+                entry<MainScreen.DiceRoll> {
                     val viewModel = viewModel {
-                        screenCompositionRoot.getDemoDetailsViewModel(
-                            item = screen.item,
-                            onBack = mainScreenNavigator::back,
+                        screenCompositionRoot.getDiceRollViewModel(onBack = mainScreenNavigator::back)
+                    }
+                    DiceRollView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.GameSetup> {
+                    val viewModel = viewModel { screenCompositionRoot.getGameSetupViewModel(mainScreenNavigator) }
+                    GameSetupView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.Game> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getGameViewModel(
+                            playerNames = screen.playerNames,
+                            targetWins = screen.targetWins,
+                            screenNavigator = mainScreenNavigator,
                         )
                     }
-                    DemoDetailsView(viewModel = viewModel)
+                    GameView(viewModel = viewModel)
                 }
             }
         )

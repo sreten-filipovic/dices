@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App Template</string>
+    <string name="app_name">Dice Poker</string>
 
     <string name="error_occurred">Something went wrong.</string>
     <string name="error_loading_data">Could not load data. Please try again.</string>
@@ -12,11 +12,50 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
 
-    <string name="demo_list_title">Demo list</string>
-    <string name="demo_search_hint">Search…</string>
-    <string name="demo_open_docs">Open Compose Multiplatform docs</string>
-    <string name="demo_details_title">Demo details</string>
-    <string name="demo_submit">Submit</string>
-    <string name="demo_submit_success_title">Submitted</string>
-    <string name="demo_submit_success">Your request was sent successfully.</string>
+    <string name="home_title">Dice Poker</string>
+    <string name="home_new_game">Nova igra</string>
+    <string name="home_try_die">Probaj kockicu</string>
+
+    <string name="dice_roll_title">Bacanje kockice</string>
+    <string name="dice_roll_hint">Pritisni „Baci“ da baciš kockicu</string>
+    <string name="roll">Baci</string>
+
+    <string name="setup_title">Nova igra</string>
+    <string name="setup_players">Igrači</string>
+    <string name="setup_player_hint">Igrač %1$d</string>
+    <string name="setup_add_player">+ Dodaj igrača</string>
+    <string name="setup_remove_player">Ukloni</string>
+    <string name="setup_target_wins">Igra se do %1$d pobeda</string>
+    <string name="setup_start">Počni</string>
+
+    <string name="game_round">Runda %1$d</string>
+    <string name="game_phase_first">Prvo bacanje</string>
+    <string name="game_phase_second">Drugo bacanje</string>
+    <string name="game_turn_of">Na redu: %1$s</string>
+    <string name="game_select_hint">Dodirni kockice koje želiš ponovo da baciš</string>
+    <string name="game_reroll_selected">Baci izabrane</string>
+    <string name="game_keep">Zadrži</string>
+    <string name="game_pass_title">Na redu je</string>
+    <string name="game_pass_last_roll">%1$s je bacio/la:</string>
+    <string name="game_ready">Spreman</string>
+    <string name="game_round_over">Kraj runde %1$d</string>
+    <string name="game_round_winner">Pobednik runde: %1$s</string>
+    <string name="game_round_draw">Nerešeno: %1$s</string>
+    <string name="game_match_winner">%1$s je pobednik partije!</string>
+    <string name="game_next_round">Sledeća runda</string>
+    <string name="game_new_match">Nova partija</string>
+    <string name="game_home">Početni meni</string>
+    <string name="game_score">Bodovi</string>
+    <string name="game_score_value">%1$d / %2$d</string>
+    <string name="game_waiting">čeka</string>
+
+    <string name="hand_nothing">Ništa</string>
+    <string name="hand_pair">Par</string>
+    <string name="hand_two_pairs">Dva para</string>
+    <string name="hand_three_of_a_kind">Triling</string>
+    <string name="hand_small_straight">Mala kenta</string>
+    <string name="hand_large_straight">Velika kenta</string>
+    <string name="hand_full_house">Ful</string>
+    <string name="hand_four_of_a_kind">Mali poker</string>
+    <string name="hand_five_of_a_kind">Veliki poker</string>
 </resources>

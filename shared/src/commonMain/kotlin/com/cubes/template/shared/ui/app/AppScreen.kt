@@ -8,7 +8,7 @@ import com.cubes.template.shared.ui.main.MainScreen
  */
 sealed class AppScreen {
 
-    data class Main(val screen: MainScreen = MainScreen.DemoList) : AppScreen()
+    data class Main(val screen: MainScreen = MainScreen.Home) : AppScreen()
 
     // Example for a future flow:
     // data class Intro(val screens: List<IntroScreen>) : AppScreen()

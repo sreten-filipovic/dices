@@ -2,13 +2,16 @@ package com.cubes.template.shared.di
 
 import com.cubes.template.shared.StringProvider
 import com.cubes.template.shared.StringProviderImpl
-import com.cubes.template.shared.domain.model.DemoItem
-import com.cubes.template.shared.domain.use_case.GetDemoItemDetailsUseCase
-import com.cubes.template.shared.domain.use_case.GetDemoItemsUseCase
+import com.cubes.template.shared.domain.game.DiceRoller
+import com.cubes.template.shared.domain.game.RandomDiceRoller
 import com.cubes.template.shared.ui.common.Validator
-import com.cubes.template.shared.ui.main.demo_details.DemoDetailsViewModel
-import com.cubes.template.shared.ui.main.demo_list.DemoListScreenNavigator
-import com.cubes.template.shared.ui.main.demo_list.DemoListViewModel
+import com.cubes.template.shared.ui.main.dice_roll.DiceRollViewModel
+import com.cubes.template.shared.ui.main.game.GameScreenNavigator
+import com.cubes.template.shared.ui.main.game.GameViewModel
+import com.cubes.template.shared.ui.main.game_setup.GameSetupScreenNavigator
+import com.cubes.template.shared.ui.main.game_setup.GameSetupViewModel
+import com.cubes.template.shared.ui.main.home.HomeScreenNavigator
+import com.cubes.template.shared.ui.main.home.HomeViewModel
 
 /**
  * Factory for screen ViewModels. One `get<Screen>ViewModel(...)` per screen; the screen's
@@ -23,20 +26,30 @@ class ScreenCompositionRoot(
     val popupManager get() = appCompositionRoot.popupManager
     val stringProvider: StringProvider get() = StringProviderImpl()
     val validator get() = Validator(stringProvider)
+    val diceRoller: DiceRoller get() = RandomDiceRoller()
 
-    fun getDemoListViewModel(screenNavigator: DemoListScreenNavigator) = DemoListViewModel(
+    fun getHomeViewModel(screenNavigator: HomeScreenNavigator) = HomeViewModel(
         screenNavigator = screenNavigator,
-        popupManager = popupManager,
-        stringProvider = stringProvider,
-        getDemoItemsUseCase = GetDemoItemsUseCase(remoteDataSource),
     )
 
-    fun getDemoDetailsViewModel(item: DemoItem, onBack: () -> Unit) = DemoDetailsViewModel(
-        item = item,
+    fun getDiceRollViewModel(onBack: () -> Unit) = DiceRollViewModel(
+        diceRoller = diceRoller,
         onBack = onBack,
-        popupManager = popupManager,
+    )
+
+    fun getGameSetupViewModel(screenNavigator: GameSetupScreenNavigator) = GameSetupViewModel(
+        screenNavigator = screenNavigator,
         stringProvider = stringProvider,
-        localDataSource = localDataSource,
-        getDemoItemDetailsUseCase = GetDemoItemDetailsUseCase(remoteDataSource),
+    )
+
+    fun getGameViewModel(
+        playerNames: List<String>,
+        targetWins: Int,
+        screenNavigator: GameScreenNavigator,
+    ) = GameViewModel(
+        playerNames = playerNames,
+        targetWins = targetWins,
+        diceRoller = diceRoller,
+        screenNavigator = screenNavigator,
     )
 }

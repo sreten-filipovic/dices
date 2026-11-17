@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 /**
  * Shortcut for read-only screens that just load one piece of data.
  * For screens with user interaction use the full ViewState / ViewData / ViewListener pattern
- * (see `ui/main/demo_list`).
+ * (see `ui/main/game`).
  */
 sealed class SimpleUiState<out T> {
     data object Loading : SimpleUiState<Nothing>()
