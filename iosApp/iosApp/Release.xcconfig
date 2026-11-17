@@ -1,3 +1,3 @@
 AppName = App Template
 BaseUrl = https:/$()/jsonplaceholder.typicode.com/
-BundleId = com.cubes.template
+BundleId = com.scifarm.dicepoker.template
