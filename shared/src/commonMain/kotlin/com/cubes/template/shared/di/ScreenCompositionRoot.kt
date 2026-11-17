@@ -5,6 +5,7 @@ import com.cubes.template.shared.StringProviderImpl
 import com.cubes.template.shared.domain.game.DiceRoller
 import com.cubes.template.shared.domain.game.RandomDiceRoller
 import com.cubes.template.shared.ui.common.Validator
+import com.cubes.template.shared.ui.main.dice_duel.DiceDuelViewModel
 import com.cubes.template.shared.ui.main.dice_roll.DiceRollViewModel
 import com.cubes.template.shared.ui.main.game.GameScreenNavigator
 import com.cubes.template.shared.ui.main.game.GameViewModel
@@ -33,6 +34,11 @@ class ScreenCompositionRoot(
     )
 
     fun getDiceRollViewModel(onBack: () -> Unit) = DiceRollViewModel(
+        diceRoller = diceRoller,
+        onBack = onBack,
+    )
+
+    fun getDiceDuelViewModel(onBack: () -> Unit) = DiceDuelViewModel(
         diceRoller = diceRoller,
         onBack = onBack,
     )

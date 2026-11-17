@@ -4,6 +4,9 @@ import com.cubes.template.shared.domain.game.DiceRoller
 import com.cubes.template.shared.domain.game.GameAction
 import com.cubes.template.shared.domain.game.GameEngine
 import com.cubes.template.shared.domain.game.GameState
+import com.cubes.template.shared.domain.duel.DuelState
+import com.cubes.template.shared.ui.main.dice_duel.DiceDuelUi
+import com.cubes.template.shared.ui.main.dice_duel.DiceDuelViewListener
 import com.cubes.template.shared.ui.main.dice_roll.DiceRoll
 import com.cubes.template.shared.ui.main.dice_roll.DiceRollViewListener
 import com.cubes.template.shared.ui.main.game.Game
@@ -19,14 +22,30 @@ import com.cubes.template.shared.ui.main.home.HomeViewListener
 object PreviewHelper {
 
     fun home() = Home.ViewData(listener = object : HomeViewListener {
-        override fun onNewGameClick() = Unit
-        override fun onTryDieClick() = Unit
+        override fun onGameClick(game: Home.GameCard) = Unit
     })
 
     fun diceRoll(value: Int?) = DiceRoll.ViewData(value = value, listener = object : DiceRollViewListener {
         override fun onRollClick() = Unit
         override fun onBackClick() = Unit
     })
+
+    fun diceDuelTurn() = diceDuel(DuelState(diceCount = 2, hands = listOf(listOf(4, 5), null)))
+
+    fun diceDuelResult() = diceDuel(
+        DuelState(diceCount = 2, hands = listOf(listOf(4, 5), listOf(6, 6)), wins = listOf(1, 2)),
+    )
+
+    private fun diceDuel(state: DuelState) = DiceDuelUi.ViewData(
+        state = state,
+        wins = state.wins,
+        listener = object : DiceDuelViewListener {
+            override fun onDiceCountChanged(diceCount: Int) = Unit
+            override fun onRollClick() = Unit
+            override fun onNextDuelClick() = Unit
+            override fun onBackClick() = Unit
+        },
+    )
 
     fun gameSetup() = GameSetup.ViewData(
         names = listOf("Ana", "Marko", ""),

@@ -42,7 +42,7 @@ class MainNavigatorImpl(
 
     // HomeScreenNavigator
     override fun showGameSetup() = navigateTo(MainScreen.GameSetup)
-    override fun showDiceRoll() = navigateTo(MainScreen.DiceRoll)
+    override fun showDiceDuel() = navigateTo(MainScreen.DiceDuel)
 
     // GameSetupScreenNavigator: setup is replaced by the game, so back from the game goes home
     override fun startGame(playerNames: List<String>, totalRounds: Int) {

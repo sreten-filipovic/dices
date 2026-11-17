@@ -8,6 +8,16 @@ class HomeViewModel(
 
     val viewData = Home.ViewData(listener = this)
 
-    override fun onNewGameClick() = screenNavigator.showGameSetup()
-    override fun onTryDieClick() = screenNavigator.showDiceRoll()
+    override fun onGameClick(game: Home.GameCard) {
+        if (!game.available) return
+        when (game) {
+            Home.GameCard.DICE_POKER -> screenNavigator.showGameSetup()
+            Home.GameCard.DICE_DUEL -> screenNavigator.showDiceDuel()
+            // Rules not defined yet
+            Home.GameCard.DICE_JACK,
+            Home.GameCard.LUCKY_SEVEN,
+            Home.GameCard.RISK_IT,
+            Home.GameCard.STRAIGHT_ROLL -> Unit
+        }
+    }
 }

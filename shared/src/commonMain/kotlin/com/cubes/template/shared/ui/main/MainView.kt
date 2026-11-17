@@ -14,6 +14,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.cubes.template.shared.di.ScreenCompositionRoot
 import com.cubes.template.shared.ui.common.ColorBackground
+import com.cubes.template.shared.ui.main.dice_duel.DiceDuelView
 import com.cubes.template.shared.ui.main.dice_roll.DiceRollView
 import com.cubes.template.shared.ui.main.game.GameView
 import com.cubes.template.shared.ui.main.game_setup.GameSetupView
@@ -55,6 +56,13 @@ fun MainView(
                         screenCompositionRoot.getDiceRollViewModel(onBack = mainScreenNavigator::back)
                     }
                     DiceRollView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.DiceDuel> {
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getDiceDuelViewModel(onBack = mainScreenNavigator::back)
+                    }
+                    DiceDuelView(viewModel = viewModel)
                 }
 
                 entry<MainScreen.GameSetup> {

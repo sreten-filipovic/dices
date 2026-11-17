@@ -12,9 +12,22 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
 
-    <string name="home_title">Dice Poker</string>
-    <string name="home_new_game">New game</string>
-    <string name="home_try_die">Try a die</string>
+    <string name="home_title">Dice Games</string>
+    <string name="home_coming_soon">Coming soon</string>
+
+    <string name="game_dice_poker">Dice Poker</string>
+    <string name="game_dice_jack">Dice Jack</string>
+    <string name="game_dice_duel">Dice Duel</string>
+    <string name="game_lucky_seven">Lucky Seven</string>
+    <string name="game_risk_it">Risk It</string>
+    <string name="game_straight_roll">Straight Roll</string>
+
+    <string name="duel_dice_count">Number of dice</string>
+    <string name="duel_vs">VS</string>
+    <string name="duel_wins">Wins: %1$d</string>
+    <string name="duel_winner">%1$s wins!</string>
+    <string name="duel_draw">Draw!</string>
+    <string name="duel_play_again">Play again</string>
 
     <string name="dice_roll_title">Roll a die</string>
     <string name="dice_roll_hint">Tap “Roll” to roll the die</string>
