@@ -7,6 +7,7 @@ import com.cubes.template.shared.domain.game.RandomDiceRoller
 import com.cubes.template.shared.ui.common.Validator
 import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelViewModel
+import com.cubes.template.shared.ui.main.dice_jack.DiceJackViewModel
 import com.cubes.template.shared.ui.main.dice_roll.DiceRollViewModel
 import com.cubes.template.shared.ui.main.game.GameScreenNavigator
 import com.cubes.template.shared.ui.main.game.GameViewModel
@@ -68,6 +69,19 @@ class ScreenCompositionRoot(
         totalRounds = totalRounds,
         diceRoller = diceRoller,
         screenNavigator = screenNavigator,
+    )
+
+    fun getDiceJackViewModel(
+        playerNames: List<String>,
+        dieStyles: List<DieStyle>,
+        totalRounds: Int,
+        onHome: () -> Unit,
+    ) = DiceJackViewModel(
+        playerNames = playerNames,
+        dieStyles = dieStyles,
+        totalRounds = totalRounds,
+        diceRoller = diceRoller,
+        onHome = onHome,
     )
 
     fun getSevensViewModel(

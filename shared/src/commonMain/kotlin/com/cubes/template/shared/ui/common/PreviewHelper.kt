@@ -5,6 +5,8 @@ import com.cubes.template.shared.domain.game.GameAction
 import com.cubes.template.shared.domain.game.GameEngine
 import com.cubes.template.shared.domain.game.GameState
 import com.cubes.template.shared.domain.duel.DuelState
+import com.cubes.template.shared.domain.jack.DiceJack
+import com.cubes.template.shared.domain.jack.JackState
 import com.cubes.template.shared.domain.seven.Sevens
 import com.cubes.template.shared.domain.seven.SevenState
 import com.cubes.template.shared.ui.common.views.DieStyle
@@ -12,6 +14,8 @@ import com.cubes.template.shared.ui.main.sevens.SevensUi
 import com.cubes.template.shared.ui.main.sevens.SevensViewListener
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelUi
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelViewListener
+import com.cubes.template.shared.ui.main.dice_jack.DiceJackUi
+import com.cubes.template.shared.ui.main.dice_jack.DiceJackViewListener
 import com.cubes.template.shared.ui.main.dice_roll.DiceRoll
 import com.cubes.template.shared.ui.main.dice_roll.DiceRollViewListener
 import com.cubes.template.shared.ui.main.game.Game
@@ -64,6 +68,48 @@ object PreviewHelper {
             override fun onTiebreakClick() = Unit
             override fun onNextDuelClick() = Unit
             override fun onBackClick() = Unit
+        },
+    )
+
+    fun diceJackTurn() = diceJack(
+        sampleJack()
+            .let { DiceJack.roll(it, fixedRoller(6, 5, 4)) }
+            .let { DiceJack.roll(it, fixedRoller(3)) }
+            .let(DiceJack::stand)
+    )
+
+    fun diceJackDialog() = diceJack(
+        state = sampleJack()
+            .let { DiceJack.roll(it, fixedRoller(6, 5, 4)) }
+            .let(DiceJack::stand)
+            .let { DiceJack.roll(it, fixedRoller(2, 5, 3)) }
+            .let { DiceJack.roll(it, fixedRoller(4)) },
+        dialogOpen = true,
+    )
+
+    fun diceJackMatchOver() = diceJack(
+        sampleJack()
+            .let { DiceJack.roll(it, fixedRoller(4, 4, 4)) }
+            .let(DiceJack::stand)
+            .let { DiceJack.roll(it, fixedRoller(6, 6, 5)) }
+            .let { DiceJack.roll(it, fixedRoller(6)) }
+            .let(DiceJack::stand)
+    )
+
+    private fun sampleJack() = DiceJack.newGame(listOf("Ana", "Marko"), totalRounds = 1)
+
+    private fun diceJack(state: JackState, dialogOpen: Boolean = false) = DiceJackUi.ViewData(
+        state = state,
+        dieStyles = listOf(DieStyle.WHITE, DieStyle.BLACK),
+        dialogOpen = dialogOpen,
+        tablePlayer = state.currentPlayer,
+        tableTurn = state.turn,
+        listener = object : DiceJackViewListener {
+            override fun onRollClick() = Unit
+            override fun onStandClick() = Unit
+            override fun onNextRoundClick() = Unit
+            override fun onNewMatchClick() = Unit
+            override fun onHomeClick() = Unit
         },
     )
 

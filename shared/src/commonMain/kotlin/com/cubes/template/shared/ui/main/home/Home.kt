@@ -8,7 +8,7 @@ object Home {
 
     enum class GameCard(val dice: List<List<Int>>, val available: Boolean) {
         DICE_POKER(dice = listOf(listOf(6, 6, 6), listOf(5, 5)), available = true),
-        DICE_JACK(dice = listOf(listOf(6, 5), listOf(4, 6)), available = false),
+        DICE_JACK(dice = listOf(listOf(6, 5), listOf(4, 6)), available = true),
         DICE_DUEL(dice = listOf(listOf(6, 5)), available = true),
         SEVENS(dice = listOf(listOf(3, 4)), available = true),
         RISK_IT(dice = listOf(listOf(6, 6, 1)), available = false),

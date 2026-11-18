@@ -33,6 +33,17 @@
     <string name="rules_dice_duel">• 2–6 players take turns on one device.\n\n• Before the game starts, choose whether it is played with one, two or three dice.\n\n• In a duel every player rolls once. The highest total wins the duel and earns one win.\n\n• If the highest total is shared, only the tied players roll again, until one of them wins.\n\n• A different player rolls first in every duel. Play as many duels as you like.</string>
     <string name="rules_sevens">• 2–6 players take turns on one device. A match lasts 1, 3 or 5 rounds.\n\n• On your turn roll six dice. Every pair that adds up to 7 (1+6, 2+5, 3+4) is removed and scores nothing.\n\n• After a roll either bank the sum of the dice still on the table, or roll those dice again. New pairs of 7 are removed as well.\n\n• The player who opens a round may roll up to three times. Everyone else in that round may roll at most as many times as the opener did.\n\n• If all six dice are removed, you score 0 for that turn.\n\n• A different player opens every round. The highest total after the last round wins.</string>
 
+    <string name="rules_dice_jack">• 2–6 players take turns on one device. A match lasts 1, 3 or 5 rounds.\n\n• Every player has six dice. The goal is to get as close to 21 as possible, or to hit it exactly.\n\n• The first roll is made with three dice. After that roll one die at a time, and after every roll choose whether to stand or to roll the next die.\n\n• Any triple on the first roll counts as 21 straight away.\n\n• If your total goes over 21, you are bust and earn nothing in that round.\n\n• When everyone has played, the players are ranked by their totals. With N players the best total earns N−1 points, each following place one point less and the last place 0. Equal totals share a place.\n\n• A different player starts every round. The highest total of points after the last round wins.</string>
+
+    <string name="jack_stand">Stand</string>
+    <string name="jack_bust">Bust!</string>
+    <string name="jack_bust_value">Bust (%1$d)</string>
+    <string name="jack_exact">Dice Jack!</string>
+    <string name="jack_triple">Triple! Counts as 21</string>
+    <string name="jack_hint">Stand, or roll one more die</string>
+    <string name="jack_no_dice_left">No dice left</string>
+    <string name="jack_turn_hint">Get as close to 21 as you can</string>
+
     <string name="seven_rolls_left">Rolls left: %1$d</string>
     <string name="seven_max_rolls">Max rolls this turn: %1$d</string>
     <string name="seven_bank">Bank</string>

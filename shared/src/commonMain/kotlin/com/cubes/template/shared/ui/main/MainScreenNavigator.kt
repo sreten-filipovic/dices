@@ -48,6 +48,7 @@ class MainNavigatorImpl(
     ) {
         val screen = when (game) {
             Home.GameCard.SEVENS -> MainScreen.Sevens(playerNames, dieStyles, totalRounds)
+            Home.GameCard.DICE_JACK -> MainScreen.DiceJack(playerNames, dieStyles, totalRounds)
             else -> MainScreen.Game(playerNames, dieStyles, totalRounds)
         }
         backStack.update { it.dropLastWhile { last -> last is MainScreen.GameSetup } + screen }

@@ -12,9 +12,9 @@ class HomeViewModel(
         if (!game.available) return
         when (game) {
             Home.GameCard.DICE_POKER,
+            Home.GameCard.DICE_JACK,
             Home.GameCard.DICE_DUEL,
             Home.GameCard.SEVENS -> screenNavigator.showGameSetup(game)
-            Home.GameCard.DICE_JACK,
             Home.GameCard.RISK_IT,
             Home.GameCard.STRAIGHT_ROLL -> Unit
         }

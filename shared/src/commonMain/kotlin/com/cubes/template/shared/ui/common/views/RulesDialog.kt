@@ -26,10 +26,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.cubes.template.shared.resources.Res
 import com.cubes.template.shared.resources.game_dice_duel
+import com.cubes.template.shared.resources.game_dice_jack
 import com.cubes.template.shared.resources.game_dice_poker
 import com.cubes.template.shared.resources.game_sevens
 import com.cubes.template.shared.resources.ok
 import com.cubes.template.shared.resources.rules_dice_duel
+import com.cubes.template.shared.resources.rules_dice_jack
 import com.cubes.template.shared.resources.rules_dice_poker
 import com.cubes.template.shared.resources.rules_sevens
 import com.cubes.template.shared.resources.rules_title
@@ -49,6 +51,7 @@ enum class GameRules(val game: StringResource, val text: StringResource) {
     DICE_POKER(game = Res.string.game_dice_poker, text = Res.string.rules_dice_poker),
     DICE_DUEL(game = Res.string.game_dice_duel, text = Res.string.rules_dice_duel),
     SEVENS(game = Res.string.game_sevens, text = Res.string.rules_sevens),
+    DICE_JACK(game = Res.string.game_dice_jack, text = Res.string.rules_dice_jack),
 }
 
 @Composable

@@ -183,7 +183,7 @@ internal val Home.GameCard.rules: GameRules?
         Home.GameCard.DICE_POKER -> GameRules.DICE_POKER
         Home.GameCard.DICE_DUEL -> GameRules.DICE_DUEL
         Home.GameCard.SEVENS -> GameRules.SEVENS
-        Home.GameCard.DICE_JACK,
+        Home.GameCard.DICE_JACK -> GameRules.DICE_JACK
         Home.GameCard.RISK_IT,
         Home.GameCard.STRAIGHT_ROLL -> null
     }

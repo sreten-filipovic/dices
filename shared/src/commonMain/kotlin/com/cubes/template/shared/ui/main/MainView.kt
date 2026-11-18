@@ -15,6 +15,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.cubes.template.shared.di.ScreenCompositionRoot
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelView
+import com.cubes.template.shared.ui.main.dice_jack.DiceJackView
 import com.cubes.template.shared.ui.main.dice_roll.DiceRollView
 import com.cubes.template.shared.ui.main.game.GameView
 import com.cubes.template.shared.ui.main.game_setup.GameSetupView
@@ -83,6 +84,18 @@ fun MainView(
                         )
                     }
                     GameView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.DiceJack> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getDiceJackViewModel(
+                            playerNames = screen.playerNames,
+                            dieStyles = screen.dieStyles,
+                            totalRounds = screen.totalRounds,
+                            onHome = mainScreenNavigator::showHome,
+                        )
+                    }
+                    DiceJackView(viewModel = viewModel)
                 }
 
                 entry<MainScreen.Sevens> { screen ->
