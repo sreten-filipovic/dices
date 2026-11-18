@@ -28,7 +28,6 @@ private object IosDiceRollSound : DiceRollSound {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var loadStarted = false
 
-    /** One player per voice, used in turn, so the sounds of several dice can overlap. */
     private var players: List<AVAudioPlayer> = emptyList()
     private var nextPlayer = 0
 
@@ -39,7 +38,6 @@ private object IosDiceRollSound : DiceRollSound {
             try {
                 val bytes = Res.readBytes(DICE_ROLL_SOUND_PATH)
                 val data = bytes.usePinned { NSData.create(bytes = it.addressOf(0), length = bytes.size.toULong()) }
-                // Ambient: mixes with the user's music and stays quiet when the ring switch is on silent
                 AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryAmbient, error = null)
                 players = List(DICE_ROLL_SOUND_VOICES) {
                     AVAudioPlayer(data = data, error = null).apply {

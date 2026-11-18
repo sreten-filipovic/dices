@@ -29,9 +29,6 @@ import com.cubes.template.shared.ui.splash.SplashView
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-/**
- * Compose entry point shared by Android and iOS.
- */
 @Composable
 fun App(appCompositionRoot: AppCompositionRoot) {
 

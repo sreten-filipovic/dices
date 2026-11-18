@@ -15,10 +15,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 
-/**
- * Manual DI: app-wide singletons, created once per process by the platform entry point
- * (MainApplication on Android, iosAppApp.swift on iOS). No DI framework.
- */
 class AppCompositionRoot(
     val baseUrl: String,
     private val baseApiUrl: String,

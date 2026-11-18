@@ -29,7 +29,6 @@ class SevensTest {
 
     @Test
     fun everyDieIsUsedInOnePairOnly() {
-        // Three sixes and a single one: only one six goes with it
         assertEquals(listOf(setOf(0, 3)), Sevens.sevenPairs(listOf(6, 6, 6, 1, 2, 2)))
         assertEquals(emptyList(), Sevens.sevenPairs(listOf(1, 1, 2, 2, 3, 3)))
         assertEquals(
@@ -43,7 +42,6 @@ class SevensTest {
         val first = newGame().roll(6, 1, 2, 2, 3, 3)
         assertEquals(10, first.turn.score)
 
-        // Four dice are rolled again; the removed 6 and 1 keep their place
         val second = first.roll(5, 2, 6, 6)
         assertEquals(listOf(6, 1, 5, 2, 6, 6), second.turn.dice)
         assertEquals(listOf(setOf(0, 1), setOf(2, 3)), second.turn.pairs)
@@ -86,7 +84,6 @@ class SevensTest {
         val second = afterOpener.roll(2, 2, 2, 2, 2, 2).roll(3, 3, 3, 3, 3, 3)
         assertFalse(second.canRoll)
 
-        // A later player stopping early does not lower the limit further
         val third = second.bank().roll(4, 4, 4, 4, 4, 4).bank()
         assertEquals(2, third.rollLimit)
         assertEquals(listOf(34, 18, 24), third.scores)

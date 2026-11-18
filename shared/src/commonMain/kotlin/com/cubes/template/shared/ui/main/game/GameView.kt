@@ -96,6 +96,7 @@ import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DiceTable
 import com.cubes.template.shared.ui.common.views.DieAnimation
 import com.cubes.template.shared.ui.common.views.DieFace
+import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.common.views.GameRules
 import com.cubes.template.shared.ui.common.views.RankingRow
 import com.cubes.template.shared.ui.common.views.RankingSection
@@ -117,7 +118,6 @@ fun GameScreen(viewData: Game.ViewData) {
     val dialog = viewData.rollDialog
     val blur by animateDpAsState(if (dialog != null) 10.dp else 0.dp)
 
-    // Keep the last dialog around so its content stays visible during the exit animation
     val lastDialog = remember { mutableStateOf(dialog) }
     if (dialog != null) lastDialog.value = dialog
 
@@ -125,7 +125,6 @@ fun GameScreen(viewData: Game.ViewData) {
         Column(modifier = Modifier.fillMaxSize().blur(blur)) {
             Toolbar(onBackClick = listener::onHomeClick, rules = GameRules.DICE_POKER)
 
-            // The green bar stays on top; the title, content and buttons scroll under it
             Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                 ScreenTitle(
                     title = stringResource(Res.string.game_dice_poker),
@@ -141,7 +140,7 @@ fun GameScreen(viewData: Game.ViewData) {
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    PlayersPanel(state, viewData.rollDialog)
+                    PlayersPanel(viewData)
                     if (state.phase.isPlaying) TurnPanel(state) else ResultPanel(state)
                 }
 
@@ -149,7 +148,6 @@ fun GameScreen(viewData: Game.ViewData) {
             }
         }
 
-        // Dim the blurred screen and block touches while the dialog is open
         AnimatedVisibility(visible = dialog != null, enter = fadeIn(), exit = fadeOut()) {
             Box(
                 modifier = Modifier
@@ -181,15 +179,17 @@ private val RoundPhase.winnerIds: List<String>
     }
 
 @Composable
-private fun PlayersPanel(state: GameState, dialog: Game.RollDialog?) {
+private fun PlayersPanel(viewData: Game.ViewData) {
+    val state = viewData.state
+    val dialog = viewData.rollDialog
     val currentId = state.currentPlayer.id.takeIf { state.phase.isPlaying }
-    // Don't reveal the roller's dice on their card before the animation in the dialog has finished
     val hiddenDiceId = dialog?.takeIf { it.animating }?.playerId
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         state.turnOrder.forEach { player ->
             PlayerRow(
                 player = player,
                 state = state,
+                dieStyle = viewData.dieStyleOf(player.id),
                 isCurrent = player.id == currentId,
                 isWinner = player.id in state.phase.winnerIds,
                 hideDice = player.id == hiddenDiceId,
@@ -202,6 +202,7 @@ private fun PlayersPanel(state: GameState, dialog: Game.RollDialog?) {
 private fun PlayerRow(
     player: Player,
     state: GameState,
+    dieStyle: DieStyle,
     isCurrent: Boolean,
     isWinner: Boolean,
     hideDice: Boolean,
@@ -251,11 +252,10 @@ private fun PlayerRow(
         }
         Spacer(Modifier.height(8.dp))
         if (hideDice) {
-            // Same height as the dice row so the card does not jump when the dice appear
             Spacer(Modifier.height(28.dp))
         } else if (turn.hasRolled) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                StaticDiceRow(dice = turn.dice, dieSize = 28.dp, spacing = 4.dp)
+                StaticDiceRow(dice = turn.dice, dieSize = 28.dp, spacing = 4.dp, style = dieStyle)
                 Spacer(Modifier.width(12.dp))
                 Text(
                     text = handName(requireNotNull(turn.hand).rank),
@@ -278,16 +278,15 @@ private fun PlayerRow(
 }
 
 @Composable
-private fun StaticDiceRow(dice: List<Int>, dieSize: Dp, spacing: Dp) {
+private fun StaticDiceRow(dice: List<Int>, dieSize: Dp, spacing: Dp, style: DieStyle) {
     val scoring = HandEvaluator.scoringIndices(dice)
     Row(horizontalArrangement = Arrangement.spacedBy(spacing)) {
         dice.forEachIndexed { index, value ->
-            DieFace(value = value, size = dieSize, highlighted = index in scoring)
+            DieFace(value = value, size = dieSize, highlighted = index in scoring, style = style)
         }
     }
 }
 
-/** Main screen while waiting for the current player to roll: just whose turn it is. */
 @Composable
 private fun TurnPanel(state: GameState) {
     Text(
@@ -352,7 +351,6 @@ private fun ResultPanel(state: GameState) {
         }
 
         if (phase is RoundPhase.RoundOver && state.round >= state.totalRounds) {
-            // Regular rounds are over but first place is shared
             Text(
                 text = stringResource(
                     Res.string.game_tiebreak_next,
@@ -371,7 +369,6 @@ private fun ResultPanel(state: GameState) {
     }
 }
 
-/** Places 1..n for the round with the points each place earned; equal hands share a place. */
 @Composable
 private fun RoundRankingTable(state: GameState) {
     RankingSection(title = stringResource(Res.string.game_round_ranking)) {
@@ -386,7 +383,6 @@ private fun RoundRankingTable(state: GameState) {
     }
 }
 
-/** Total points of all players at the end of the match. */
 @Composable
 private fun FinalStandingsTable(state: GameState) {
     val standings = state.players.sortedByDescending { state.scoreOf(it.id) }
@@ -419,7 +415,6 @@ private fun ActionButtons(state: GameState, listener: GameViewListener) {
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            // The second roll happens inside the dialog
             RoundPhase.SecondRoll -> Unit
 
             is RoundPhase.RoundOver -> Button(
@@ -448,7 +443,6 @@ private fun ActionButtons(state: GameState, listener: GameViewListener) {
     }
 }
 
-/** The dice table: the whole turn of one player (roll, choose, reroll) happens here. */
 @Composable
 private fun RollDialogContent(viewData: Game.ViewData, dialog: Game.RollDialog) {
     val state = viewData.state
@@ -471,7 +465,6 @@ private fun RollDialogContent(viewData: Game.ViewData, dialog: Game.RollDialog) 
         )
         Text(text = player.name, fontFamily = BoldFont(), fontSize = 22.sp, color = ColorWhite)
 
-        // Headroom for the dice to jump into
         Spacer(Modifier.height(40.dp))
         key(player.id) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -482,6 +475,7 @@ private fun RollDialogContent(viewData: Game.ViewData, dialog: Game.RollDialog) 
                         size = 50.dp,
                         selected = index in turn.selected,
                         highlighted = index in scoring && index !in turn.selected,
+                        style = viewData.dieStyleOf(player.id),
                         startDelayMillis = index * DieAnimation.STAGGER_MILLIS,
                         animateOnAppear = dialog.animating,
                         onClick = if (canSelect) ({ listener.onDieClick(index) }) else null,
@@ -505,7 +499,6 @@ private fun RollDialogContent(viewData: Game.ViewData, dialog: Game.RollDialog) 
             textAlign = TextAlign.Center,
         )
 
-        // Fixed height so the dialog does not jump when the buttons appear
         Box(modifier = Modifier.fillMaxWidth().height(56.dp), contentAlignment = Alignment.Center) {
             when {
                 !settled -> Unit

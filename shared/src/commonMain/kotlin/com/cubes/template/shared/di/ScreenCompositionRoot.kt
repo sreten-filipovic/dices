@@ -5,6 +5,7 @@ import com.cubes.template.shared.StringProviderImpl
 import com.cubes.template.shared.domain.game.DiceRoller
 import com.cubes.template.shared.domain.game.RandomDiceRoller
 import com.cubes.template.shared.ui.common.Validator
+import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelViewModel
 import com.cubes.template.shared.ui.main.dice_roll.DiceRollViewModel
 import com.cubes.template.shared.ui.main.game.GameScreenNavigator
@@ -16,10 +17,6 @@ import com.cubes.template.shared.ui.main.home.HomeScreenNavigator
 import com.cubes.template.shared.ui.main.home.HomeViewModel
 import com.cubes.template.shared.ui.main.sevens.SevensViewModel
 
-/**
- * Factory for screen ViewModels. One `get<Screen>ViewModel(...)` per screen; the screen's
- * navigator interface and arguments come from the caller (MainView), everything else from here.
- */
 class ScreenCompositionRoot(
     private val appCompositionRoot: AppCompositionRoot,
 ) {
@@ -42,10 +39,12 @@ class ScreenCompositionRoot(
 
     fun getDiceDuelViewModel(
         playerNames: List<String>,
+        dieStyles: List<DieStyle>,
         diceCount: Int,
         onBack: () -> Unit,
     ) = DiceDuelViewModel(
         playerNames = playerNames,
+        dieStyles = dieStyles,
         diceCount = diceCount,
         diceRoller = diceRoller,
         onBack = onBack,
@@ -55,14 +54,17 @@ class ScreenCompositionRoot(
         game = game,
         screenNavigator = screenNavigator,
         stringProvider = stringProvider,
+        localDataSource = localDataSource,
     )
 
     fun getGameViewModel(
         playerNames: List<String>,
+        dieStyles: List<DieStyle>,
         totalRounds: Int,
         screenNavigator: GameScreenNavigator,
     ) = GameViewModel(
         playerNames = playerNames,
+        dieStyles = dieStyles,
         totalRounds = totalRounds,
         diceRoller = diceRoller,
         screenNavigator = screenNavigator,
@@ -70,10 +72,12 @@ class ScreenCompositionRoot(
 
     fun getSevensViewModel(
         playerNames: List<String>,
+        dieStyles: List<DieStyle>,
         totalRounds: Int,
         onHome: () -> Unit,
     ) = SevensViewModel(
         playerNames = playerNames,
+        dieStyles = dieStyles,
         totalRounds = totalRounds,
         diceRoller = diceRoller,
         onHome = onHome,

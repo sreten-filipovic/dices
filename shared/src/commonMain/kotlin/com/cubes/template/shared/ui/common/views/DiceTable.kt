@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.cubes.template.shared.ui.common.ColorFeltDark
 import com.cubes.template.shared.ui.common.ColorFeltLight
 
-/** Green felt surface the dice are rolled on. */
 @Composable
 fun DiceTable(
     modifier: Modifier = Modifier,

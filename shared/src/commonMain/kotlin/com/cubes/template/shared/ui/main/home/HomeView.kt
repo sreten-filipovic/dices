@@ -78,12 +78,10 @@ fun HomeScreen(viewData: Home.ViewData) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        // Tapping the logo dice rolls them again (they always land on five sixes)
         var logoRollKey by remember { mutableStateOf(0) }
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
-                // Headroom so the jumping dice are not clipped by the scroll container
                 .padding(top = 40.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -119,7 +117,6 @@ fun HomeScreen(viewData: Home.ViewData) {
                             modifier = Modifier.weight(1f),
                         )
                     }
-                    // Keep the cards of an incomplete last row the same size
                     repeat(GRID_COLUMNS - rowGames.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
@@ -127,7 +124,6 @@ fun HomeScreen(viewData: Home.ViewData) {
     }
 }
 
-/** Square felt card with the game's dice artwork and name; dimmed when the game is not playable yet. */
 @Composable
 private fun GameCardView(game: Home.GameCard, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(
@@ -182,7 +178,6 @@ internal val Home.GameCard.title: StringResource
         Home.GameCard.STRAIGHT_ROLL -> Res.string.game_straight_roll
     }
 
-/** Rules shown from the toolbar of the game's screens; `null` for games that are not playable yet. */
 internal val Home.GameCard.rules: GameRules?
     get() = when (this) {
         Home.GameCard.DICE_POKER -> GameRules.DICE_POKER

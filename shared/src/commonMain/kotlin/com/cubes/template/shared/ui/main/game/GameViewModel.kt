@@ -7,6 +7,7 @@ import com.cubes.template.shared.domain.game.GameAction
 import com.cubes.template.shared.domain.game.GameEngine
 import com.cubes.template.shared.domain.game.HandEvaluator
 import com.cubes.template.shared.ui.common.views.DieAnimation
+import com.cubes.template.shared.ui.common.views.DieStyle
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,20 +16,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Local hot-seat game: every action goes straight through [GameEngine.reduce].
- * A player's whole turn (roll, choose, reroll) happens in the dice table dialog; the dialog
- * closes on "Keep" or on "Done" after the second roll.
- */
 class GameViewModel(
     private val playerNames: List<String>,
+    dieStyles: List<DieStyle>,
     private val totalRounds: Int,
     private val diceRoller: DiceRoller,
     private val screenNavigator: GameScreenNavigator,
 ) : ViewModel(), GameViewListener {
 
     private val _viewData = MutableStateFlow(
-        Game.ViewData(state = GameEngine.newGame(playerNames, totalRounds), listener = this)
+        Game.ViewData(
+            state = GameEngine.newGame(playerNames, totalRounds),
+            dieStyles = dieStyles,
+            listener = this,
+        )
     )
     val viewData: StateFlow<Game.ViewData> = _viewData.asStateFlow()
 
@@ -73,7 +74,6 @@ class GameViewModel(
 
     override fun onHomeClick() = screenNavigator.showHome()
 
-    /** Applies a roll action, bumps the animation counters of the rolled dice and opens the dialog. */
     private fun roll(action: GameAction, stage: Game.Stage) {
         val data = _viewData.value
         val old = data.state

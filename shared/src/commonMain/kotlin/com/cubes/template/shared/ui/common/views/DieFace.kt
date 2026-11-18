@@ -19,18 +19,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cubes.template.shared.ui.common.ColorAccent
 import com.cubes.template.shared.ui.common.ColorDieBody
-import com.cubes.template.shared.ui.common.ColorDieBodyShade
 import com.cubes.template.shared.ui.common.ColorDieEmpty
-import com.cubes.template.shared.ui.common.ColorPip
-import com.cubes.template.shared.ui.common.ColorPipLight
 import com.cubes.template.shared.ui.common.ColorPrimary
-import com.cubes.template.shared.ui.common.ColorTextPrimary
 
-/**
- * Static die drawn on a Canvas. `value == null` draws an empty (not yet rolled) die slot.
- * [selected] marks a die chosen for reroll, [highlighted] marks a die that is part of the combination.
- * For the rolling animation use [AnimatedDie].
- */
 @Composable
 fun DieFace(
     value: Int?,
@@ -39,21 +30,21 @@ fun DieFace(
     selected: Boolean = false,
     highlighted: Boolean = false,
     markColor: Color? = null,
+    style: DieStyle = DieStyle.WHITE,
     onClick: (() -> Unit)? = null,
 ) {
     val clickModifier = if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
     Canvas(modifier = modifier.size(size).then(clickModifier)) {
-        drawDieFace(value = value, selected = selected, highlighted = highlighted, markColor = markColor)
+        drawDieFace(value = value, selected = selected, highlighted = highlighted, markColor = markColor, style = style)
     }
 }
 
-/** Draws a die filling the draw area; the selection/highlight glow is drawn slightly outside it. */
 internal fun DrawScope.drawDieFace(
     value: Int?,
     selected: Boolean,
     highlighted: Boolean,
-    /** Custom ring/glow color; takes precedence over [selected] and [highlighted]. */
     markColor: Color? = null,
+    style: DieStyle = DieStyle.WHITE,
 ) {
     val side = size.minDimension
     val corner = CornerRadius(side * 0.2f)
@@ -63,7 +54,6 @@ internal fun DrawScope.drawDieFace(
         else -> null
     }
 
-    // Soft glow around a marked die
     if (ringColor != null) {
         val glow = side * 0.08f
         drawRoundRect(
@@ -74,10 +64,9 @@ internal fun DrawScope.drawDieFace(
         )
     }
 
-    // Body with a diagonal gradient for a bit of depth
     drawRoundRect(
         brush = if (value == null) SolidColor(ColorDieEmpty) else Brush.linearGradient(
-            colors = listOf(ColorDieBody, ColorDieBodyShade),
+            colors = listOf(style.body, style.bodyShade),
             start = Offset.Zero,
             end = Offset(side, side),
         ),
@@ -85,10 +74,9 @@ internal fun DrawScope.drawDieFace(
         cornerRadius = corner,
     )
 
-    // Edge
     val edge = side * 0.03f
     drawRoundRect(
-        color = if (value == null) ColorDieBody.copy(alpha = 0.5f) else ColorTextPrimary.copy(alpha = 0.18f),
+        color = if (value == null) ColorDieBody.copy(alpha = 0.5f) else style.edge,
         topLeft = Offset(edge / 2, edge / 2),
         size = Size(side - edge, side - edge),
         cornerRadius = corner,
@@ -108,13 +96,12 @@ internal fun DrawScope.drawDieFace(
 
     if (value == null) return
 
-    // Pips with a small radial highlight so they look slightly concave
     val radius = side * 0.09f
     pipPositions(value).forEach { (fx, fy) ->
         val center = Offset(side * fx, side * fy)
         drawCircle(
             brush = Brush.radialGradient(
-                colors = listOf(if (selected) ColorAccent else ColorPipLight, ColorPip),
+                colors = listOf(if (selected) ColorAccent else style.pipLight, style.pip),
                 center = center + Offset(radius * 0.35f, radius * 0.35f),
                 radius = radius * 1.3f,
             ),
@@ -128,7 +115,6 @@ private const val L = 0.27f
 private const val M = 0.5f
 private const val H = 0.73f
 
-/** Pip centers as fractions of the die size. */
 private fun pipPositions(value: Int): List<Pair<Float, Float>> = when (value) {
     1 -> listOf(M to M)
     2 -> listOf(L to L, H to H)
@@ -145,5 +131,6 @@ private fun DieFacePreview() {
     Row {
         (1..6).forEach { DieFace(value = it, selected = it == 3, highlighted = it == 5) }
         DieFace(value = null)
+        DieStyle.entries.forEach { DieFace(value = 5, style = it) }
     }
 }

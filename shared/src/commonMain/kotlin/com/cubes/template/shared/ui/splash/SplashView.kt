@@ -40,13 +40,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 object SplashAnimation {
-    /** Pause before the dice start rolling, so the first frames are not lost while the app starts. */
     const val START_DELAY_MILLIS = 250L
 
-    /** Pause after the dice land, so the result can be seen before moving on. */
     private const val HOLD_MILLIS = 450L
 
-    /** Minimum time the splash stays visible so the intro animation can finish. */
     val totalMillis: Long get() = START_DELAY_MILLIS + DieAnimation.totalMillis() + HOLD_MILLIS
 }
 
@@ -55,7 +52,6 @@ fun SplashView(
     onRetry: () -> Unit,
     showRefresh: Boolean
 ) {
-    // Roll five dice once; they land on five sixes (five of a kind)
     var rollKey by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) {
         delay(SplashAnimation.START_DELAY_MILLIS)

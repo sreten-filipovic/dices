@@ -8,14 +8,13 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
-/**
- * Typed access to DataStore preferences. Add one key + getter/setter pair per stored value.
- */
 class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
 
     private object Keys {
         val onboardingDone = booleanPreferencesKey("onboarding_done")
         val lastOpenedDemoItemId = stringPreferencesKey("last_opened_demo_item_id")
+        val playerDieStyles = stringPreferencesKey("player_die_styles")
+        val playerNames = stringPreferencesKey("player_names")
     }
 
     fun isOnboardingDone(): Boolean = runBlocking {
@@ -32,5 +31,26 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
 
     fun saveLastOpenedDemoItemId(id: String) = runBlocking {
         dataStore.edit { it[Keys.lastOpenedDemoItemId] = id }
+    }
+
+    fun getPlayerDieStyles(): List<String> = runBlocking {
+        dataStore.data.first()[Keys.playerDieStyles]?.split(SEPARATOR)?.filter { it.isNotEmpty() } ?: emptyList()
+    }
+
+    fun savePlayerDieStyles(styles: List<String>) = runBlocking {
+        dataStore.edit { it[Keys.playerDieStyles] = styles.joinToString(SEPARATOR) }
+    }
+
+    fun getPlayerNames(): List<String> = runBlocking {
+        dataStore.data.first()[Keys.playerNames]?.split(NAME_SEPARATOR) ?: emptyList()
+    }
+
+    fun savePlayerNames(names: List<String>) = runBlocking {
+        dataStore.edit { it[Keys.playerNames] = names.joinToString(NAME_SEPARATOR) { name -> name.replace(NAME_SEPARATOR, " ") } }
+    }
+
+    private companion object {
+        const val SEPARATOR = ","
+        const val NAME_SEPARATOR = "\n"
     }
 }

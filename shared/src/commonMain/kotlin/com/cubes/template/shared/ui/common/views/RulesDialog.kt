@@ -45,14 +45,12 @@ import com.cubes.template.shared.ui.common.views.buttons.Button
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-/** Short "how to play" texts, one per game; opened from the book icon in the [Toolbar]. */
 enum class GameRules(val game: StringResource, val text: StringResource) {
     DICE_POKER(game = Res.string.game_dice_poker, text = Res.string.rules_dice_poker),
     DICE_DUEL(game = Res.string.game_dice_duel, text = Res.string.rules_dice_duel),
     SEVENS(game = Res.string.game_sevens, text = Res.string.rules_sevens),
 }
 
-/** Window with the rules of one game; closes on "OK" or a tap outside the card. */
 @Composable
 fun RulesDialog(rules: GameRules, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss, properties = popupDialogProperties()) {
@@ -81,7 +79,6 @@ private fun RulesCard(rules: GameRules, onDismiss: () -> Unit) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .background(ColorSurface)
-            // Consume taps so the card does not dismiss the dialog
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -103,7 +100,6 @@ private fun RulesCard(rules: GameRules, onDismiss: () -> Unit) {
                 textAlign = TextAlign.Center,
             )
         }
-        // Takes the space the card has left, so long rules scroll instead of pushing "OK" off screen
         Text(
             text = stringResource(rules.text),
             fontFamily = RegularFont(),

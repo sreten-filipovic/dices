@@ -1,16 +1,5 @@
 package com.cubes.template.shared.domain.game
 
-/**
- * Scoring rules:
- * - Five of a kind: by value.
- * - Four of a kind: by value of the four, then the remaining die.
- * - Full house: by value of the three, then value of the pair.
- * - Large (2–6) / small (1–5) straight: equal straights are a draw.
- * - Three of a kind: by value of the three, then sum of the remaining dice.
- * - Two pairs: by sum of both pairs, then the remaining die.
- * - Pair: by value of the pair, then sum of the remaining dice.
- * - Nothing: by sum of all dice.
- */
 object HandEvaluator {
 
     const val DICE_COUNT = 5
@@ -19,7 +8,6 @@ object HandEvaluator {
         require(dice.size == DICE_COUNT) { "Expected $DICE_COUNT dice, got ${dice.size}" }
         require(dice.all { it in 1..6 }) { "Die values must be 1..6: $dice" }
 
-        // value -> count, ordered by count desc, then value desc
         val groups = dice.groupingBy { it }.eachCount()
             .entries
             .sortedWith(compareByDescending<Map.Entry<Int, Int>> { it.value }.thenByDescending { it.key })
@@ -57,7 +45,6 @@ object HandEvaluator {
         }
     }
 
-    /** Indices of dice that form the combination (for highlighting). */
     fun scoringIndices(dice: List<Int>): Set<Int> {
         val hand = evaluate(dice)
         return when (hand.rank) {

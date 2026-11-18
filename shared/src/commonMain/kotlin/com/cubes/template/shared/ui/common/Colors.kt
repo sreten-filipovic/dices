@@ -2,7 +2,6 @@ package com.cubes.template.shared.ui.common
 
 import androidx.compose.ui.graphics.Color
 
-// Placeholder palette. Replace with the project's design tokens, keep the names stable.
 val ColorPrimary = Color(0xFF1E63D6)
 val ColorPrimaryLight = Color(0xFFE6EEFB)
 val ColorAccent = Color(0xFFED1C24)
@@ -22,7 +21,6 @@ val ColorWarning = Color(0xFFFFE065)
 val ColorYellow = Color(0xFFFFD21F)
 val ColorOrange = Color(0xFFFF8A1F)
 
-// Dice table
 val ColorFeltLight = Color(0xFF2F8A5B)
 val ColorFeltDark = Color(0xFF17573A)
 val ColorDieBody = Color(0xFFFFFFFF)
@@ -31,7 +29,6 @@ val ColorDieEmpty = Color(0x33FFFFFF)
 val ColorPip = Color(0xFF1A1A2E)
 val ColorPipLight = Color(0xFF4A4A63)
 
-// Ranking medals
 val ColorGold = Color(0xFFE6B422)
 val ColorSilver = Color(0xFFA8B0BA)
 val ColorBronze = Color(0xFFC07A45)

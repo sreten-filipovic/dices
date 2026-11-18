@@ -14,7 +14,6 @@ class HomeViewModel(
             Home.GameCard.DICE_POKER,
             Home.GameCard.DICE_DUEL,
             Home.GameCard.SEVENS -> screenNavigator.showGameSetup(game)
-            // Rules not defined yet
             Home.GameCard.DICE_JACK,
             Home.GameCard.RISK_IT,
             Home.GameCard.STRAIGHT_ROLL -> Unit

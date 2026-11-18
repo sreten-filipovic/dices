@@ -1,9 +1,5 @@
 package com.cubes.template.shared.data.remote
 
-/**
- * Known backend error messages that the app wants to react to specifically.
- * Add project-specific entries here; everything else surfaces as a generic error.
- */
 enum class ApiErrorMessage(val message: List<String>) {
     NotFound(listOf("NOT_FOUND")),
     InvalidData(listOf("Invalid data!"));

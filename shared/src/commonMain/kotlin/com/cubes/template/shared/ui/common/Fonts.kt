@@ -11,8 +11,6 @@ import com.cubes.template.shared.resources.semi_bold
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.FontResource
 
-// Bundled font is Open Sans (Apache 2.0). Swap the .ttf files in composeResources/font to rebrand.
-
 @Composable
 fun BoldFont() = font(Res.font.bold)
 

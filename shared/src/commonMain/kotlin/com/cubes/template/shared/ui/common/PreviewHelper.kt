@@ -7,6 +7,7 @@ import com.cubes.template.shared.domain.game.GameState
 import com.cubes.template.shared.domain.duel.DuelState
 import com.cubes.template.shared.domain.seven.Sevens
 import com.cubes.template.shared.domain.seven.SevenState
+import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.main.sevens.SevensUi
 import com.cubes.template.shared.ui.main.sevens.SevensViewListener
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelUi
@@ -20,9 +21,6 @@ import com.cubes.template.shared.ui.main.game_setup.GameSetupViewListener
 import com.cubes.template.shared.ui.main.home.Home
 import com.cubes.template.shared.ui.main.home.HomeViewListener
 
-/**
- * Fake data + no-op listeners for @Preview functions. Keep one builder per screen state.
- */
 object PreviewHelper {
 
     fun home() = Home.ViewData(listener = object : HomeViewListener {
@@ -111,10 +109,14 @@ object PreviewHelper {
 
     fun gameSetup() = GameSetup.ViewData(
         names = listOf("Ana", "Marko", ""),
+        dieStyles = listOf(DieStyle.WHITE, DieStyle.BLACK, DieStyle.DARK_GRAY),
         listener = object : GameSetupViewListener {
             override fun onNameChanged(index: Int, name: String) = Unit
             override fun onAddPlayerClick() = Unit
             override fun onRemovePlayerClick(index: Int) = Unit
+            override fun onSettingsClick(index: Int) = Unit
+            override fun onDieStyleSelected(style: DieStyle) = Unit
+            override fun onSettingsDismiss() = Unit
             override fun onTotalRoundsChanged(totalRounds: Int) = Unit
             override fun onDiceCountChanged(diceCount: Int) = Unit
             override fun onStartClick() = Unit

@@ -45,7 +45,9 @@
     <string name="setup_players">Players</string>
     <string name="setup_player_hint">Player %1$d</string>
     <string name="setup_add_player">+ Add player</string>
-    <string name="setup_remove_player">Remove</string>
+    <string name="setup_remove_player">Remove player</string>
+    <string name="setup_player_settings">Player settings</string>
+    <string name="setup_dice_color">Dice color</string>
     <string name="setup_rounds">Number of rounds</string>
     <string name="setup_start">Start</string>
 

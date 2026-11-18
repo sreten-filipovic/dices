@@ -18,7 +18,6 @@ class DiceDuelTest {
     private fun newGame(players: Int = 2, diceCount: Int = 1) =
         DiceDuel.newGame(List(players) { "P${it + 1}" }, diceCount)
 
-    /** Every player still to roll in this stage rolls once, taking their dice from [values] in order. */
     private fun DuelState.playOut(vararg values: Int): DuelState {
         val roller = roller(*values)
         var state = this
@@ -55,14 +54,12 @@ class DiceDuelTest {
         assertTrue(tied.needsTiebreak)
         assertNull(tied.winner)
         assertEquals(listOf(0, 0), tied.wins)
-        // A tied duel cannot be skipped
         assertEquals(tied, DiceDuel.nextDuel(tied))
 
         val rematch = DiceDuel.tiebreak(tied)
         assertEquals(listOf(null, null), rematch.hands)
         assertEquals(0, rematch.currentPlayer)
 
-        // Still level: they roll again
         val stillTied = rematch.playOut(2, 2)
         assertTrue(stillTied.needsTiebreak)
 
@@ -75,7 +72,6 @@ class DiceDuelTest {
 
     @Test
     fun onlyTheTiedLeadersRollAgain() {
-        // Players 0 and 2 share the highest sum, 1 and 3 are out of the race
         val tied = newGame(players = 4).playOut(5, 2, 5, 3)
         assertEquals(listOf(0, 2), tied.leaders)
         assertEquals(listOf(0, 0, 0, 0), tied.wins)
@@ -88,7 +84,6 @@ class DiceDuelTest {
         val afterFirst = DiceDuel.roll(rematch, roller(1))
         assertEquals(2, afterFirst.currentPlayer)
 
-        // The tiebreak rolls are lower than the losers' dice, but only decide between the two leaders
         val decided = DiceDuel.roll(afterFirst, roller(2))
         assertEquals(2, decided.winner)
         assertEquals(listOf(0, 0, 1, 0), decided.wins)
@@ -102,7 +97,6 @@ class DiceDuelTest {
 
     @Test
     fun tiebreakIsOnlyForASharedFirstPlace() {
-        // Second place is shared, first is not: the duel is decided
         val state = newGame(players = 3).playOut(6, 2, 2)
 
         assertEquals(0, state.winner)
@@ -124,7 +118,6 @@ class DiceDuelTest {
         assertNull(state.currentPlayer)
         assertEquals(1, state.winner)
         assertEquals(listOf(0, 1, 0, 0), state.wins)
-        // Nobody can roll twice in the same duel
         assertEquals(state, DiceDuel.roll(state, roller(6)))
     }
 
@@ -135,10 +128,8 @@ class DiceDuelTest {
 
         assertEquals(listOf(1, 0, 0), next.wins)
         assertEquals(1, next.currentPlayer)
-        // The starter rolls last after everyone else, wrapping around
         val almostDone = DiceDuel.roll(DiceDuel.roll(next, roller(3)), roller(3))
         assertEquals(0, almostDone.currentPlayer)
-        // An unfinished duel cannot be skipped
         assertEquals(almostDone, DiceDuel.nextDuel(almostDone))
     }
 

@@ -1,21 +1,5 @@
 package com.cubes.template.shared.domain.game
 
-/**
- * Pure game rules.
- *
- * Round: each participant in turn order plays a full turn — rolls all five dice, then either keeps
- * them or rerolls the dice they selected — before the next participant starts.
- *
- * Scoring: after the last turn the participants are ranked by their hands. With N participants
- * 1st place gets N-1 points, each following place one point less, the last place 0. Equal hands
- * share a place and get the same points.
- *
- * Match: [GameState.totalRounds] regular rounds (1, 3 or 5). If after the last one several players
- * share the highest total, only they play a tiebreak round (scored the same way), repeated until
- * a single leader remains. The starting player rotates every round.
- *
- * Invalid actions for the current phase are ignored (the same state is returned).
- */
 object GameEngine {
 
     const val MIN_PLAYERS = 2
@@ -46,13 +30,8 @@ object GameEngine {
             GameAction.NextRound -> nextRound(state)
         }
 
-    /** Points for a place when [participants] players are ranked: N-1 for 1st, ..., 0 for last. */
     fun pointsForPlace(place: Int, participants: Int): Int = participants - place
 
-    /**
-     * Participants ordered from the best hand to the worst. Equal hands share a place and the next
-     * place is skipped (1, 1, 3). Players with equal hands stay in turn order.
-     */
     fun roundRanking(state: GameState): List<RankedPlayer> {
         val hands = state.turnOrder.mapNotNull { player -> state.turnOf(player.id).hand?.let { player.id to it } }
         return hands
@@ -114,7 +93,6 @@ object GameEngine {
 
     private fun nextRound(state: GameState): GameState {
         if (state.phase !is RoundPhase.RoundOver) return state
-        // After the regular rounds only the players tied for first place keep playing
         val participants = if (state.round >= state.totalRounds) state.leaderIds else state.players.map { it.id }
         return state.copy(
             round = state.round + 1,

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.cubes.template.shared.domain.duel.DiceDuel
 import com.cubes.template.shared.domain.game.DiceRoller
 import com.cubes.template.shared.ui.common.views.DieAnimation
+import com.cubes.template.shared.ui.common.views.DieStyle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,17 +15,21 @@ import kotlinx.coroutines.launch
 
 class DiceDuelViewModel(
     playerNames: List<String>,
+    dieStyles: List<DieStyle>,
     diceCount: Int,
     private val diceRoller: DiceRoller,
     private val onBack: () -> Unit,
 ) : ViewModel(), DiceDuelViewListener {
 
     private val _viewData = MutableStateFlow(
-        DiceDuelUi.ViewData(state = DiceDuel.newGame(playerNames, diceCount), listener = this)
+        DiceDuelUi.ViewData(
+            state = DiceDuel.newGame(playerNames, diceCount),
+            dieStyles = dieStyles,
+            listener = this,
+        )
     )
     val viewData: StateFlow<DiceDuelUi.ViewData> = _viewData.asStateFlow()
 
-    /** Rolls for the current player and opens the dice table with their dice tumbling. */
     override fun onRollClick() {
         val current = _viewData.value
         if (current.dialogOpen) return

@@ -3,6 +3,7 @@ package com.cubes.template.shared.ui.main
 import androidx.lifecycle.ViewModel
 import com.cubes.template.shared.OpenUrlHandler
 import com.cubes.template.shared.ui.app.AppScreenNavigator
+import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.main.game.GameScreenNavigator
 import com.cubes.template.shared.ui.main.game_setup.GameSetupScreenNavigator
 import com.cubes.template.shared.ui.main.home.Home
@@ -11,10 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-/**
- * Aggregates per-feature navigator interfaces. ViewModels depend only on the narrow
- * feature interface (e.g. [HomeScreenNavigator]); this class implements all of them.
- */
 interface MainScreenNavigator : HomeScreenNavigator, GameSetupScreenNavigator, GameScreenNavigator {
 
     val backStack: StateFlow<List<MainScreen>>
@@ -41,23 +38,26 @@ class MainNavigatorImpl(
         }
     }
 
-    // HomeScreenNavigator
     override fun showGameSetup(game: Home.GameCard) = navigateTo(MainScreen.GameSetup(game))
 
-    // GameSetupScreenNavigator: setup is replaced by the game, so back from the game goes home
-    override fun startGame(game: Home.GameCard, playerNames: List<String>, totalRounds: Int) {
+    override fun startGame(
+        game: Home.GameCard,
+        playerNames: List<String>,
+        dieStyles: List<DieStyle>,
+        totalRounds: Int,
+    ) {
         val screen = when (game) {
-            Home.GameCard.SEVENS -> MainScreen.Sevens(playerNames, totalRounds)
-            else -> MainScreen.Game(playerNames, totalRounds)
+            Home.GameCard.SEVENS -> MainScreen.Sevens(playerNames, dieStyles, totalRounds)
+            else -> MainScreen.Game(playerNames, dieStyles, totalRounds)
         }
         backStack.update { it.dropLastWhile { last -> last is MainScreen.GameSetup } + screen }
     }
 
-    override fun startDuel(playerNames: List<String>, diceCount: Int) {
-        backStack.update { it.dropLastWhile { last -> last is MainScreen.GameSetup } + MainScreen.DiceDuel(playerNames, diceCount) }
+    override fun startDuel(playerNames: List<String>, dieStyles: List<DieStyle>, diceCount: Int) {
+        val screen = MainScreen.DiceDuel(playerNames, dieStyles, diceCount)
+        backStack.update { it.dropLastWhile { last -> last is MainScreen.GameSetup } + screen }
     }
 
-    // GameScreenNavigator
     override fun showHome() {
         backStack.value = listOf(MainScreen.Home)
     }

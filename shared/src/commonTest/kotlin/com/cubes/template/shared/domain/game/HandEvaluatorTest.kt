@@ -42,17 +42,13 @@ class HandEvaluatorTest {
     fun pairComparesPairThenRest() {
         assertTrue(hand(5, 5, 1, 2, 3) > hand(4, 4, 6, 3, 1))
         assertTrue(hand(5, 5, 6, 3, 2) > hand(5, 5, 6, 3, 1))
-        // same pair, same sum of the rest (10) -> draw
         assertEquals(0, hand(5, 5, 6, 3, 1).compareTo(hand(1, 5, 3, 6, 5)))
-        // rest is summed, not compared die by die: 5+4+3 = 12 > 6+3+1 = 10
         assertTrue(hand(2, 2, 5, 4, 3) > hand(2, 2, 6, 3, 1))
     }
 
     @Test
     fun twoPairsComparesSumThenKicker() {
-        // 6+1 = 7 < 5+3 = 8
         assertTrue(hand(6, 6, 1, 1, 2) < hand(5, 5, 3, 3, 1))
-        // same sum (6+2 = 5+3): kicker decides
         assertTrue(hand(6, 6, 2, 2, 4) > hand(5, 5, 3, 3, 1))
         assertEquals(0, hand(6, 6, 2, 2, 4).compareTo(hand(5, 5, 3, 3, 4)))
     }

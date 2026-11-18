@@ -97,7 +97,6 @@ fun DiceDuelScreen(viewData: DiceDuelUi.ViewData) {
         Column(modifier = Modifier.fillMaxSize().blur(blur)) {
             Toolbar(onBackClick = listener::onBackClick, rules = GameRules.DICE_DUEL)
 
-            // The green bar stays on top; the title, content and buttons scroll under it
             Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                 ScreenTitle(title = stringResource(Res.string.game_dice_duel))
                 Column(
@@ -133,7 +132,6 @@ fun DiceDuelScreen(viewData: DiceDuelUi.ViewData) {
             }
         }
 
-        // Dim the blurred screen and block touches while the dialog is open
         AnimatedVisibility(visible = viewData.dialogOpen, enter = fadeIn(), exit = fadeOut()) {
             Box(
                 modifier = Modifier
@@ -154,7 +152,6 @@ fun DiceDuelScreen(viewData: DiceDuelUi.ViewData) {
     }
 }
 
-/** Every player's wins so far, plus the dice they rolled in the duel that is being played. */
 @Composable
 private fun PlayersPanel(viewData: DiceDuelUi.ViewData) {
     val state = viewData.state
@@ -162,7 +159,6 @@ private fun PlayersPanel(viewData: DiceDuelUi.ViewData) {
         state.players.forEachIndexed { index, name ->
             val isWinner = viewData.showResult && index == state.winner
             val isCurrent = !viewData.dialogOpen && index == state.currentPlayer
-            // Don't reveal the roller's dice on their card before the animation in the dialog has finished
             val hand = state.hands[index].takeUnless { viewData.rolling && index == viewData.tablePlayer }
             Column(
                 modifier = Modifier
@@ -198,11 +194,12 @@ private fun PlayersPanel(viewData: DiceDuelUi.ViewData) {
                     )
                 }
                 Spacer(Modifier.height(8.dp))
-                // Same height with and without dice so the card does not jump when they appear
                 Row(modifier = Modifier.height(CARD_DIE_SIZE), verticalAlignment = Alignment.CenterVertically) {
                     if (hand != null) {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            hand.forEach { value -> DieFace(value = value, size = CARD_DIE_SIZE) }
+                            hand.forEach { value ->
+                                DieFace(value = value, size = CARD_DIE_SIZE, style = viewData.dieStyleOf(index))
+                            }
                         }
                         Spacer(Modifier.width(12.dp))
                         Text(
@@ -225,7 +222,6 @@ private fun PlayersPanel(viewData: DiceDuelUi.ViewData) {
     }
 }
 
-/** Main screen while waiting for the next player to roll: just whose turn it is. */
 @Composable
 private fun TurnPanel(viewData: DiceDuelUi.ViewData) {
     val player = viewData.state.currentPlayer
@@ -241,7 +237,6 @@ private fun TurnPanel(viewData: DiceDuelUi.ViewData) {
     )
 }
 
-/** A shared first place: who rolls again. Otherwise who won (two players) or everyone's place (more). */
 @Composable
 private fun ResultPanel(state: DuelState) {
     Column(
@@ -271,7 +266,6 @@ private fun ResultPanel(state: DuelState) {
                         place = state.placeOf(player),
                         name = state.players[player],
                         detail = null,
-                        // Players who tied show every roll, e.g. "10 · 4"
                         value = state.sumsOf(player).joinToString(" · "),
                     )
                 }
@@ -289,7 +283,6 @@ private fun ResultPanel(state: DuelState) {
     }
 }
 
-/** The dice table: the player's single roll happens here; "Done" closes it. */
 @Composable
 private fun TableDialogContent(viewData: DiceDuelUi.ViewData) {
     val state = viewData.state
@@ -303,7 +296,6 @@ private fun TableDialogContent(viewData: DiceDuelUi.ViewData) {
             textAlign = TextAlign.Center,
         )
 
-        // Headroom for the dice to jump into
         Spacer(Modifier.height(40.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             repeat(state.diceCount) { index ->
@@ -311,8 +303,8 @@ private fun TableDialogContent(viewData: DiceDuelUi.ViewData) {
                     value = hand?.getOrNull(index),
                     rollKey = 0,
                     size = 68.dp,
+                    style = viewData.dieStyleOf(viewData.tablePlayer),
                     startDelayMillis = index * DieAnimation.STAGGER_MILLIS,
-                    // The dialog opens together with the roll
                     animateOnAppear = viewData.rolling,
                 )
             }

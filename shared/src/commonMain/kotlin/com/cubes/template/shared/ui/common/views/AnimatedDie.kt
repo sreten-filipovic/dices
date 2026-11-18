@@ -34,24 +34,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-/** Timings shared by the die animation and the ViewModels that wait for it. */
 object DieAnimation {
     const val TUMBLE_MILLIS = 850
     const val STAGGER_MILLIS = 70
     const val SETTLE_MILLIS = 300
 
-    /** Time until a row of [diceCount] staggered dice has fully settled. */
     fun totalMillis(diceCount: Int = 5): Long =
         ((diceCount - 1) * STAGGER_MILLIS + TUMBLE_MILLIS + SETTLE_MILLIS).toLong()
 }
 
-/**
- * A die that tumbles every time [rollKey] changes: it jumps, spins, bounces twice, flickers through
- * random faces and lands on [value] with a small squash. Pass a counter that only grows when this
- * particular die is rolled. The first composition does not animate unless [animateOnAppear] is true
- * (for dice that appear together with the roll, e.g. inside a dialog). Every roll is accompanied
- * by the sound of the die hitting the table unless [soundEnabled] is false.
- */
 @Composable
 fun AnimatedDie(
     value: Int?,
@@ -61,6 +52,7 @@ fun AnimatedDie(
     selected: Boolean = false,
     highlighted: Boolean = false,
     markColor: Color? = null,
+    style: DieStyle = DieStyle.WHITE,
     startDelayMillis: Int = 0,
     animateOnAppear: Boolean = false,
     soundEnabled: Boolean = true,
@@ -68,7 +60,6 @@ fun AnimatedDie(
 ) {
     val initialRollKey = remember { if (animateOnAppear) Int.MIN_VALUE else rollKey }
     val targetValue by rememberUpdatedState(value)
-    // No audio in IDE previews
     val sound = if (soundEnabled && !LocalInspectionMode.current) rememberDiceRollSound() else null
 
     var rolling by remember { mutableStateOf(false) }
@@ -111,7 +102,6 @@ fun AnimatedDie(
                 )
             }
             launch {
-                // Flicker through faces, slowing down as the die loses energy
                 var interval = 45L
                 var elapsed = 0L
                 while (elapsed < DieAnimation.TUMBLE_MILLIS - 160) {
@@ -132,7 +122,6 @@ fun AnimatedDie(
     val clickModifier = if (onClick != null && !rolling) Modifier.clickable(onClick = onClick) else Modifier
 
     Box(modifier = modifier.size(size)) {
-        // Shadow on the table: shrinks and fades while the die is in the air
         Canvas(modifier = Modifier.size(size)) {
             val side = this.size.minDimension
             val l = lift.value
@@ -163,6 +152,7 @@ fun AnimatedDie(
                 selected = selected && !rolling,
                 highlighted = highlighted && !rolling,
                 markColor = markColor.takeIf { !rolling },
+                style = style,
             )
         }
     }

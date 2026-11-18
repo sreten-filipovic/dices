@@ -83,6 +83,7 @@ import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DiceTable
 import com.cubes.template.shared.ui.common.views.DieAnimation
 import com.cubes.template.shared.ui.common.views.DieFace
+import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.common.views.GameRules
 import com.cubes.template.shared.ui.common.views.RankingRow
 import com.cubes.template.shared.ui.common.views.RankingSection
@@ -94,7 +95,6 @@ import org.jetbrains.compose.resources.stringResource
 private const val DICE_PER_ROW = 3
 private val CARD_DIE_SIZE = 28.dp
 
-/** One color per removed pair; six dice make at most three pairs. */
 private val PAIR_COLORS = listOf(ColorAccent, ColorYellow, ColorOrange)
 
 @Composable
@@ -113,7 +113,6 @@ fun SevensScreen(viewData: SevensUi.ViewData) {
         Column(modifier = Modifier.fillMaxSize().blur(blur)) {
             Toolbar(onBackClick = listener::onHomeClick, rules = GameRules.SEVENS)
 
-            // The green bar stays on top; the title, content and buttons scroll under it
             Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                 ScreenTitle(
                     title = stringResource(Res.string.game_sevens),
@@ -126,7 +125,7 @@ fun SevensScreen(viewData: SevensUi.ViewData) {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Scoreboard(state)
+                    Scoreboard(viewData)
                     if (state.phase == SevenPhase.Playing) TurnPanel(state) else ResultPanel(state)
                 }
 
@@ -134,7 +133,6 @@ fun SevensScreen(viewData: SevensUi.ViewData) {
             }
         }
 
-        // Dim the blurred screen and block touches while the dialog is open
         AnimatedVisibility(visible = viewData.dialogOpen, enter = fadeIn(), exit = fadeOut()) {
             Box(
                 modifier = Modifier
@@ -155,7 +153,6 @@ fun SevensScreen(viewData: SevensUi.ViewData) {
     }
 }
 
-/** Main screen while waiting for the current player to roll: whose turn it is and how many rolls they get. */
 @Composable
 private fun TurnPanel(state: SevenState) {
     Column(
@@ -207,7 +204,6 @@ private fun ResultPanel(state: SevenState) {
     }
 }
 
-/** Players ordered by [points], best first; equal points share a place. */
 @Composable
 private fun RankingTable(
     title: String,
@@ -227,9 +223,9 @@ private fun RankingTable(
     }
 }
 
-/** Every player's total, plus the dice and points they banked in the round that is being played. */
 @Composable
-private fun Scoreboard(state: SevenState) {
+private fun Scoreboard(viewData: SevensUi.ViewData) {
+    val state = viewData.state
     val winners = if (state.phase == SevenPhase.MatchOver) state.leaders else emptyList()
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         state.players.forEachIndexed { index, name ->
@@ -280,14 +276,13 @@ private fun Scoreboard(state: SevenState) {
                 Spacer(Modifier.height(8.dp))
                 val turn = state.roundTurns[index]
                 if (turn != null) {
-                    BankedDiceRow(turn)
+                    BankedDiceRow(turn, viewData.dieStyleOf(index))
                 } else {
                     Text(
                         text = stringResource(Res.string.game_waiting),
                         fontFamily = RegularFont(),
                         fontSize = 14.sp,
                         color = ColorTextSecondary,
-                        // Same height as the dice row so the card does not jump when the dice appear
                         modifier = Modifier.height(CARD_DIE_SIZE),
                     )
                 }
@@ -296,9 +291,8 @@ private fun Scoreboard(state: SevenState) {
     }
 }
 
-/** A finished turn in miniature: removed pairs dimmed in their pair color, the scoring dice untouched. */
 @Composable
-private fun BankedDiceRow(turn: SevenTurn) {
+private fun BankedDiceRow(turn: SevenTurn, style: DieStyle) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         turn.dice.forEachIndexed { index, value ->
             val pair = turn.pairs.indexOfFirst { index in it }
@@ -306,6 +300,7 @@ private fun BankedDiceRow(turn: SevenTurn) {
             DieFace(
                 value = value,
                 size = CARD_DIE_SIZE,
+                style = style,
                 markColor = if (removed) PAIR_COLORS[pair % PAIR_COLORS.size] else null,
                 modifier = Modifier.alpha(if (removed) 0.6f else 1f),
             )
@@ -313,10 +308,6 @@ private fun BankedDiceRow(turn: SevenTurn) {
     }
 }
 
-/**
- * The dice table: one player's whole turn (roll, roll again, bank) happens here. Removed dice stay
- * in place, dimmed, with one color per pair.
- */
 @Composable
 private fun TableDialogContent(viewData: SevensUi.ViewData) {
     val state = viewData.state
@@ -337,22 +328,20 @@ private fun TableDialogContent(viewData: SevensUi.ViewData) {
             color = ColorWhite.copy(alpha = 0.75f),
         )
 
-        // Headroom for the dice to jump into
         Spacer(Modifier.height(24.dp))
         Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
             viewData.rollTicks.indices.chunked(DICE_PER_ROW).forEach { row ->
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     row.forEach { index ->
-                        // Both dice of a removed pair share a color, so it is clear which ones went together
                         val pair = viewData.pairsShown.indexOfFirst { index in it }
                         val removed = pair >= 0
                         AnimatedDie(
                             value = turn.dice.getOrNull(index),
                             rollKey = viewData.rollTicks[index],
                             size = 60.dp,
+                            style = viewData.dieStyleOf(viewData.tablePlayer),
                             markColor = if (removed) PAIR_COLORS[pair % PAIR_COLORS.size] else null,
                             startDelayMillis = index * DieAnimation.STAGGER_MILLIS,
-                            // The dialog opens together with the first roll
                             animateOnAppear = viewData.rolling,
                             modifier = Modifier.alpha(if (removed) 0.6f else 1f),
                         )
@@ -412,7 +401,6 @@ private fun ActionButtons(viewData: SevensUi.ViewData) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         when (state.phase) {
-            // Opens the dice table; the rest of the turn is played there
             SevenPhase.Playing -> Button(
                 text = stringResource(Res.string.roll),
                 onClick = listener::onRollClick,

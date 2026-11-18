@@ -26,7 +26,6 @@ actual fun createHttpClient(
     }
 }
 
-/** Debug/staging only: accepts self-signed certificates on test environments. */
 internal fun buildTrustAllOkHttpClient(): OkHttpClient {
     val trustAllManager = @SuppressLint("CustomX509TrustManager")
     object : X509TrustManager {

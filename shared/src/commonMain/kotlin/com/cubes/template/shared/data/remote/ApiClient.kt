@@ -18,10 +18,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-/**
- * Thin wrapper around Ktor that maps every call to [Result] and
- * translates known backend error messages into [KnownApiException].
- */
 class ApiClient(
     private val baseApiUrl: String,
     private val apiClientAuthExtension: ApiClientAuthExtension,

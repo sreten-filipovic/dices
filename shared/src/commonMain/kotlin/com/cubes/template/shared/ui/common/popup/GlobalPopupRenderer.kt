@@ -30,7 +30,6 @@ fun GlobalPopupRenderer(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.BottomCenter
         ) {
-            // Scrim
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -42,7 +41,6 @@ fun GlobalPopupRenderer(
                     )
             )
 
-            // Sheet
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -54,7 +52,7 @@ fun GlobalPopupRenderer(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
-                        onClick = { /* consume click so the sheet does not dismiss */ }
+                        onClick = {}
                     )
             ) {
                 when (state) {

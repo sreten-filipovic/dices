@@ -5,7 +5,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.composed
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 fun Modifier.clickableNoRipple(
@@ -28,5 +31,13 @@ fun Modifier.onClickHideKeyboard(): Modifier {
         indication = null,
     ) {
         keyboardController?.hide()
+    }
+}
+
+@Composable
+fun Modifier.clearFocusOnTapOutside(): Modifier {
+    val focusManager = LocalFocusManager.current
+    return pointerInput(Unit) {
+        detectTapGestures(onTap = { focusManager.clearFocus() })
     }
 }

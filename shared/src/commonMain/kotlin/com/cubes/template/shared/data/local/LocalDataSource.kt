@@ -1,9 +1,5 @@
 package com.cubes.template.shared.data.local
 
-/**
- * Facade over all local storages (preferences, token storage, cache...).
- * Use delegation when adding more storages: `class LocalDataSource(...) : TokenStorage by tokenStorage`.
- */
 class LocalDataSource(
     private val dataStoreRepository: DataStoreRepository,
 ) {
@@ -13,4 +9,10 @@ class LocalDataSource(
 
     fun getLastOpenedDemoItemId(): String? = dataStoreRepository.getLastOpenedDemoItemId()
     fun saveLastOpenedDemoItemId(id: String) = dataStoreRepository.saveLastOpenedDemoItemId(id)
+
+    fun getPlayerDieStyles(): List<String> = dataStoreRepository.getPlayerDieStyles()
+    fun savePlayerDieStyles(styles: List<String>) = dataStoreRepository.savePlayerDieStyles(styles)
+
+    fun getPlayerNames(): List<String> = dataStoreRepository.getPlayerNames()
+    fun savePlayerNames(names: List<String>) = dataStoreRepository.savePlayerNames(names)
 }

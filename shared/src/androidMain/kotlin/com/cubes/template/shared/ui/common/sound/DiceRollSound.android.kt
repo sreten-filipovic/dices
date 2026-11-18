@@ -37,7 +37,6 @@ private object AndroidDiceRollSound : DiceRollSound {
         scope.launch {
             try {
                 val bytes = Res.readBytes(DICE_ROLL_SOUND_PATH)
-                // SoundPool cannot load from memory, so the resource is copied to the cache first
                 val file = withContext(Dispatchers.IO) {
                     File(context.cacheDir, "dice_roll.wav").apply { writeBytes(bytes) }
                 }

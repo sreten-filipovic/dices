@@ -33,7 +33,6 @@ import com.cubes.template.shared.ui.common.ColorTextSecondary
 import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.SemiBoldFont
 
-/** Titled list of [RankingRow]s: a round ranking or the final standings. */
 @Composable
 fun RankingSection(title: String, rows: @Composable () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -48,7 +47,6 @@ fun RankingSection(title: String, rows: @Composable () -> Unit) {
     }
 }
 
-/** One line of a ranking: medal-colored place, player name, optional [detail] and the [value] earned. */
 @Composable
 fun RankingRow(place: Int, name: String, detail: String?, value: String) {
     val isFirst = place == 1

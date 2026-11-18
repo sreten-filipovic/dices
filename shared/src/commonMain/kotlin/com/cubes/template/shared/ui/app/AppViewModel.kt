@@ -15,10 +15,6 @@ sealed interface AppStartupState {
     data class Ready(val navigator: AppScreenNavigatorImpl) : AppStartupState
 }
 
-/**
- * Decides the first screen while the splash is visible
- * (session check, onboarding flag, forced update...).
- */
 class AppViewModel(
     private val localDataSource: LocalDataSource,
 ) : ViewModel() {
@@ -38,12 +34,8 @@ class AppViewModel(
     private fun start() {
         viewModelScope.launch {
             try {
-                // Keep the splash up long enough for the dice intro animation to finish
                 delay(SplashAnimation.totalMillis)
 
-                // Place startup logic here, e.g.:
-                // val loggedIn = authManager.userLoggedIn()
-                // val nextScreen = if (loggedIn) AppScreen.Main() else AppScreen.Intro(...)
                 val nextScreen = AppScreen.Main()
                 localDataSource.setOnboardingDone(true)
 

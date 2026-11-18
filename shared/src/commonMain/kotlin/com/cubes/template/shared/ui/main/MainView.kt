@@ -21,11 +21,6 @@ import com.cubes.template.shared.ui.main.game_setup.GameSetupView
 import com.cubes.template.shared.ui.main.home.HomeView
 import com.cubes.template.shared.ui.main.sevens.SevensView
 
-/**
- * Hosts the Main flow back stack. Each `entry` creates its ViewModel through
- * [ScreenCompositionRoot] and is scoped to the back stack entry.
- * Add a Scaffold with bottom navigation here when the app needs tabs.
- */
 @Composable
 fun MainView(
     mainScreenNavigator: MainScreenNavigator,
@@ -63,6 +58,7 @@ fun MainView(
                     val viewModel = viewModel {
                         screenCompositionRoot.getDiceDuelViewModel(
                             playerNames = screen.playerNames,
+                            dieStyles = screen.dieStyles,
                             diceCount = screen.diceCount,
                             onBack = mainScreenNavigator::back,
                         )
@@ -81,6 +77,7 @@ fun MainView(
                     val viewModel = viewModel {
                         screenCompositionRoot.getGameViewModel(
                             playerNames = screen.playerNames,
+                            dieStyles = screen.dieStyles,
                             totalRounds = screen.totalRounds,
                             screenNavigator = mainScreenNavigator,
                         )
@@ -92,6 +89,7 @@ fun MainView(
                     val viewModel = viewModel {
                         screenCompositionRoot.getSevensViewModel(
                             playerNames = screen.playerNames,
+                            dieStyles = screen.dieStyles,
                             totalRounds = screen.totalRounds,
                             onHome = mainScreenNavigator::showHome,
                         )

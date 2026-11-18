@@ -49,11 +49,6 @@ import com.cubes.template.shared.ui.common.SemiBoldFont
 private val ToolbarHeight = 56.dp
 private val LogoDieSize = 24.dp
 
-/**
- * Felt-green bar with a white back arrow and the logo dice in the middle (tap to roll them).
- * Stays pinned to the top of the screen; the screen's [ScreenTitle] scrolls under it.
- * With [rules] a book icon on the right opens the rules of that game.
- */
 @Composable
 fun Toolbar(
     modifier: Modifier = Modifier,
@@ -88,7 +83,6 @@ fun Toolbar(
     }
 }
 
-/** The screen [title] in capitals with an optional [subtitle]; the first item of the scrolling content. */
 @Composable
 fun ScreenTitle(
     title: String,
@@ -125,7 +119,6 @@ fun ScreenTitle(
     }
 }
 
-/** Smaller copy of the home screen logo: five sixes that roll again when tapped. */
 @Composable
 private fun LogoDice(modifier: Modifier = Modifier) {
     var rollKey by remember { mutableStateOf(0) }
@@ -179,7 +172,6 @@ private fun BackArrow(onClick: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
-/** Open book drawn in white; opens the rules of the game. */
 @Composable
 private fun RulesButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
@@ -194,7 +186,6 @@ private fun RulesButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             val w = size.width
             val h = size.height
             val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
-            // Two pages curving away from the spine in the middle
             listOf(-1f, 1f).forEach { side ->
                 fun x(fromSpine: Float) = w * (0.5f + side * fromSpine)
                 val page = Path().apply {
@@ -204,7 +195,6 @@ private fun RulesButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
                     quadraticTo(x(0.22f), h * 0.7f, x(0f), h * 0.86f)
                 }
                 drawPath(page, color = ColorWhite, style = stroke)
-                // A line of text on the page
                 drawLine(
                     color = ColorWhite,
                     start = Offset(x(0.14f), h * 0.4f),

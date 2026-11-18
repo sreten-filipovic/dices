@@ -60,7 +60,6 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                // Compose Multiplatform
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.foundation)
                 implementation(libs.compose.material3)
@@ -69,13 +68,11 @@ kotlin {
                 implementation(libs.compose.components.resources)
                 implementation(libs.compose.uiToolingPreview)
 
-                // Lifecycle + Navigation 3
                 implementation(libs.androidx.lifecycle.runtimeCompose)
                 implementation(libs.androidx.lifecycle.viewmodelCompose)
                 implementation(libs.androidx.navigation3.ui)
                 implementation(libs.navigation3.lifecycle.viewmodel)
 
-                // Network
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.logging)
                 implementation(libs.ktor.client.content.negotiation)
@@ -83,16 +80,13 @@ kotlin {
                 implementation(libs.ktor.client.auth)
                 implementation(libs.kotlinx.serialization)
 
-                // Local storage
                 implementation(libs.datastore)
                 implementation(libs.datastore.preferences)
 
-                // Images
                 implementation(libs.coil.compose)
                 implementation(libs.coil.svg)
                 implementation(libs.coil.network.ktor3)
 
-                // Misc
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kermit)
@@ -127,7 +121,6 @@ kotlin {
 }
 
 compose.resources {
-    // Fixed package so renaming the project does not change Res imports.
     packageOfResClass = "com.cubes.template.shared.resources"
     publicResClass = true
 }

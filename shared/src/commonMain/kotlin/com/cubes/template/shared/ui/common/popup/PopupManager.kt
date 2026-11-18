@@ -4,11 +4,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * App-wide bottom-sheet style popups. ViewModels call [PopupManager.show]; the root
- * [GlobalPopupRenderer] renders whatever is in [PopupManager.popupState].
- * Add a new subclass + a branch in [GlobalPopupRenderer] for each new popup type.
- */
 sealed interface PopupState {
     data class Error(
         val title: String? = null,

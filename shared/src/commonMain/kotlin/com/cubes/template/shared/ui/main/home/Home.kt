@@ -6,10 +6,6 @@ object Home {
         val listener: HomeViewListener,
     )
 
-    /**
-     * Games in the home screen collection. [dice] is the card artwork: rows of die faces.
-     * Games whose rules are not settled yet are listed but not [available].
-     */
     enum class GameCard(val dice: List<List<Int>>, val available: Boolean) {
         DICE_POKER(dice = listOf(listOf(6, 6, 6), listOf(5, 5)), available = true),
         DICE_JACK(dice = listOf(listOf(6, 5), listOf(4, 6)), available = false),

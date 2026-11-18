@@ -54,7 +54,6 @@ fun DiceRollScreen(viewData: DiceRoll.ViewData) {
     ) {
         Toolbar(onBackClick = listener::onBackClick)
 
-        // The green bar stays on top; the title, content and buttons scroll under it
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             ScreenTitle(title = stringResource(Res.string.dice_roll_title))
             Box(

@@ -2,7 +2,6 @@ package com.cubes.template.shared.domain.game
 
 import kotlinx.serialization.Serializable
 
-/** Declared from weakest to strongest; `ordinal` is the strength. */
 @Serializable
 enum class HandRank {
     NOTHING,
@@ -16,10 +15,6 @@ enum class HandRank {
     FIVE_OF_A_KIND,
 }
 
-/**
- * Evaluated hand. Two hands are compared by [rank] first, then [tiebreakers] element by element.
- * Equal hands are a draw.
- */
 @Serializable
 data class Hand(
     val rank: HandRank,
