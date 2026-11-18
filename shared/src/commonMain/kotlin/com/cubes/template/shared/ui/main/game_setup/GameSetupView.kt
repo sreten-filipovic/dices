@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.duel_dice_count
 import com.cubes.template.shared.resources.setup_add_player
 import com.cubes.template.shared.resources.setup_player_hint
 import com.cubes.template.shared.resources.setup_players
@@ -46,6 +47,7 @@ import com.cubes.template.shared.ui.common.SemiBoldFont
 import com.cubes.template.shared.ui.common.views.ScreenTitle
 import com.cubes.template.shared.ui.common.views.Toolbar
 import com.cubes.template.shared.ui.common.views.buttons.Button
+import com.cubes.template.shared.ui.main.home.rules
 import com.cubes.template.shared.ui.main.home.title
 import org.jetbrains.compose.resources.stringResource
 
@@ -64,7 +66,7 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
             .background(ColorBackground)
             .imePadding()
     ) {
-        Toolbar(onBackClick = listener::onBackClick)
+        Toolbar(onBackClick = listener::onBackClick, rules = viewData.game.rules)
 
         // The green bar stays on top; the title, content and buttons scroll under it
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
@@ -104,26 +106,20 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
                     }
                 }
 
-                SectionTitle(stringResource(Res.string.setup_rounds))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    GameSetup.ROUND_OPTIONS.forEach { value ->
-                        val selected = value == viewData.totalRounds
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
-                                .background(if (selected) ColorPrimary else ColorPrimaryLight)
-                                .clickable { listener.onTotalRoundsChanged(value) },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = value.toString(),
-                                color = if (selected) ColorWhite else ColorPrimary,
-                                fontFamily = BoldFont(),
-                                fontSize = 18.sp,
-                            )
-                        }
-                    }
+                if (viewData.choosesDiceCount) {
+                    SectionTitle(stringResource(Res.string.duel_dice_count))
+                    OptionChips(
+                        options = GameSetup.DICE_COUNT_OPTIONS,
+                        selected = viewData.diceCount,
+                        onSelect = listener::onDiceCountChanged,
+                    )
+                } else {
+                    SectionTitle(stringResource(Res.string.setup_rounds))
+                    OptionChips(
+                        options = GameSetup.ROUND_OPTIONS,
+                        selected = viewData.totalRounds,
+                        onSelect = listener::onTotalRoundsChanged,
+                    )
                 }
             }
 
@@ -135,6 +131,31 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
                     .padding(20.dp)
                     .navigationBarsPadding(),
             )
+        }
+    }
+}
+
+/** Row of round chips with one number each; the [selected] one is filled. */
+@Composable
+private fun OptionChips(options: List<Int>, selected: Int, onSelect: (Int) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        options.forEach { value ->
+            val isSelected = value == selected
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(if (isSelected) ColorPrimary else ColorPrimaryLight)
+                    .clickable { onSelect(value) },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = value.toString(),
+                    color = if (isSelected) ColorWhite else ColorPrimary,
+                    fontFamily = BoldFont(),
+                    fontSize = 18.sp,
+                )
+            }
         }
     }
 }

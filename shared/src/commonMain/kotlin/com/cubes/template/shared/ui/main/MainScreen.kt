@@ -9,7 +9,7 @@ import com.cubes.template.shared.ui.main.home.Home
 sealed class MainScreen {
     data object Home : MainScreen()
     data object DiceRoll : MainScreen()
-    data object DiceDuel : MainScreen()
+    data class DiceDuel(val playerNames: List<String>, val diceCount: Int) : MainScreen()
     /** Players and match length for [game], which is started from here. */
     data class GameSetup(val game: Home.GameCard) : MainScreen()
     data class Game(val playerNames: List<String>, val totalRounds: Int) : MainScreen()

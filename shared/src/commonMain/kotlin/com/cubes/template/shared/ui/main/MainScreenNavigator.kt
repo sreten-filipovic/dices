@@ -43,7 +43,6 @@ class MainNavigatorImpl(
 
     // HomeScreenNavigator
     override fun showGameSetup(game: Home.GameCard) = navigateTo(MainScreen.GameSetup(game))
-    override fun showDiceDuel() = navigateTo(MainScreen.DiceDuel)
 
     // GameSetupScreenNavigator: setup is replaced by the game, so back from the game goes home
     override fun startGame(game: Home.GameCard, playerNames: List<String>, totalRounds: Int) {
@@ -52,6 +51,10 @@ class MainNavigatorImpl(
             else -> MainScreen.Game(playerNames, totalRounds)
         }
         backStack.update { it.dropLastWhile { last -> last is MainScreen.GameSetup } + screen }
+    }
+
+    override fun startDuel(playerNames: List<String>, diceCount: Int) {
+        backStack.update { it.dropLastWhile { last -> last is MainScreen.GameSetup } + MainScreen.DiceDuel(playerNames, diceCount) }
     }
 
     // GameScreenNavigator

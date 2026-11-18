@@ -59,9 +59,13 @@ fun MainView(
                     DiceRollView(viewModel = viewModel)
                 }
 
-                entry<MainScreen.DiceDuel> {
+                entry<MainScreen.DiceDuel> { screen ->
                     val viewModel = viewModel {
-                        screenCompositionRoot.getDiceDuelViewModel(onBack = mainScreenNavigator::back)
+                        screenCompositionRoot.getDiceDuelViewModel(
+                            playerNames = screen.playerNames,
+                            diceCount = screen.diceCount,
+                            onBack = mainScreenNavigator::back,
+                        )
                     }
                     DiceDuelView(viewModel = viewModel)
                 }

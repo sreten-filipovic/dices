@@ -96,6 +96,7 @@ import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DiceTable
 import com.cubes.template.shared.ui.common.views.DieAnimation
 import com.cubes.template.shared.ui.common.views.DieFace
+import com.cubes.template.shared.ui.common.views.GameRules
 import com.cubes.template.shared.ui.common.views.RankingRow
 import com.cubes.template.shared.ui.common.views.RankingSection
 import com.cubes.template.shared.ui.common.views.ScreenTitle
@@ -122,7 +123,7 @@ fun GameScreen(viewData: Game.ViewData) {
 
     Box(modifier = Modifier.fillMaxSize().background(ColorBackground)) {
         Column(modifier = Modifier.fillMaxSize().blur(blur)) {
-            Toolbar(onBackClick = listener::onHomeClick)
+            Toolbar(onBackClick = listener::onHomeClick, rules = GameRules.DICE_POKER)
 
             // The green bar stays on top; the title, content and buttons scroll under it
             Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {

@@ -1,7 +1,15 @@
 package com.cubes.template.shared.ui.main.dice_duel
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,52 +20,66 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cubes.template.shared.domain.duel.DiceDuel
+import com.cubes.template.shared.domain.duel.DuelState
 import com.cubes.template.shared.resources.Res
-import com.cubes.template.shared.resources.duel_dice_count
-import com.cubes.template.shared.resources.duel_draw
 import com.cubes.template.shared.resources.duel_play_again
-import com.cubes.template.shared.resources.duel_vs
+import com.cubes.template.shared.resources.duel_results
 import com.cubes.template.shared.resources.duel_winner
 import com.cubes.template.shared.resources.duel_wins
 import com.cubes.template.shared.resources.game_dice_duel
+import com.cubes.template.shared.resources.game_done
+import com.cubes.template.shared.resources.game_play_tiebreak
+import com.cubes.template.shared.resources.game_tiebreak_next
 import com.cubes.template.shared.resources.game_turn_of
+import com.cubes.template.shared.resources.game_waiting
 import com.cubes.template.shared.resources.roll
-import com.cubes.template.shared.resources.setup_player_hint
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
+import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorPrimary
-import com.cubes.template.shared.ui.common.ColorPrimaryLight
+import com.cubes.template.shared.ui.common.ColorSuccess
+import com.cubes.template.shared.ui.common.ColorSurface
 import com.cubes.template.shared.ui.common.ColorTextPrimary
+import com.cubes.template.shared.ui.common.ColorTextSecondary
+import com.cubes.template.shared.ui.common.ColorTransparent
 import com.cubes.template.shared.ui.common.ColorWarning
 import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.RegularFont
+import com.cubes.template.shared.ui.common.SemiBoldFont
 import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DiceTable
 import com.cubes.template.shared.ui.common.views.DieAnimation
+import com.cubes.template.shared.ui.common.views.DieFace
+import com.cubes.template.shared.ui.common.views.GameRules
+import com.cubes.template.shared.ui.common.views.RankingRow
+import com.cubes.template.shared.ui.common.views.RankingSection
 import com.cubes.template.shared.ui.common.views.ScreenTitle
 import com.cubes.template.shared.ui.common.views.Toolbar
 import com.cubes.template.shared.ui.common.views.buttons.Button
 import org.jetbrains.compose.resources.stringResource
+
+private val CARD_DIE_SIZE = 28.dp
 
 @Composable
 fun DiceDuelView(viewModel: DiceDuelViewModel) {
@@ -69,144 +91,250 @@ fun DiceDuelView(viewModel: DiceDuelViewModel) {
 fun DiceDuelScreen(viewData: DiceDuelUi.ViewData) {
     val listener = viewData.listener
     val state = viewData.state
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(ColorBackground)
-    ) {
-        Toolbar(onBackClick = listener::onBackClick)
+    val blur by animateDpAsState(if (viewData.dialogOpen) 10.dp else 0.dp)
 
-        // The green bar stays on top; the title, content and buttons scroll under it
-        Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            ScreenTitle(title = stringResource(Res.string.game_dice_duel))
+    Box(modifier = Modifier.fillMaxSize().background(ColorBackground)) {
+        Column(modifier = Modifier.fillMaxSize().blur(blur)) {
+            Toolbar(onBackClick = listener::onBackClick, rules = GameRules.DICE_DUEL)
+
+            // The green bar stays on top; the title, content and buttons scroll under it
+            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                ScreenTitle(title = stringResource(Res.string.game_dice_duel))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    PlayersPanel(viewData)
+                    if (viewData.showResult) ResultPanel(state) else TurnPanel(viewData)
+                }
+
+                Button(
+                    text = stringResource(
+                        when {
+                            !viewData.showResult -> Res.string.roll
+                            state.needsTiebreak -> Res.string.game_play_tiebreak
+                            else -> Res.string.duel_play_again
+                        }
+                    ),
+                    onClick = when {
+                        !viewData.showResult -> listener::onRollClick
+                        state.needsTiebreak -> listener::onTiebreakClick
+                        else -> listener::onNextDuelClick
+                    },
+                    enabled = !viewData.dialogOpen,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .navigationBarsPadding(),
+                )
+            }
+        }
+
+        // Dim the blurred screen and block touches while the dialog is open
+        AnimatedVisibility(visible = viewData.dialogOpen, enter = fadeIn(), exit = fadeOut()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(ColorBlack.copy(alpha = 0.45f))
+                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {},
+            )
+        }
+
+        AnimatedVisibility(
+            visible = viewData.dialogOpen,
+            modifier = Modifier.align(Alignment.Center),
+            enter = fadeIn() + scaleIn(initialScale = 0.85f),
+            exit = fadeOut() + scaleOut(targetScale = 0.9f),
+        ) {
+            TableDialogContent(viewData)
+        }
+    }
+}
+
+/** Every player's wins so far, plus the dice they rolled in the duel that is being played. */
+@Composable
+private fun PlayersPanel(viewData: DiceDuelUi.ViewData) {
+    val state = viewData.state
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        state.players.forEachIndexed { index, name ->
+            val isWinner = viewData.showResult && index == state.winner
+            val isCurrent = !viewData.dialogOpen && index == state.currentPlayer
+            // Don't reveal the roller's dice on their card before the animation in the dialog has finished
+            val hand = state.hands[index].takeUnless { viewData.rolling && index == viewData.tablePlayer }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(if (isWinner) ColorSuccess.copy(alpha = 0.15f) else ColorSurface)
+                    .border(
+                        width = 2.dp,
+                        color = when {
+                            isWinner -> ColorSuccess
+                            isCurrent -> ColorPrimary
+                            else -> ColorTransparent
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                    )
+                    .padding(12.dp),
             ) {
-                // Locked (dimmed) once the duel has started, so both players roll the same number of dice
-                val canChangeDiceCount = state.canChangeDiceCount && !viewData.rolling
-                Row(
-                    modifier = Modifier.fillMaxWidth().alpha(if (canChangeDiceCount) 1f else 0.5f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = stringResource(Res.string.duel_dice_count),
-                        fontFamily = BoldFont(),
-                        fontSize = 18.sp,
+                        text = name,
+                        fontFamily = SemiBoldFont(),
+                        fontSize = 16.sp,
                         color = ColorTextPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f),
                     )
-                    DiceDuel.DICE_COUNT_OPTIONS.forEach { count ->
-                        val selected = count == state.diceCount
-                        Box(
-                            modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
-                                .background(if (selected) ColorPrimary else ColorPrimaryLight)
-                                .clickable(enabled = canChangeDiceCount) { listener.onDiceCountChanged(count) },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = count.toString(),
-                                color = if (selected) ColorWhite else ColorPrimary,
-                                fontFamily = BoldFont(),
-                                fontSize = 18.sp,
-                            )
+                    Text(
+                        text = stringResource(Res.string.duel_wins, state.wins[index]),
+                        fontFamily = BoldFont(),
+                        fontSize = 16.sp,
+                        color = ColorPrimary,
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                // Same height with and without dice so the card does not jump when they appear
+                Row(modifier = Modifier.height(CARD_DIE_SIZE), verticalAlignment = Alignment.CenterVertically) {
+                    if (hand != null) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            hand.forEach { value -> DieFace(value = value, size = CARD_DIE_SIZE) }
                         }
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            text = hand.sum().toString(),
+                            fontFamily = BoldFont(),
+                            fontSize = 18.sp,
+                            color = ColorTextPrimary,
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(Res.string.game_waiting),
+                            fontFamily = RegularFont(),
+                            fontSize = 14.sp,
+                            color = ColorTextSecondary,
+                        )
                     }
                 }
-
-                DiceTable(modifier = Modifier.fillMaxWidth()) {
-                    PlayerPanel(viewData = viewData, player = 0)
-                    Text(
-                        text = stringResource(Res.string.duel_vs),
-                        fontFamily = ExtraBoldFont(),
-                        fontSize = 16.sp,
-                        color = ColorWhite.copy(alpha = 0.6f),
-                    )
-                    PlayerPanel(viewData = viewData, player = 1)
-                }
-
-                val currentPlayer = state.currentPlayer
-                val winner = state.winner
-                Text(
-                    text = when {
-                        viewData.rolling -> ""
-                        currentPlayer != null -> stringResource(Res.string.game_turn_of, playerName(currentPlayer))
-                        winner != null -> stringResource(Res.string.duel_winner, playerName(winner))
-                        else -> stringResource(Res.string.duel_draw)
-                    },
-                    fontFamily = if (viewData.showResult) ExtraBoldFont() else RegularFont(),
-                    fontSize = if (viewData.showResult) 24.sp else 16.sp,
-                    color = ColorTextPrimary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.height(36.dp),
-                )
             }
+        }
+    }
+}
 
-            Button(
-                text = stringResource(if (viewData.showResult) Res.string.duel_play_again else Res.string.roll),
-                onClick = if (viewData.showResult) listener::onNextDuelClick else listener::onRollClick,
-                enabled = !viewData.rolling,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-                    .navigationBarsPadding(),
+/** Main screen while waiting for the next player to roll: just whose turn it is. */
+@Composable
+private fun TurnPanel(viewData: DiceDuelUi.ViewData) {
+    val player = viewData.state.currentPlayer
+    Text(
+        text = if (player != null) stringResource(Res.string.game_turn_of, viewData.state.players[player]) else "",
+        fontFamily = ExtraBoldFont(),
+        fontSize = 28.sp,
+        color = ColorTextPrimary,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+    )
+}
+
+/** A shared first place: who rolls again. Otherwise who won (two players) or everyone's place (more). */
+@Composable
+private fun ResultPanel(state: DuelState) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(ColorSurface)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (state.needsTiebreak) {
+            Text(
+                text = stringResource(
+                    Res.string.game_tiebreak_next,
+                    state.leaders.joinToString { state.players[it] },
+                ),
+                fontFamily = BoldFont(),
+                fontSize = 18.sp,
+                color = ColorPrimary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(vertical = 8.dp),
+            )
+        } else if (state.players.size > 2) {
+            RankingSection(title = stringResource(Res.string.duel_results)) {
+                state.players.indices.sortedBy(state::placeOf).forEach { player ->
+                    RankingRow(
+                        place = state.placeOf(player),
+                        name = state.players[player],
+                        detail = null,
+                        // Players who tied show every roll, e.g. "10 · 4"
+                        value = state.sumsOf(player).joinToString(" · "),
+                    )
+                }
+            }
+        } else {
+            Text(
+                text = stringResource(Res.string.duel_winner, state.winner?.let { state.players[it] }.orEmpty()),
+                fontFamily = ExtraBoldFont(),
+                fontSize = 24.sp,
+                color = ColorSuccess,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(vertical = 8.dp),
             )
         }
     }
 }
 
+/** The dice table: the player's single roll happens here; "Done" closes it. */
 @Composable
-private fun PlayerPanel(viewData: DiceDuelUi.ViewData, player: Int) {
+private fun TableDialogContent(viewData: DiceDuelUi.ViewData) {
     val state = viewData.state
-    val hand = state.hands[player]
-    val settled = viewData.rollingPlayer != player
-    val isTurn = !viewData.rolling && state.currentPlayer == player
-    val isWinner = viewData.showResult && state.winner == player
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    val hand = state.hands[viewData.tablePlayer]
+    DiceTable(modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
         Text(
-            text = playerName(player),
+            text = state.players[viewData.tablePlayer],
             fontFamily = BoldFont(),
-            fontSize = 18.sp,
-            color = if (isTurn || isWinner) ColorWarning else ColorWhite,
+            fontSize = 22.sp,
+            color = ColorWhite,
+            textAlign = TextAlign.Center,
         )
-        Text(
-            text = stringResource(Res.string.duel_wins, viewData.wins[player]),
-            fontFamily = RegularFont(),
-            fontSize = 14.sp,
-            color = ColorWhite.copy(alpha = 0.8f),
-        )
+
         // Headroom for the dice to jump into
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(40.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
             repeat(state.diceCount) { index ->
                 AnimatedDie(
                     value = hand?.getOrNull(index),
-                    rollKey = viewData.rollKeys[player],
+                    rollKey = 0,
                     size = 68.dp,
-                    highlighted = isWinner,
                     startDelayMillis = index * DieAnimation.STAGGER_MILLIS,
+                    // The dialog opens together with the roll
+                    animateOnAppear = viewData.rolling,
                 )
             }
         }
         Text(
-            text = if (hand != null && settled) hand.sum().toString() else "",
+            text = if (hand != null && !viewData.rolling) hand.sum().toString() else "",
             fontFamily = ExtraBoldFont(),
-            fontSize = 30.sp,
-            color = ColorWhite,
-            modifier = Modifier.padding(top = 8.dp).height(40.dp),
+            fontSize = 34.sp,
+            color = ColorWarning,
+            modifier = Modifier.height(46.dp),
+        )
+
+        Button(
+            text = stringResource(Res.string.game_done),
+            onClick = viewData.listener::onDoneClick,
+            enabled = viewData.dialogOpen && !viewData.rolling,
+            modifier = Modifier.fillMaxWidth(),
+            backgroundColor = ColorWhite,
+            textColor = ColorPrimary,
         )
     }
 }
-
-@Composable
-private fun playerName(player: Int) = stringResource(Res.string.setup_player_hint, player + 1)
 
 @Preview(showBackground = true)
 @Composable
@@ -216,6 +344,18 @@ private fun DiceDuelScreenTurnPreview() {
 
 @Preview(showBackground = true)
 @Composable
+private fun DiceDuelScreenDialogPreview() {
+    AppTheme { DiceDuelScreen(viewData = PreviewHelper.diceDuelDialog()) }
+}
+
+@Preview(showBackground = true)
+@Composable
 private fun DiceDuelScreenResultPreview() {
     AppTheme { DiceDuelScreen(viewData = PreviewHelper.diceDuelResult()) }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DiceDuelScreenRankingPreview() {
+    AppTheme { DiceDuelScreen(viewData = PreviewHelper.diceDuelRanking()) }
 }

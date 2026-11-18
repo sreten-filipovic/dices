@@ -54,6 +54,7 @@ import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DieAnimation
 import com.cubes.template.shared.ui.common.views.DieFace
+import com.cubes.template.shared.ui.common.views.GameRules
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -179,6 +180,17 @@ internal val Home.GameCard.title: StringResource
         Home.GameCard.SEVENS -> Res.string.game_sevens
         Home.GameCard.RISK_IT -> Res.string.game_risk_it
         Home.GameCard.STRAIGHT_ROLL -> Res.string.game_straight_roll
+    }
+
+/** Rules shown from the toolbar of the game's screens; `null` for games that are not playable yet. */
+internal val Home.GameCard.rules: GameRules?
+    get() = when (this) {
+        Home.GameCard.DICE_POKER -> GameRules.DICE_POKER
+        Home.GameCard.DICE_DUEL -> GameRules.DICE_DUEL
+        Home.GameCard.SEVENS -> GameRules.SEVENS
+        Home.GameCard.DICE_JACK,
+        Home.GameCard.RISK_IT,
+        Home.GameCard.STRAIGHT_ROLL -> null
     }
 
 @Preview(showBackground = true)

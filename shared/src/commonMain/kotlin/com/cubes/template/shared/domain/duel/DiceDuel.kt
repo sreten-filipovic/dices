@@ -3,46 +3,85 @@ package com.cubes.template.shared.domain.duel
 import com.cubes.template.shared.domain.game.DiceRoller
 
 /**
- * One duel between two players (indices 0 and 1): each rolls [diceCount] dice once, the higher sum wins.
- * [wins] accumulates across duels; [starter] alternates so nobody always rolls first.
+ * One duel between [players] (identified by index): each rolls [diceCount] dice once, the highest
+ * sum wins. If the highest sum is shared, only the tied players roll again until one of them wins.
+ * [wins] accumulates across duels; [starter] moves on so nobody always rolls first.
  */
 data class DuelState(
-    val diceCount: Int = 1,
-    /** Rolled dice per player; `null` until that player has rolled in the current duel. */
-    val hands: List<List<Int>?> = listOf(null, null),
-    val wins: List<Int> = listOf(0, 0),
+    val players: List<String>,
+    val diceCount: Int,
+    /** Latest dice per player; `null` while that player still has to roll in the current stage of the duel. */
+    val hands: List<List<Int>?> = List(players.size) { null },
+    val wins: List<Int> = List(players.size) { 0 },
     val starter: Int = 0,
+    /** Players rolling in the current stage: everyone, or only the tied leaders in a tiebreak. */
+    val participants: List<Int> = players.indices.toList(),
+    /** Per player the sums of the rolls that ended in a tie earlier in this duel, oldest first. */
+    val tiedSums: List<List<Int>> = List(players.size) { emptyList() },
 ) {
-    /** Player who rolls next, or `null` when both have rolled. */
+    /** True when every participant of the current stage has rolled. */
+    val isStageOver: Boolean get() = participants.all { hands[it] != null }
+
+    /** Player who rolls next, or `null` when the stage is over. Players roll in order from [starter]. */
     val currentPlayer: Int?
-        get() = when {
-            hands[starter] == null -> starter
-            hands[1 - starter] == null -> 1 - starter
-            else -> null
-        }
+        get() = players.indices
+            .map { (starter + it) % players.size }
+            .firstOrNull { it in participants && hands[it] == null }
 
-    val isOver: Boolean get() = currentPlayer == null
+    /** Sum of a player's latest dice, or `null` if they have not rolled yet. */
+    fun sumOf(player: Int): Int? = hands[player]?.sum()
 
-    /** The number of dice can only change before anyone has rolled in the current duel. */
-    val canChangeDiceCount: Boolean get() = hands.all { it == null }
-
-    /** Winner of the finished duel; `null` while it is still running or when it ended in a draw. */
-    val winner: Int?
+    /** Participants with the highest sum of the finished stage; empty while it is still running. */
+    val leaders: List<Int>
         get() {
-            val first = hands[0]?.sum() ?: return null
-            val second = hands[1]?.sum() ?: return null
-            return when {
-                first > second -> 0
-                second > first -> 1
-                else -> null
-            }
+            if (!isStageOver) return emptyList()
+            val best = participants.maxOf { sumOf(it) ?: 0 }
+            return participants.filter { sumOf(it) == best }
         }
+
+    /** The stage is over but the highest sum is shared: [leaders] have to roll again. */
+    val needsTiebreak: Boolean get() = leaders.size > 1
+
+    /** Winner of the duel; `null` while it is still running or waiting for a tiebreak. */
+    val winner: Int? get() = leaders.singleOrNull()
+
+    /** True when the duel has a winner. */
+    val isOver: Boolean get() = winner != null
+
+    /** True while only the tied leaders are rolling. */
+    val isTiebreak: Boolean get() = participants.size < players.size
+
+    /** All sums a player rolled in this duel, oldest first; more than one only for players who tied. */
+    fun sumsOf(player: Int): List<Int> = tiedSums[player] + listOfNotNull(sumOf(player))
+
+    /**
+     * Place of a player in the duel, starting at 1. Players are compared roll by roll, so a tiebreak
+     * only reorders the players who were tied; equal results share a place.
+     */
+    fun placeOf(player: Int): Int {
+        val mine = sumsOf(player)
+        return 1 + players.indices.count { compareSums(sumsOf(it), mine) > 0 }
+    }
+
+    private fun compareSums(a: List<Int>, b: List<Int>): Int {
+        for (i in 0 until minOf(a.size, b.size)) {
+            if (a[i] != b[i]) return a[i].compareTo(b[i])
+        }
+        return a.size.compareTo(b.size)
+    }
 }
 
 object DiceDuel {
-    val DICE_COUNT_OPTIONS = listOf(1, 2)
+    const val MIN_PLAYERS = 2
+    val DICE_COUNT_OPTIONS = listOf(1, 2, 3)
 
-    /** Rolls for the current player; the roll that finishes the duel also scores it. */
+    fun newGame(players: List<String>, diceCount: Int): DuelState {
+        require(players.size >= MIN_PLAYERS) { "A duel needs at least $MIN_PLAYERS players" }
+        require(diceCount in DICE_COUNT_OPTIONS) { "A duel is played with one of $DICE_COUNT_OPTIONS dice" }
+        return DuelState(players = players, diceCount = diceCount)
+    }
+
+    /** Rolls for the current player; the roll that decides the duel also scores it. */
     fun roll(state: DuelState, roller: DiceRoller): DuelState {
         val player = state.currentPlayer ?: return state
         val rolled = state.copy(
@@ -54,10 +93,29 @@ object DiceDuel {
         return rolled.copy(wins = rolled.wins.mapIndexed { index, wins -> if (index == winner) wins + 1 else wins })
     }
 
-    fun setDiceCount(state: DuelState, diceCount: Int): DuelState =
-        if (state.canChangeDiceCount && diceCount in DICE_COUNT_OPTIONS) state.copy(diceCount = diceCount) else state
+    /** Sends the tied leaders back to the table; everyone else keeps their dice and sits the tiebreak out. */
+    fun tiebreak(state: DuelState): DuelState {
+        if (!state.needsTiebreak) return state
+        val tied = state.leaders
+        return state.copy(
+            participants = tied,
+            hands = state.hands.mapIndexed { index, hand -> if (index in tied) null else hand },
+            tiedSums = state.tiedSums.mapIndexed { index, sums ->
+                if (index in tied) sums + (state.sumOf(index) ?: 0) else sums
+            },
+        )
+    }
 
-    /** Clears the table for another duel; the other player rolls first this time. */
+    /** Clears the table for another duel; the next player rolls first this time. */
     fun nextDuel(state: DuelState): DuelState =
-        if (state.isOver) state.copy(hands = listOf(null, null), starter = 1 - state.starter) else state
+        if (state.isOver) {
+            DuelState(
+                players = state.players,
+                diceCount = state.diceCount,
+                wins = state.wins,
+                starter = (state.starter + 1) % state.players.size,
+            )
+        } else {
+            state
+        }
 }

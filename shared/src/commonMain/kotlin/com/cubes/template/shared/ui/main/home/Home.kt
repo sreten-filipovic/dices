@@ -26,5 +26,4 @@ interface HomeViewListener {
 
 interface HomeScreenNavigator {
     fun showGameSetup(game: Home.GameCard)
-    fun showDiceDuel()
 }

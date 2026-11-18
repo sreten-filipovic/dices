@@ -34,18 +34,36 @@ object PreviewHelper {
         override fun onBackClick() = Unit
     })
 
-    fun diceDuelTurn() = diceDuel(DuelState(diceCount = 2, hands = listOf(listOf(4, 5), null)))
+    fun diceDuelTurn() = diceDuel(
+        DuelState(players = listOf("Ana", "Marko"), diceCount = 2, hands = listOf(listOf(4, 5), null)),
+    )
+
+    fun diceDuelDialog() = diceDuelTurn().copy(dialogOpen = true)
 
     fun diceDuelResult() = diceDuel(
-        DuelState(diceCount = 2, hands = listOf(listOf(4, 5), listOf(6, 6)), wins = listOf(1, 2)),
+        DuelState(
+            players = listOf("Ana", "Marko"),
+            diceCount = 2,
+            hands = listOf(listOf(4, 5), listOf(6, 6)),
+            wins = listOf(1, 2),
+        ),
+    )
+
+    fun diceDuelRanking() = diceDuel(
+        DuelState(
+            players = listOf("Ana", "Marko", "Jovan", "Mila"),
+            diceCount = 3,
+            hands = listOf(listOf(4, 5, 1), listOf(6, 6, 2), listOf(1, 3, 3), listOf(2, 5, 3)),
+            wins = listOf(1, 2, 0, 0),
+        ),
     )
 
     private fun diceDuel(state: DuelState) = DiceDuelUi.ViewData(
         state = state,
-        wins = state.wins,
         listener = object : DiceDuelViewListener {
-            override fun onDiceCountChanged(diceCount: Int) = Unit
             override fun onRollClick() = Unit
+            override fun onDoneClick() = Unit
+            override fun onTiebreakClick() = Unit
             override fun onNextDuelClick() = Unit
             override fun onBackClick() = Unit
         },
@@ -98,6 +116,7 @@ object PreviewHelper {
             override fun onAddPlayerClick() = Unit
             override fun onRemovePlayerClick(index: Int) = Unit
             override fun onTotalRoundsChanged(totalRounds: Int) = Unit
+            override fun onDiceCountChanged(diceCount: Int) = Unit
             override fun onStartClick() = Unit
             override fun onBackClick() = Unit
         },

@@ -40,12 +40,21 @@ class GameSetupViewModel(
         _viewData.update { it.copy(totalRounds = totalRounds) }
     }
 
+    override fun onDiceCountChanged(diceCount: Int) {
+        if (diceCount !in GameSetup.DICE_COUNT_OPTIONS) return
+        _viewData.update { it.copy(diceCount = diceCount) }
+    }
+
     override fun onStartClick() {
         val data = _viewData.value
         val names = data.names.mapIndexed { index, name ->
             name.trim().ifEmpty { stringProvider.getString(Res.string.setup_player_hint, index + 1) }
         }
-        screenNavigator.startGame(game = data.game, playerNames = names, totalRounds = data.totalRounds)
+        if (data.choosesDiceCount) {
+            screenNavigator.startDuel(playerNames = names, diceCount = data.diceCount)
+        } else {
+            screenNavigator.startGame(game = data.game, playerNames = names, totalRounds = data.totalRounds)
+        }
     }
 
     override fun onBackClick() = screenNavigator.back()

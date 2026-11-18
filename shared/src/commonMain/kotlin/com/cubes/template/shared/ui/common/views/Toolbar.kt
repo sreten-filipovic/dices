@@ -52,12 +52,19 @@ private val LogoDieSize = 24.dp
 /**
  * Felt-green bar with a white back arrow and the logo dice in the middle (tap to roll them).
  * Stays pinned to the top of the screen; the screen's [ScreenTitle] scrolls under it.
+ * With [rules] a book icon on the right opens the rules of that game.
  */
 @Composable
 fun Toolbar(
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
+    rules: GameRules? = null,
 ) {
+    var showRules by remember { mutableStateOf(false) }
+    if (rules != null && showRules) {
+        RulesDialog(rules = rules, onDismiss = { showRules = false })
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -72,6 +79,12 @@ fun Toolbar(
             )
         }
         LogoDice(modifier = Modifier.align(Alignment.Center))
+        if (rules != null) {
+            RulesButton(
+                onClick = { showRules = true },
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 4.dp),
+            )
+        }
     }
 }
 
@@ -166,11 +179,56 @@ private fun BackArrow(onClick: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
+/** Open book drawn in white; opens the rules of the game. */
+@Composable
+private fun RulesButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(48.dp)
+            .clip(CircleShape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics { contentDescription = "Rules" },
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(modifier = Modifier.size(24.dp)) {
+            val w = size.width
+            val h = size.height
+            val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+            // Two pages curving away from the spine in the middle
+            listOf(-1f, 1f).forEach { side ->
+                fun x(fromSpine: Float) = w * (0.5f + side * fromSpine)
+                val page = Path().apply {
+                    moveTo(x(0f), h * 0.26f)
+                    quadraticTo(x(0.22f), h * 0.12f, x(0.44f), h * 0.2f)
+                    lineTo(x(0.44f), h * 0.78f)
+                    quadraticTo(x(0.22f), h * 0.7f, x(0f), h * 0.86f)
+                }
+                drawPath(page, color = ColorWhite, style = stroke)
+                // A line of text on the page
+                drawLine(
+                    color = ColorWhite,
+                    start = Offset(x(0.14f), h * 0.4f),
+                    end = Offset(x(0.32f), h * 0.36f),
+                    strokeWidth = stroke.width * 0.7f,
+                    cap = StrokeCap.Round,
+                )
+            }
+            drawLine(
+                color = ColorWhite,
+                start = Offset(w * 0.5f, h * 0.26f),
+                end = Offset(w * 0.5f, h * 0.86f),
+                strokeWidth = stroke.width,
+                cap = StrokeCap.Round,
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun ToolbarPreview() {
     Column(Modifier.background(ColorBackground)) {
-        Toolbar(onBackClick = {})
+        Toolbar(onBackClick = {}, rules = GameRules.DICE_POKER)
         ScreenTitle(title = "Dice Poker", subtitle = "Round 1 of 3")
     }
 }

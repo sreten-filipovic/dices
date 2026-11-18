@@ -40,7 +40,13 @@ class ScreenCompositionRoot(
         onBack = onBack,
     )
 
-    fun getDiceDuelViewModel(onBack: () -> Unit) = DiceDuelViewModel(
+    fun getDiceDuelViewModel(
+        playerNames: List<String>,
+        diceCount: Int,
+        onBack: () -> Unit,
+    ) = DiceDuelViewModel(
+        playerNames = playerNames,
+        diceCount = diceCount,
         diceRoller = diceRoller,
         onBack = onBack,
     )

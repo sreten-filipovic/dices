@@ -23,11 +23,15 @@
     <string name="game_straight_roll">Straight Roll</string>
 
     <string name="duel_dice_count">Number of dice</string>
-    <string name="duel_vs">VS</string>
     <string name="duel_wins">Wins: %1$d</string>
     <string name="duel_winner">%1$s wins!</string>
-    <string name="duel_draw">Draw!</string>
+    <string name="duel_results">Results</string>
     <string name="duel_play_again">Play again</string>
+
+    <string name="rules_title">How to play</string>
+    <string name="rules_dice_poker">• 2–6 players take turns on one device. A match lasts 1, 3 or 5 rounds.\n\n• On your turn roll five dice. Then either keep them, or pick any of them and roll those once more.\n\n• Hands from weakest to strongest: Nothing, One Pair, Two Pairs, Three of a Kind, Small Straight (1–5), Large Straight (2–6), Full House, Four of a Kind, Five of a Kind. Equal hands are decided by the higher dice.\n\n• When everyone has played, the players are ranked by their hands. With N players the best hand earns N−1 points, each following place one point less and the last place 0. Identical hands share a place.\n\n• A different player starts every round.\n\n• The highest total after the last round wins. If first place is shared, the tied players play tiebreak rounds until one of them leads.</string>
+    <string name="rules_dice_duel">• 2–6 players take turns on one device.\n\n• Before the game starts, choose whether it is played with one, two or three dice.\n\n• In a duel every player rolls once. The highest total wins the duel and earns one win.\n\n• If the highest total is shared, only the tied players roll again, until one of them wins.\n\n• A different player rolls first in every duel. Play as many duels as you like.</string>
+    <string name="rules_sevens">• 2–6 players take turns on one device. A match lasts 1, 3 or 5 rounds.\n\n• On your turn roll six dice. Every pair that adds up to 7 (1+6, 2+5, 3+4) is removed and scores nothing.\n\n• After a roll either bank the sum of the dice still on the table, or roll those dice again. New pairs of 7 are removed as well.\n\n• The player who opens a round may roll up to three times. Everyone else in that round may roll at most as many times as the opener did.\n\n• If all six dice are removed, you score 0 for that turn.\n\n• A different player opens every round. The highest total after the last round wins.</string>
 
     <string name="seven_rolls_left">Rolls left: %1$d</string>
     <string name="seven_max_rolls">Max rolls this turn: %1$d</string>
