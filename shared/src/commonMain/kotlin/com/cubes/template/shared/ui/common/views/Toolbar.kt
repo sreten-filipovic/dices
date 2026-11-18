@@ -50,60 +50,64 @@ private val ToolbarHeight = 56.dp
 private val LogoDieSize = 24.dp
 
 /**
- * Felt-green header with a white back arrow and the logo dice in the middle (tap to roll them),
- * followed by the screen [title] in capitals and an optional [subtitle] below the bar.
+ * Felt-green bar with a white back arrow and the logo dice in the middle (tap to roll them).
+ * Stays pinned to the top of the screen; the screen's [ScreenTitle] scrolls under it.
  */
 @Composable
 fun Toolbar(
+    modifier: Modifier = Modifier,
+    onBackClick: (() -> Unit)? = null,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Brush.horizontalGradient(listOf(ColorFeltDark, ColorFeltLight, ColorFeltDark)))
+            .statusBarsPadding()
+            .height(ToolbarHeight)
+    ) {
+        if (onBackClick != null) {
+            BackArrow(
+                onClick = onBackClick,
+                modifier = Modifier.align(Alignment.CenterStart).padding(start = 4.dp),
+            )
+        }
+        LogoDice(modifier = Modifier.align(Alignment.Center))
+    }
+}
+
+/** The screen [title] in capitals with an optional [subtitle]; the first item of the scrolling content. */
+@Composable
+fun ScreenTitle(
     title: String,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
-    onBackClick: (() -> Unit)? = null,
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Brush.horizontalGradient(listOf(ColorFeltDark, ColorFeltLight, ColorFeltDark)))
-                .statusBarsPadding()
-                .height(ToolbarHeight)
-        ) {
-            if (onBackClick != null) {
-                BackArrow(
-                    onClick = onBackClick,
-                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 4.dp),
-                )
-            }
-            LogoDice(modifier = Modifier.align(Alignment.Center))
-        }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = title.uppercase(),
+            fontFamily = ExtraBoldFont(),
+            fontSize = 26.sp,
+            letterSpacing = 1.sp,
+            color = ColorTextPrimary,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (subtitle != null) {
             Text(
-                text = title.uppercase(),
-                fontFamily = ExtraBoldFont(),
-                fontSize = 26.sp,
-                letterSpacing = 1.sp,
-                color = ColorTextPrimary,
+                text = subtitle,
+                fontFamily = SemiBoldFont(),
+                fontSize = 15.sp,
+                color = ColorTextSecondary,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    fontFamily = SemiBoldFont(),
-                    fontSize = 15.sp,
-                    color = ColorTextSecondary,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
         }
     }
 }
@@ -165,7 +169,8 @@ private fun BackArrow(onClick: () -> Unit, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun ToolbarPreview() {
-    Box(Modifier.background(ColorBackground)) {
-        Toolbar(title = "Dice Poker", subtitle = "Round 1 of 3", onBackClick = {})
+    Column(Modifier.background(ColorBackground)) {
+        Toolbar(onBackClick = {})
+        ScreenTitle(title = "Dice Poker", subtitle = "Round 1 of 3")
     }
 }

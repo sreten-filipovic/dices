@@ -18,7 +18,7 @@
     <string name="game_dice_poker">Dice Poker</string>
     <string name="game_dice_jack">Dice Jack</string>
     <string name="game_dice_duel">Dice Duel</string>
-    <string name="game_lucky_seven">Lucky Seven</string>
+    <string name="game_sevens">Sevens</string>
     <string name="game_risk_it">Risk It</string>
     <string name="game_straight_roll">Straight Roll</string>
 
@@ -28,6 +28,11 @@
     <string name="duel_winner">%1$s wins!</string>
     <string name="duel_draw">Draw!</string>
     <string name="duel_play_again">Play again</string>
+
+    <string name="seven_rolls_left">Rolls left: %1$d</string>
+    <string name="seven_max_rolls">Max rolls this turn: %1$d</string>
+    <string name="seven_bank">Bank</string>
+    <string name="seven_hint">Pairs of dice that add up to 7 are removed and do not score</string>
 
     <string name="dice_roll_title">Roll a die</string>
     <string name="dice_roll_hint">Tap “Roll” to roll the die</string>

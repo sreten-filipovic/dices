@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -81,12 +79,8 @@ import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorPrimary
-import com.cubes.template.shared.ui.common.ColorBronze
-import com.cubes.template.shared.ui.common.ColorGold
-import com.cubes.template.shared.ui.common.ColorGrayLight
 import com.cubes.template.shared.ui.common.ColorPrimaryLight
 import com.cubes.template.shared.ui.common.ColorSuccess
-import com.cubes.template.shared.ui.common.ColorSilver
 import com.cubes.template.shared.ui.common.ColorSurface
 import com.cubes.template.shared.ui.common.ColorTextPrimary
 import com.cubes.template.shared.ui.common.ColorTextSecondary
@@ -102,6 +96,9 @@ import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DiceTable
 import com.cubes.template.shared.ui.common.views.DieAnimation
 import com.cubes.template.shared.ui.common.views.DieFace
+import com.cubes.template.shared.ui.common.views.RankingRow
+import com.cubes.template.shared.ui.common.views.RankingSection
+import com.cubes.template.shared.ui.common.views.ScreenTitle
 import com.cubes.template.shared.ui.common.views.Toolbar
 import com.cubes.template.shared.ui.common.views.buttons.Button
 import org.jetbrains.compose.resources.stringResource
@@ -125,28 +122,30 @@ fun GameScreen(viewData: Game.ViewData) {
 
     Box(modifier = Modifier.fillMaxSize().background(ColorBackground)) {
         Column(modifier = Modifier.fillMaxSize().blur(blur)) {
-            Toolbar(
-                title = stringResource(Res.string.game_dice_poker),
-                subtitle = if (state.isTiebreak) {
-                    stringResource(Res.string.game_tiebreak)
-                } else {
-                    stringResource(Res.string.game_round, state.round, state.totalRounds)
-                },
-                onBackClick = listener::onHomeClick,
-            )
+            Toolbar(onBackClick = listener::onHomeClick)
 
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                PlayersPanel(state, viewData.rollDialog)
-                if (state.phase.isPlaying) TurnPanel(state) else ResultPanel(state)
+            // The green bar stays on top; the title, content and buttons scroll under it
+            Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                ScreenTitle(
+                    title = stringResource(Res.string.game_dice_poker),
+                    subtitle = if (state.isTiebreak) {
+                        stringResource(Res.string.game_tiebreak)
+                    } else {
+                        stringResource(Res.string.game_round, state.round, state.totalRounds)
+                    },
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    PlayersPanel(state, viewData.rollDialog)
+                    if (state.phase.isPlaying) TurnPanel(state) else ResultPanel(state)
+                }
+
+                ActionButtons(state, listener)
             }
-
-            ActionButtons(state, listener)
         }
 
         // Dim the blurred screen and block touches while the dialog is open
@@ -400,75 +399,6 @@ private fun FinalStandingsTable(state: GameState) {
                 value = stringResource(Res.string.game_score_value, score),
             )
         }
-    }
-}
-
-@Composable
-private fun RankingSection(title: String, rows: @Composable () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            text = title,
-            fontFamily = BoldFont(),
-            fontSize = 18.sp,
-            color = ColorTextPrimary,
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp),
-        )
-        rows()
-    }
-}
-
-@Composable
-private fun RankingRow(place: Int, name: String, detail: String?, value: String) {
-    val isFirst = place == 1
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(if (isFirst) ColorSuccess.copy(alpha = 0.12f) else ColorBackground)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        PlaceBadge(place)
-        Spacer(Modifier.width(12.dp))
-        Text(
-            text = name,
-            fontFamily = if (isFirst) BoldFont() else SemiBoldFont(),
-            fontSize = 16.sp,
-            color = ColorTextPrimary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
-        if (detail != null) {
-            Spacer(Modifier.width(8.dp))
-            Text(text = detail, fontFamily = SemiBoldFont(), fontSize = 14.sp, color = ColorTextSecondary)
-        }
-        Spacer(Modifier.width(12.dp))
-        Text(text = value, fontFamily = BoldFont(), fontSize = 15.sp, color = ColorPrimary)
-    }
-}
-
-@Composable
-private fun PlaceBadge(place: Int) {
-    val color = when (place) {
-        1 -> ColorGold
-        2 -> ColorSilver
-        3 -> ColorBronze
-        else -> ColorGrayLight
-    }
-    Box(
-        modifier = Modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .background(color),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = place.toString(),
-            fontFamily = BoldFont(),
-            fontSize = 15.sp,
-            color = if (place <= 3) ColorWhite else ColorTextPrimary,
-        )
     }
 }
 

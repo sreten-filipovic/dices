@@ -5,6 +5,7 @@ import com.cubes.template.shared.OpenUrlHandler
 import com.cubes.template.shared.ui.app.AppScreenNavigator
 import com.cubes.template.shared.ui.main.game.GameScreenNavigator
 import com.cubes.template.shared.ui.main.game_setup.GameSetupScreenNavigator
+import com.cubes.template.shared.ui.main.home.Home
 import com.cubes.template.shared.ui.main.home.HomeScreenNavigator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,12 +42,16 @@ class MainNavigatorImpl(
     }
 
     // HomeScreenNavigator
-    override fun showGameSetup() = navigateTo(MainScreen.GameSetup)
+    override fun showGameSetup(game: Home.GameCard) = navigateTo(MainScreen.GameSetup(game))
     override fun showDiceDuel() = navigateTo(MainScreen.DiceDuel)
 
     // GameSetupScreenNavigator: setup is replaced by the game, so back from the game goes home
-    override fun startGame(playerNames: List<String>, totalRounds: Int) {
-        backStack.update { it.dropLastWhile { screen -> screen is MainScreen.GameSetup } + MainScreen.Game(playerNames, totalRounds) }
+    override fun startGame(game: Home.GameCard, playerNames: List<String>, totalRounds: Int) {
+        val screen = when (game) {
+            Home.GameCard.SEVENS -> MainScreen.Sevens(playerNames, totalRounds)
+            else -> MainScreen.Game(playerNames, totalRounds)
+        }
+        backStack.update { it.dropLastWhile { last -> last is MainScreen.GameSetup } + screen }
     }
 
     // GameScreenNavigator

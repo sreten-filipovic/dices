@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cubes.template.shared.resources.Res
-import com.cubes.template.shared.resources.game_dice_poker
 import com.cubes.template.shared.resources.setup_add_player
 import com.cubes.template.shared.resources.setup_player_hint
 import com.cubes.template.shared.resources.setup_players
@@ -44,8 +43,10 @@ import com.cubes.template.shared.ui.common.ColorTextPrimary
 import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.SemiBoldFont
+import com.cubes.template.shared.ui.common.views.ScreenTitle
 import com.cubes.template.shared.ui.common.views.Toolbar
 import com.cubes.template.shared.ui.common.views.buttons.Button
+import com.cubes.template.shared.ui.main.home.title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -63,75 +64,78 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
             .background(ColorBackground)
             .imePadding()
     ) {
-        Toolbar(title = stringResource(Res.string.game_dice_poker), onBackClick = listener::onBackClick)
+        Toolbar(onBackClick = listener::onBackClick)
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            SectionTitle(stringResource(Res.string.setup_players))
+        // The green bar stays on top; the title, content and buttons scroll under it
+        Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+            ScreenTitle(title = stringResource(viewData.game.title))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                SectionTitle(stringResource(Res.string.setup_players))
 
-            viewData.names.forEachIndexed { index, name ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { listener.onNameChanged(index, it) },
-                        placeholder = { Text(stringResource(Res.string.setup_player_hint, index + 1)) },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f),
-                    )
-                    if (viewData.canRemovePlayer) {
-                        TextButton(onClick = { listener.onRemovePlayerClick(index) }) {
-                            Text(stringResource(Res.string.setup_remove_player), color = ColorPrimary)
+                viewData.names.forEachIndexed { index, name ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = { listener.onNameChanged(index, it) },
+                            placeholder = { Text(stringResource(Res.string.setup_player_hint, index + 1)) },
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (viewData.canRemovePlayer) {
+                            TextButton(onClick = { listener.onRemovePlayerClick(index) }) {
+                                Text(stringResource(Res.string.setup_remove_player), color = ColorPrimary)
+                            }
+                        }
+                    }
+                }
+
+                if (viewData.canAddPlayer) {
+                    TextButton(onClick = listener::onAddPlayerClick) {
+                        Text(
+                            text = stringResource(Res.string.setup_add_player),
+                            color = ColorPrimary,
+                            fontFamily = SemiBoldFont(),
+                        )
+                    }
+                }
+
+                SectionTitle(stringResource(Res.string.setup_rounds))
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    GameSetup.ROUND_OPTIONS.forEach { value ->
+                        val selected = value == viewData.totalRounds
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(if (selected) ColorPrimary else ColorPrimaryLight)
+                                .clickable { listener.onTotalRoundsChanged(value) },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = value.toString(),
+                                color = if (selected) ColorWhite else ColorPrimary,
+                                fontFamily = BoldFont(),
+                                fontSize = 18.sp,
+                            )
                         }
                     }
                 }
             }
 
-            if (viewData.canAddPlayer) {
-                TextButton(onClick = listener::onAddPlayerClick) {
-                    Text(
-                        text = stringResource(Res.string.setup_add_player),
-                        color = ColorPrimary,
-                        fontFamily = SemiBoldFont(),
-                    )
-                }
-            }
-
-            SectionTitle(stringResource(Res.string.setup_rounds))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                GameSetup.ROUND_OPTIONS.forEach { value ->
-                    val selected = value == viewData.totalRounds
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(if (selected) ColorPrimary else ColorPrimaryLight)
-                            .clickable { listener.onTotalRoundsChanged(value) },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = value.toString(),
-                            color = if (selected) ColorWhite else ColorPrimary,
-                            fontFamily = BoldFont(),
-                            fontSize = 18.sp,
-                        )
-                    }
-                }
-            }
+            Button(
+                text = stringResource(Res.string.setup_start),
+                onClick = listener::onStartClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+                    .navigationBarsPadding(),
+            )
         }
-
-        Button(
-            text = stringResource(Res.string.setup_start),
-            onClick = listener::onStartClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-                .navigationBarsPadding(),
-        )
     }
 }
 

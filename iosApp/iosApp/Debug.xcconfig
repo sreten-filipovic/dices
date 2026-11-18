@@ -1,4 +1,4 @@
 // Per-configuration values read by Info.plist and the build settings.
 AppName = Dice Games Debug
 BaseUrl = https:/$()/jsonplaceholder.typicode.com/
-BundleId = com.scifarm.dicepoker.debug
+BundleId = com.scifarm.dices.dev

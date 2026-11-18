@@ -14,7 +14,7 @@ object Home {
         DICE_POKER(dice = listOf(listOf(6, 6, 6), listOf(5, 5)), available = true),
         DICE_JACK(dice = listOf(listOf(6, 5), listOf(4, 6)), available = false),
         DICE_DUEL(dice = listOf(listOf(6, 5)), available = true),
-        LUCKY_SEVEN(dice = listOf(listOf(3, 4)), available = false),
+        SEVENS(dice = listOf(listOf(3, 4)), available = true),
         RISK_IT(dice = listOf(listOf(6, 6, 1)), available = false),
         STRAIGHT_ROLL(dice = listOf(listOf(1, 2, 3), listOf(4, 5, 6)), available = false),
     }
@@ -25,6 +25,6 @@ interface HomeViewListener {
 }
 
 interface HomeScreenNavigator {
-    fun showGameSetup()
+    fun showGameSetup(game: Home.GameCard)
     fun showDiceDuel()
 }

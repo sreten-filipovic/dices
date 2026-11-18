@@ -36,7 +36,7 @@ import com.cubes.template.shared.resources.Res
 import com.cubes.template.shared.resources.game_dice_duel
 import com.cubes.template.shared.resources.game_dice_jack
 import com.cubes.template.shared.resources.game_dice_poker
-import com.cubes.template.shared.resources.game_lucky_seven
+import com.cubes.template.shared.resources.game_sevens
 import com.cubes.template.shared.resources.game_risk_it
 import com.cubes.template.shared.resources.game_straight_roll
 import com.cubes.template.shared.resources.home_coming_soon
@@ -171,12 +171,12 @@ private fun GameCardView(game: Home.GameCard, onClick: () -> Unit, modifier: Mod
     }
 }
 
-private val Home.GameCard.title: StringResource
+internal val Home.GameCard.title: StringResource
     get() = when (this) {
         Home.GameCard.DICE_POKER -> Res.string.game_dice_poker
         Home.GameCard.DICE_JACK -> Res.string.game_dice_jack
         Home.GameCard.DICE_DUEL -> Res.string.game_dice_duel
-        Home.GameCard.LUCKY_SEVEN -> Res.string.game_lucky_seven
+        Home.GameCard.SEVENS -> Res.string.game_sevens
         Home.GameCard.RISK_IT -> Res.string.game_risk_it
         Home.GameCard.STRAIGHT_ROLL -> Res.string.game_straight_roll
     }

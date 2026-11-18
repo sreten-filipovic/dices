@@ -19,6 +19,7 @@ import com.cubes.template.shared.ui.main.dice_roll.DiceRollView
 import com.cubes.template.shared.ui.main.game.GameView
 import com.cubes.template.shared.ui.main.game_setup.GameSetupView
 import com.cubes.template.shared.ui.main.home.HomeView
+import com.cubes.template.shared.ui.main.sevens.SevensView
 
 /**
  * Hosts the Main flow back stack. Each `entry` creates its ViewModel through
@@ -65,8 +66,10 @@ fun MainView(
                     DiceDuelView(viewModel = viewModel)
                 }
 
-                entry<MainScreen.GameSetup> {
-                    val viewModel = viewModel { screenCompositionRoot.getGameSetupViewModel(mainScreenNavigator) }
+                entry<MainScreen.GameSetup> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getGameSetupViewModel(screen.game, mainScreenNavigator)
+                    }
                     GameSetupView(viewModel = viewModel)
                 }
 
@@ -79,6 +82,17 @@ fun MainView(
                         )
                     }
                     GameView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.Sevens> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getSevensViewModel(
+                            playerNames = screen.playerNames,
+                            totalRounds = screen.totalRounds,
+                            onHome = mainScreenNavigator::showHome,
+                        )
+                    }
+                    SevensView(viewModel = viewModel)
                 }
             }
         )

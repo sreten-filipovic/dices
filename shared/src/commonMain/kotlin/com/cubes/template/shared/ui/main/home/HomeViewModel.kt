@@ -11,11 +11,11 @@ class HomeViewModel(
     override fun onGameClick(game: Home.GameCard) {
         if (!game.available) return
         when (game) {
-            Home.GameCard.DICE_POKER -> screenNavigator.showGameSetup()
+            Home.GameCard.DICE_POKER,
+            Home.GameCard.SEVENS -> screenNavigator.showGameSetup(game)
             Home.GameCard.DICE_DUEL -> screenNavigator.showDiceDuel()
             // Rules not defined yet
             Home.GameCard.DICE_JACK,
-            Home.GameCard.LUCKY_SEVEN,
             Home.GameCard.RISK_IT,
             Home.GameCard.STRAIGHT_ROLL -> Unit
         }

@@ -10,6 +10,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -37,19 +38,26 @@ fun DieFace(
     size: Dp = 56.dp,
     selected: Boolean = false,
     highlighted: Boolean = false,
+    markColor: Color? = null,
     onClick: (() -> Unit)? = null,
 ) {
     val clickModifier = if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
     Canvas(modifier = modifier.size(size).then(clickModifier)) {
-        drawDieFace(value = value, selected = selected, highlighted = highlighted)
+        drawDieFace(value = value, selected = selected, highlighted = highlighted, markColor = markColor)
     }
 }
 
 /** Draws a die filling the draw area; the selection/highlight glow is drawn slightly outside it. */
-internal fun DrawScope.drawDieFace(value: Int?, selected: Boolean, highlighted: Boolean) {
+internal fun DrawScope.drawDieFace(
+    value: Int?,
+    selected: Boolean,
+    highlighted: Boolean,
+    /** Custom ring/glow color; takes precedence over [selected] and [highlighted]. */
+    markColor: Color? = null,
+) {
     val side = size.minDimension
     val corner = CornerRadius(side * 0.2f)
-    val ringColor = when {
+    val ringColor = markColor ?: when {
         selected -> ColorAccent
         highlighted -> ColorPrimary
         else -> null

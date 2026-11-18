@@ -19,6 +19,8 @@ val ColorDivider = Color(0xFFD8D8D8)
 val ColorSuccess = Color(0xFF3FB05A)
 val ColorError = Color(0xFFED1C24)
 val ColorWarning = Color(0xFFFFE065)
+val ColorYellow = Color(0xFFFFD21F)
+val ColorOrange = Color(0xFFFF8A1F)
 
 // Dice table
 val ColorFeltLight = Color(0xFF2F8A5B)

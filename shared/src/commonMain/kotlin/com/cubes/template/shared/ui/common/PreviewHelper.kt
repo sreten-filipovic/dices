@@ -5,6 +5,10 @@ import com.cubes.template.shared.domain.game.GameAction
 import com.cubes.template.shared.domain.game.GameEngine
 import com.cubes.template.shared.domain.game.GameState
 import com.cubes.template.shared.domain.duel.DuelState
+import com.cubes.template.shared.domain.seven.Sevens
+import com.cubes.template.shared.domain.seven.SevenState
+import com.cubes.template.shared.ui.main.sevens.SevensUi
+import com.cubes.template.shared.ui.main.sevens.SevensViewListener
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelUi
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelViewListener
 import com.cubes.template.shared.ui.main.dice_roll.DiceRoll
@@ -44,6 +48,46 @@ object PreviewHelper {
             override fun onRollClick() = Unit
             override fun onNextDuelClick() = Unit
             override fun onBackClick() = Unit
+        },
+    )
+
+    fun sevensTurn() = sevens(
+        sampleSeven()
+            .let { Sevens.roll(it, fixedRoller(6, 1, 5, 5, 3, 2)) }
+            .let(Sevens::bank)
+    )
+
+    fun sevensDialog() = sevens(
+        state = sampleSeven()
+            .let { Sevens.roll(it, fixedRoller(6, 1, 5, 5, 3, 2)) }
+            .let(Sevens::bank)
+            .let { Sevens.roll(it, fixedRoller(4, 3, 6, 6, 2, 1)) },
+        dialogOpen = true,
+    )
+
+    fun sevensMatchOver() = sevens(
+        sampleSeven()
+            .let { Sevens.roll(it, fixedRoller(6, 1, 5, 5, 3, 2)) }
+            .let(Sevens::bank)
+            .let { Sevens.roll(it, fixedRoller(4, 3, 6, 6, 2, 1)) }
+            .let(Sevens::bank)
+    )
+
+    private fun sampleSeven() = Sevens.newGame(listOf("Ana", "Marko"), totalRounds = 1)
+
+    private fun sevens(state: SevenState, dialogOpen: Boolean = false) = SevensUi.ViewData(
+        state = state,
+        dialogOpen = dialogOpen,
+        tablePlayer = state.currentPlayer,
+        tableTurn = state.turn,
+        tableRollsLeft = state.rollLimit - state.turn.rolls,
+        pairsShown = state.turn.pairs,
+        listener = object : SevensViewListener {
+            override fun onRollClick() = Unit
+            override fun onBankClick() = Unit
+            override fun onNextRoundClick() = Unit
+            override fun onNewMatchClick() = Unit
+            override fun onHomeClick() = Unit
         },
     )
 

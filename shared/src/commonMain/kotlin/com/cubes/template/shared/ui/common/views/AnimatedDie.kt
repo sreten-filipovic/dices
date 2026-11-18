@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
@@ -59,6 +60,7 @@ fun AnimatedDie(
     size: Dp = 56.dp,
     selected: Boolean = false,
     highlighted: Boolean = false,
+    markColor: Color? = null,
     startDelayMillis: Int = 0,
     animateOnAppear: Boolean = false,
     soundEnabled: Boolean = true,
@@ -160,6 +162,7 @@ fun AnimatedDie(
                 value = if (rolling) tumbleFace else targetValue,
                 selected = selected && !rolling,
                 highlighted = highlighted && !rolling,
+                markColor = markColor.takeIf { !rolling },
             )
         }
     }
