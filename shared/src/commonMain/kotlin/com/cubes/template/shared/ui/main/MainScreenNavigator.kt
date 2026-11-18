@@ -48,6 +48,8 @@ class MainNavigatorImpl(
     ) {
         val screen = when (game) {
             Home.GameCard.SEVENS -> MainScreen.Sevens(playerNames, dieStyles, totalRounds)
+            Home.GameCard.STRAIGHT_ROLL -> MainScreen.StraightRoll(playerNames, dieStyles, totalRounds)
+            Home.GameCard.RISK_IT -> MainScreen.RiskIt(playerNames, dieStyles, totalRounds)
             Home.GameCard.DICE_JACK -> MainScreen.DiceJack(playerNames, dieStyles, totalRounds)
             else -> MainScreen.Game(playerNames, dieStyles, totalRounds)
         }

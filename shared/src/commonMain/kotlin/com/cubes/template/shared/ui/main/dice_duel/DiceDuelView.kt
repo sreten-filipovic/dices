@@ -74,7 +74,6 @@ import com.cubes.template.shared.ui.common.views.DieFace
 import com.cubes.template.shared.ui.common.views.GameRules
 import com.cubes.template.shared.ui.common.views.RankingRow
 import com.cubes.template.shared.ui.common.views.RankingSection
-import com.cubes.template.shared.ui.common.views.ScreenTitle
 import com.cubes.template.shared.ui.common.views.Toolbar
 import com.cubes.template.shared.ui.common.views.buttons.Button
 import org.jetbrains.compose.resources.stringResource
@@ -95,10 +94,13 @@ fun DiceDuelScreen(viewData: DiceDuelUi.ViewData) {
 
     Box(modifier = Modifier.fillMaxSize().background(ColorBackground)) {
         Column(modifier = Modifier.fillMaxSize().blur(blur)) {
-            Toolbar(onBackClick = listener::onBackClick, rules = GameRules.DICE_DUEL)
+            Toolbar(
+                onBackClick = listener::onBackClick,
+                rules = GameRules.DICE_DUEL,
+                title = stringResource(Res.string.game_dice_duel),
+            )
 
             Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                ScreenTitle(title = stringResource(Res.string.game_dice_duel))
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

@@ -11,8 +11,8 @@ object Home {
         DICE_JACK(dice = listOf(listOf(6, 5), listOf(4, 6)), available = true),
         DICE_DUEL(dice = listOf(listOf(6, 5)), available = true),
         SEVENS(dice = listOf(listOf(3, 4)), available = true),
-        RISK_IT(dice = listOf(listOf(6, 6, 1)), available = false),
-        STRAIGHT_ROLL(dice = listOf(listOf(1, 2, 3), listOf(4, 5, 6)), available = false),
+        RISK_IT(dice = listOf(listOf(6, 6, 1)), available = true),
+        STRAIGHT_ROLL(dice = listOf(listOf(1, 2, 3), listOf(4, 5, 6)), available = true),
     }
 }
 

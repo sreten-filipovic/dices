@@ -16,7 +16,9 @@ import com.cubes.template.shared.ui.main.game_setup.GameSetupViewModel
 import com.cubes.template.shared.ui.main.home.Home
 import com.cubes.template.shared.ui.main.home.HomeScreenNavigator
 import com.cubes.template.shared.ui.main.home.HomeViewModel
+import com.cubes.template.shared.ui.main.risk_it.RiskItViewModel
 import com.cubes.template.shared.ui.main.sevens.SevensViewModel
+import com.cubes.template.shared.ui.main.straight_roll.StraightRollViewModel
 
 class ScreenCompositionRoot(
     private val appCompositionRoot: AppCompositionRoot,
@@ -77,6 +79,32 @@ class ScreenCompositionRoot(
         totalRounds: Int,
         onHome: () -> Unit,
     ) = DiceJackViewModel(
+        playerNames = playerNames,
+        dieStyles = dieStyles,
+        totalRounds = totalRounds,
+        diceRoller = diceRoller,
+        onHome = onHome,
+    )
+
+    fun getStraightRollViewModel(
+        playerNames: List<String>,
+        dieStyles: List<DieStyle>,
+        totalRounds: Int,
+        onHome: () -> Unit,
+    ) = StraightRollViewModel(
+        playerNames = playerNames,
+        dieStyles = dieStyles,
+        totalRounds = totalRounds,
+        diceRoller = diceRoller,
+        onHome = onHome,
+    )
+
+    fun getRiskItViewModel(
+        playerNames: List<String>,
+        dieStyles: List<DieStyle>,
+        totalRounds: Int,
+        onHome: () -> Unit,
+    ) = RiskItViewModel(
         playerNames = playerNames,
         dieStyles = dieStyles,
         totalRounds = totalRounds,

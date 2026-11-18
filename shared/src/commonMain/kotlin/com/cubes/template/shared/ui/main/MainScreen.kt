@@ -10,5 +10,7 @@ sealed class MainScreen {
     data class GameSetup(val game: Home.GameCard) : MainScreen()
     data class Game(val playerNames: List<String>, val dieStyles: List<DieStyle>, val totalRounds: Int) : MainScreen()
     data class DiceJack(val playerNames: List<String>, val dieStyles: List<DieStyle>, val totalRounds: Int) : MainScreen()
+    data class StraightRoll(val playerNames: List<String>, val dieStyles: List<DieStyle>, val totalRounds: Int) : MainScreen()
+    data class RiskIt(val playerNames: List<String>, val dieStyles: List<DieStyle>, val totalRounds: Int) : MainScreen()
     data class Sevens(val playerNames: List<String>, val dieStyles: List<DieStyle>, val totalRounds: Int) : MainScreen()
 }

@@ -7,11 +7,19 @@ import com.cubes.template.shared.domain.game.GameState
 import com.cubes.template.shared.domain.duel.DuelState
 import com.cubes.template.shared.domain.jack.DiceJack
 import com.cubes.template.shared.domain.jack.JackState
+import com.cubes.template.shared.domain.risk.RiskIt
+import com.cubes.template.shared.domain.risk.RiskState
 import com.cubes.template.shared.domain.seven.Sevens
+import com.cubes.template.shared.domain.straight.StraightRoll
+import com.cubes.template.shared.domain.straight.StraightState
 import com.cubes.template.shared.domain.seven.SevenState
 import com.cubes.template.shared.ui.common.views.DieStyle
+import com.cubes.template.shared.ui.main.risk_it.RiskItUi
+import com.cubes.template.shared.ui.main.risk_it.RiskItViewListener
 import com.cubes.template.shared.ui.main.sevens.SevensUi
 import com.cubes.template.shared.ui.main.sevens.SevensViewListener
+import com.cubes.template.shared.ui.main.straight_roll.StraightRollUi
+import com.cubes.template.shared.ui.main.straight_roll.StraightRollViewListener
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelUi
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelViewListener
 import com.cubes.template.shared.ui.main.dice_jack.DiceJackUi
@@ -107,6 +115,91 @@ object PreviewHelper {
         listener = object : DiceJackViewListener {
             override fun onRollClick() = Unit
             override fun onStandClick() = Unit
+            override fun onNextRoundClick() = Unit
+            override fun onNewMatchClick() = Unit
+            override fun onHomeClick() = Unit
+        },
+    )
+
+    fun straightRollTurn() = straightRoll(
+        sampleStraight()
+            .let { StraightRoll.roll(it, fixedRoller(1, 2, 3, 4, 5, 6)) }
+            .let(StraightRoll::finish)
+    )
+
+    fun straightRollDialog() = straightRoll(
+        state = sampleStraight()
+            .let { StraightRoll.roll(it, fixedRoller(1, 2, 3, 4, 5, 6)) }
+            .let(StraightRoll::finish)
+            .let { StraightRoll.roll(it, fixedRoller(1, 1, 3, 4, 4, 6)) },
+        dialogOpen = true,
+    )
+
+    fun straightRollMatchOver() = straightRoll(
+        sampleStraight()
+            .let { StraightRoll.roll(it, fixedRoller(1, 2, 3, 4, 5, 6)) }
+            .let(StraightRoll::finish)
+            .let { StraightRoll.roll(it, fixedRoller(1, 1, 3, 4, 5, 6)) }
+            .let { StraightRoll.roll(it, fixedRoller(2)) }
+            .let(StraightRoll::finish)
+    )
+
+    private fun sampleStraight() = StraightRoll.newGame(listOf("Ana", "Marko"), totalRounds = 1)
+
+    private fun straightRoll(state: StraightState, dialogOpen: Boolean = false) = StraightRollUi.ViewData(
+        state = state,
+        dialogOpen = dialogOpen,
+        tablePlayer = state.currentPlayer,
+        tableTurn = state.turn,
+        onTable = state.turn.remaining,
+        collected = state.turn.keptValues,
+        listener = object : StraightRollViewListener {
+            override fun onRollClick() = Unit
+            override fun onDoneClick() = Unit
+            override fun onNextRoundClick() = Unit
+            override fun onNewMatchClick() = Unit
+            override fun onHomeClick() = Unit
+        },
+    )
+
+    fun riskItTurn() = riskIt(
+        sampleRisk()
+            .let { RiskIt.roll(it, fixedRoller(5)) }
+            .let { RiskIt.roll(it, fixedRoller(1)) }
+            .let { RiskIt.roll(it, fixedRoller(6)) }
+            .let(RiskIt::stop)
+    )
+
+    fun riskItDialog() = riskIt(
+        state = sampleRisk()
+            .let { RiskIt.roll(it, fixedRoller(5)) }
+            .let(RiskIt::stop)
+            .let { RiskIt.roll(it, fixedRoller(4)) }
+            .let { RiskIt.roll(it, fixedRoller(1)) }
+            .let { RiskIt.roll(it, fixedRoller(6)) }
+            .let { RiskIt.roll(it, fixedRoller(3)) },
+        dialogOpen = true,
+    )
+
+    fun riskItMatchOver() = riskIt(
+        sampleRisk()
+            .let { RiskIt.roll(it, fixedRoller(5)) }
+            .let { RiskIt.roll(it, fixedRoller(6)) }
+            .let(RiskIt::stop)
+            .let { RiskIt.roll(it, fixedRoller(4)) }
+            .let(RiskIt::stop)
+    )
+
+    private fun sampleRisk() = RiskIt.newGame(listOf("Ana", "Marko"), totalRounds = 1)
+
+    private fun riskIt(state: RiskState, dialogOpen: Boolean = false) = RiskItUi.ViewData(
+        state = state,
+        dialogOpen = dialogOpen,
+        tablePlayer = state.currentPlayer,
+        tableTurn = state.turn,
+        listener = object : RiskItViewListener {
+            override fun onRollClick() = Unit
+            override fun onStopClick() = Unit
             override fun onNextRoundClick() = Unit
             override fun onNewMatchClick() = Unit
             override fun onHomeClick() = Unit

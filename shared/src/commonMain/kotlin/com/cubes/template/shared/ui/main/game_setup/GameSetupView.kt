@@ -70,7 +70,6 @@ import com.cubes.template.shared.ui.common.ColorTextPrimary
 import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.SemiBoldFont
-import com.cubes.template.shared.ui.common.views.ScreenTitle
 import com.cubes.template.shared.ui.common.views.Toolbar
 import com.cubes.template.shared.ui.common.views.buttons.Button
 import com.cubes.template.shared.ui.main.home.rules
@@ -95,10 +94,13 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
             .imePadding()
             .clearFocusOnTapOutside()
     ) {
-        Toolbar(onBackClick = listener::onBackClick, rules = viewData.game.rules)
+        Toolbar(
+            onBackClick = listener::onBackClick,
+            rules = viewData.game.rules,
+            title = stringResource(viewData.game.title),
+        )
 
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            ScreenTitle(title = stringResource(viewData.game.title))
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

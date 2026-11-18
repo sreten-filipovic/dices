@@ -33,7 +33,6 @@ import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DiceTable
-import com.cubes.template.shared.ui.common.views.ScreenTitle
 import com.cubes.template.shared.ui.common.views.Toolbar
 import com.cubes.template.shared.ui.common.views.buttons.Button
 import org.jetbrains.compose.resources.stringResource
@@ -52,10 +51,12 @@ fun DiceRollScreen(viewData: DiceRoll.ViewData) {
             .fillMaxSize()
             .background(ColorBackground)
     ) {
-        Toolbar(onBackClick = listener::onBackClick)
+        Toolbar(
+            onBackClick = listener::onBackClick,
+            title = stringResource(Res.string.dice_roll_title),
+        )
 
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            ScreenTitle(title = stringResource(Res.string.dice_roll_title))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -28,12 +28,16 @@ import com.cubes.template.shared.resources.Res
 import com.cubes.template.shared.resources.game_dice_duel
 import com.cubes.template.shared.resources.game_dice_jack
 import com.cubes.template.shared.resources.game_dice_poker
+import com.cubes.template.shared.resources.game_risk_it
 import com.cubes.template.shared.resources.game_sevens
+import com.cubes.template.shared.resources.game_straight_roll
 import com.cubes.template.shared.resources.ok
 import com.cubes.template.shared.resources.rules_dice_duel
 import com.cubes.template.shared.resources.rules_dice_jack
 import com.cubes.template.shared.resources.rules_dice_poker
+import com.cubes.template.shared.resources.rules_risk_it
 import com.cubes.template.shared.resources.rules_sevens
+import com.cubes.template.shared.resources.rules_straight_roll
 import com.cubes.template.shared.resources.rules_title
 import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorSurface
@@ -52,6 +56,8 @@ enum class GameRules(val game: StringResource, val text: StringResource) {
     DICE_DUEL(game = Res.string.game_dice_duel, text = Res.string.rules_dice_duel),
     SEVENS(game = Res.string.game_sevens, text = Res.string.rules_sevens),
     DICE_JACK(game = Res.string.game_dice_jack, text = Res.string.rules_dice_jack),
+    RISK_IT(game = Res.string.game_risk_it, text = Res.string.rules_risk_it),
+    STRAIGHT_ROLL(game = Res.string.game_straight_roll, text = Res.string.rules_straight_roll),
 }
 
 @Composable

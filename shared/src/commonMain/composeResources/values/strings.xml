@@ -44,6 +44,23 @@
     <string name="jack_no_dice_left">No dice left</string>
     <string name="jack_turn_hint">Get as close to 21 as you can</string>
 
+    <string name="rules_straight_roll">• 2–6 players take turns on one device. A match lasts 1, 3 or 5 rounds.\n\n• The goal is to roll a straight, all six values from 1 to 6, as quickly as possible.\n\n• Every turn starts with 10 points. Roll six dice; the first roll is free.\n\n• Every new value you roll moves to its place from 1 to 6 above the table. Dice that repeat a value you already have stay on the table and are rolled again; every such roll costs 1 point, so you have at most ten of them.\n\n• The turn ends when you have the straight or when you run out of points. The points you have left are your score for that turn.\n\n• A different player starts every round. The highest total after the last round wins.</string>
+
+    <string name="straight_points">Points: %1$d</string>
+    <string name="straight_reroll_cost">Roll again (−%1$d)</string>
+    <string name="straight_hint">The dice left on the table are rolled again</string>
+    <string name="straight_done">Straight!</string>
+    <string name="straight_out_of_points">Out of points</string>
+    <string name="straight_turn_hint">Roll a straight from 1 to 6 in as few rolls as you can</string>
+
+    <string name="rules_risk_it">• 2–6 players take turns on one device. A match lasts 1, 3 or 5 rounds.\n\n• On your turn roll a single die, up to 10 times. Every roll is added to your score.\n\n• If you roll a 1, your score goes back to 0. You can keep rolling with the rolls you have left.\n\n• You can stop whenever you like and keep the score you have; after the tenth roll the turn ends by itself.\n\n• The score of every turn is added to your total.\n\n• A different player starts every round. The highest total after the last round wins.</string>
+
+    <string name="risk_stop">Stop</string>
+    <string name="risk_hint">Stop, or risk another roll</string>
+    <string name="risk_reset">A one! Back to zero</string>
+    <string name="risk_no_rolls_left">No rolls left</string>
+    <string name="risk_turn_hint">Add up your rolls, but a 1 takes you back to zero</string>
+
     <string name="seven_rolls_left">Rolls left: %1$d</string>
     <string name="seven_max_rolls">Max rolls this turn: %1$d</string>
     <string name="seven_bank">Bank</string>

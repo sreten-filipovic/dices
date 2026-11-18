@@ -91,7 +91,6 @@ import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.common.views.GameRules
 import com.cubes.template.shared.ui.common.views.RankingRow
 import com.cubes.template.shared.ui.common.views.RankingSection
-import com.cubes.template.shared.ui.common.views.ScreenTitle
 import com.cubes.template.shared.ui.common.views.Toolbar
 import com.cubes.template.shared.ui.common.views.buttons.Button
 import org.jetbrains.compose.resources.stringResource
@@ -115,13 +114,14 @@ fun DiceJackScreen(viewData: DiceJackUi.ViewData) {
 
     Box(modifier = Modifier.fillMaxSize().background(ColorBackground)) {
         Column(modifier = Modifier.fillMaxSize().blur(blur)) {
-            Toolbar(onBackClick = listener::onHomeClick, rules = GameRules.DICE_JACK)
+            Toolbar(
+                onBackClick = listener::onHomeClick,
+                rules = GameRules.DICE_JACK,
+                title = stringResource(Res.string.game_dice_jack),
+                subtitle = stringResource(Res.string.game_round, state.round, state.totalRounds),
+            )
 
             Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                ScreenTitle(
-                    title = stringResource(Res.string.game_dice_jack),
-                    subtitle = stringResource(Res.string.game_round, state.round, state.totalRounds),
-                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

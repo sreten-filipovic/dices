@@ -14,9 +14,9 @@ class HomeViewModel(
             Home.GameCard.DICE_POKER,
             Home.GameCard.DICE_JACK,
             Home.GameCard.DICE_DUEL,
-            Home.GameCard.SEVENS -> screenNavigator.showGameSetup(game)
+            Home.GameCard.SEVENS,
             Home.GameCard.RISK_IT,
-            Home.GameCard.STRAIGHT_ROLL -> Unit
+            Home.GameCard.STRAIGHT_ROLL -> screenNavigator.showGameSetup(game)
         }
     }
 }

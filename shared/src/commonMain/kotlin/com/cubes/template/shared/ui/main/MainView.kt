@@ -20,7 +20,9 @@ import com.cubes.template.shared.ui.main.dice_roll.DiceRollView
 import com.cubes.template.shared.ui.main.game.GameView
 import com.cubes.template.shared.ui.main.game_setup.GameSetupView
 import com.cubes.template.shared.ui.main.home.HomeView
+import com.cubes.template.shared.ui.main.risk_it.RiskItView
 import com.cubes.template.shared.ui.main.sevens.SevensView
+import com.cubes.template.shared.ui.main.straight_roll.StraightRollView
 
 @Composable
 fun MainView(
@@ -96,6 +98,30 @@ fun MainView(
                         )
                     }
                     DiceJackView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.StraightRoll> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getStraightRollViewModel(
+                            playerNames = screen.playerNames,
+                            dieStyles = screen.dieStyles,
+                            totalRounds = screen.totalRounds,
+                            onHome = mainScreenNavigator::showHome,
+                        )
+                    }
+                    StraightRollView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.RiskIt> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getRiskItViewModel(
+                            playerNames = screen.playerNames,
+                            dieStyles = screen.dieStyles,
+                            totalRounds = screen.totalRounds,
+                            onHome = mainScreenNavigator::showHome,
+                        )
+                    }
+                    RiskItView(viewModel = viewModel)
                 }
 
                 entry<MainScreen.Sevens> { screen ->
