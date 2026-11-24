@@ -15,6 +15,9 @@ class LocalDataSource(
     fun getPlayerDieStyles(): List<String> = dataStoreRepository.getPlayerDieStyles()
     fun savePlayerDieStyles(styles: List<String>) = dataStoreRepository.savePlayerDieStyles(styles)
 
+    fun getPlayerPawnColors(): List<String> = dataStoreRepository.getPlayerPawnColors()
+    fun savePlayerPawnColors(colors: List<String>) = dataStoreRepository.savePlayerPawnColors(colors)
+
     fun getPlayerNames(): List<String> = dataStoreRepository.getPlayerNames()
     fun savePlayerNames(names: List<String>) = dataStoreRepository.savePlayerNames(names)
 

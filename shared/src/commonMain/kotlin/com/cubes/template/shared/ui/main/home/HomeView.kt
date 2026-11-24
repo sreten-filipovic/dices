@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cubes.template.shared.domain.ludo.Ludo
 import com.cubes.template.shared.resources.Res
 import com.cubes.template.shared.resources.game_dice_duel
 import com.cubes.template.shared.resources.game_dice_jack
@@ -53,12 +54,9 @@ import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.views.DieFace
-import com.cubes.template.shared.ui.common.views.ColorPawnBlue
-import com.cubes.template.shared.ui.common.views.ColorPawnGreen
-import com.cubes.template.shared.ui.common.views.ColorPawnRed
-import com.cubes.template.shared.ui.common.views.ColorPawnYellow
 import com.cubes.template.shared.ui.common.views.GameRules
 import com.cubes.template.shared.ui.common.views.LudoPawn
+import com.cubes.template.shared.ui.common.views.PawnColor
 import com.cubes.template.shared.ui.common.views.Toolbar
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -81,7 +79,6 @@ fun HomeScreen(viewData: Home.ViewData) {
     ) {
         Toolbar(title = stringResource(Res.string.home_title))
 
-        // No bottom inset here: the list scrolls right up to the tab bar, which handles the system bar.
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -103,7 +100,7 @@ fun HomeScreen(viewData: Home.ViewData) {
                     repeat(GRID_COLUMNS - rowGames.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
-            LudoCardView(onClick = listener::onLudoClick)
+            LudoCardView(onClick = { listener.onGameClick(Home.GameCard.LUDO) })
         }
     }
 }
@@ -152,7 +149,6 @@ private fun GameCardView(game: Home.GameCard, onClick: () -> Unit, modifier: Mod
     }
 }
 
-/** A full-width card; its height matches a row of the square cards above it. */
 @Composable
 private fun LudoCardView(onClick: () -> Unit) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
@@ -181,15 +177,14 @@ private fun LudoCardView(onClick: () -> Unit) {
     }
 }
 
-/** Four pawns side by side with a die in front of them. */
 @Composable
-internal fun LudoArtwork(pawnHeight: Dp, dieSize: Dp, modifier: Modifier = Modifier) {
+private fun LudoArtwork(pawnHeight: Dp, dieSize: Dp, modifier: Modifier = Modifier) {
     Box(modifier = modifier, contentAlignment = Alignment.BottomCenter) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(pawnHeight * 0.08f),
             modifier = Modifier.padding(bottom = dieSize * 0.55f),
         ) {
-            listOf(ColorPawnBlue, ColorPawnYellow, ColorPawnRed, ColorPawnGreen).forEach { color ->
+            PawnColor.defaultsFor(Ludo.MAX_PLAYERS).map { it.color }.forEach { color ->
                 LudoPawn(color = color, height = pawnHeight)
             }
         }
@@ -205,6 +200,7 @@ internal val Home.GameCard.title: StringResource
         Home.GameCard.SEVENS -> Res.string.game_sevens
         Home.GameCard.RISK_IT -> Res.string.game_risk_it
         Home.GameCard.STRAIGHT_ROLL -> Res.string.game_straight_roll
+        Home.GameCard.LUDO -> Res.string.game_ludo
     }
 
 internal val Home.GameCard.rules: GameRules?
@@ -215,6 +211,7 @@ internal val Home.GameCard.rules: GameRules?
         Home.GameCard.DICE_JACK -> GameRules.DICE_JACK
         Home.GameCard.STRAIGHT_ROLL -> GameRules.STRAIGHT_ROLL
         Home.GameCard.RISK_IT -> GameRules.RISK_IT
+        Home.GameCard.LUDO -> GameRules.LUDO
     }
 
 @Preview(showBackground = true)

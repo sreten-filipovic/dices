@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -47,6 +48,7 @@ import com.cubes.template.shared.resources.ic_delete
 import com.cubes.template.shared.resources.ic_settings
 import com.cubes.template.shared.resources.ok
 import com.cubes.template.shared.resources.setup_dice_color
+import com.cubes.template.shared.resources.setup_pawn_color
 import com.cubes.template.shared.resources.setup_player_settings
 import com.cubes.template.shared.resources.setup_add_player
 import com.cubes.template.shared.resources.setup_player_hint
@@ -70,6 +72,8 @@ import com.cubes.template.shared.ui.common.clickableNoRipple
 import com.cubes.template.shared.ui.common.popup.popupDialogProperties
 import com.cubes.template.shared.ui.common.views.DieFace
 import com.cubes.template.shared.ui.common.views.DieStyle
+import com.cubes.template.shared.ui.common.views.LudoPawn
+import com.cubes.template.shared.ui.common.views.PawnColor
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorPrimary
 import com.cubes.template.shared.ui.common.ColorPrimaryLight
@@ -83,6 +87,8 @@ import com.cubes.template.shared.ui.main.home.rules
 import com.cubes.template.shared.ui.main.home.title
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+
+private const val PAWN_COLOR_COLUMNS = 4
 
 @Composable
 fun GameSetupView(viewModel: GameSetupViewModel) {
@@ -128,6 +134,15 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
                 .ifEmpty { stringResource(Res.string.setup_player_hint, player + 1) },
             selected = viewData.dieStyles[player],
             onSelect = listener::onDieStyleSelected,
+            pawnColors = if (viewData.choosesPawnColor) {
+                PawnColorChoice(
+                    selected = viewData.pawnColors[player],
+                    taken = viewData.pawnColorsTakenByOthers(player),
+                    onSelect = listener::onPawnColorSelected,
+                )
+            } else {
+                null
+            },
             onDismiss = listener::onSettingsDismiss,
         )
     }
@@ -217,12 +232,24 @@ private fun LocalSetup(viewData: GameSetup.ViewData, modifier: Modifier = Modifi
         ) {
             SectionTitle(stringResource(Res.string.setup_players))
 
+            val pawnColors = if (viewData.choosesPawnColor) viewData.pawnColors else null
             viewData.names.forEachIndexed { index, name ->
+                val pawnColor = pawnColors?.getOrNull(index)?.color
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(
                         value = name,
                         onValueChange = { listener.onNameChanged(index, it) },
                         placeholder = { Text(stringResource(Res.string.setup_player_hint, index + 1)) },
+                        leadingIcon = pawnColor?.let { { LudoPawn(color = it, height = 28.dp) } },
+                        colors = if (pawnColor != null) {
+                            OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = pawnColor,
+                                unfocusedBorderColor = pawnColor,
+                                cursorColor = pawnColor,
+                            )
+                        } else {
+                            OutlinedTextFieldDefaults.colors()
+                        },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
@@ -267,7 +294,7 @@ private fun LocalSetup(viewData: GameSetup.ViewData, modifier: Modifier = Modifi
                     selected = viewData.diceCount,
                     onSelect = listener::onDiceCountChanged,
                 )
-            } else {
+            } else if (viewData.choosesRounds) {
                 SectionTitle(stringResource(Res.string.setup_rounds))
                 OptionChips(
                     options = GameSetup.ROUND_OPTIONS,
@@ -288,11 +315,18 @@ private fun LocalSetup(viewData: GameSetup.ViewData, modifier: Modifier = Modifi
     }
 }
 
+private class PawnColorChoice(
+    val selected: PawnColor,
+    val taken: Set<PawnColor>,
+    val onSelect: (PawnColor) -> Unit,
+)
+
 @Composable
 private fun PlayerSettingsDialog(
     playerName: String,
     selected: DieStyle,
     onSelect: (DieStyle) -> Unit,
+    pawnColors: PawnColorChoice?,
     onDismiss: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismiss, properties = popupDialogProperties()) {
@@ -305,7 +339,7 @@ private fun PlayerSettingsDialog(
                 .padding(horizontal = 20.dp, vertical = 32.dp),
             contentAlignment = Alignment.Center,
         ) {
-            PlayerSettingsCard(playerName, selected, onSelect, onDismiss)
+            PlayerSettingsCard(playerName, selected, onSelect, pawnColors, onDismiss)
         }
     }
 }
@@ -315,6 +349,7 @@ private fun PlayerSettingsCard(
     playerName: String,
     selected: DieStyle,
     onSelect: (DieStyle) -> Unit,
+    pawnColors: PawnColorChoice?,
     onDismiss: () -> Unit,
 ) {
     Column(
@@ -360,11 +395,50 @@ private fun PlayerSettingsCard(
                 }
             }
         }
+        if (pawnColors != null) {
+            Text(
+                text = stringResource(Res.string.setup_pawn_color),
+                fontFamily = SemiBoldFont(),
+                fontSize = 14.sp,
+                color = ColorTextSecondary,
+            )
+            PawnColorGrid(pawnColors)
+        }
         Button(
             text = stringResource(Res.string.ok),
             onClick = onDismiss,
             modifier = Modifier.fillMaxWidth(),
         )
+    }
+}
+
+@Composable
+private fun PawnColorGrid(choice: PawnColorChoice) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        PawnColor.entries.chunked(PAWN_COLOR_COLUMNS).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                row.forEach { color ->
+                    val isSelected = color == choice.selected
+                    val isTaken = color in choice.taken
+                    Box(
+                        modifier = Modifier
+                            .alpha(if (isTaken) 0.25f else 1f)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(if (isSelected) color.color.copy(alpha = 0.2f) else ColorTransparent)
+                            .border(
+                                width = 2.dp,
+                                color = if (isSelected) color.color else ColorTransparent,
+                                shape = RoundedCornerShape(14.dp),
+                            )
+                            .clickable(enabled = !isTaken) { choice.onSelect(color) }
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        LudoPawn(color = color.color, height = 40.dp)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -400,7 +474,19 @@ private fun SectionTitle(text: String) {
 @Preview
 @Composable
 private fun PlayerSettingsCardPreview() {
-    AppTheme { PlayerSettingsCard(playerName = "Ana", selected = DieStyle.BLACK, onSelect = {}, onDismiss = {}) }
+    AppTheme {
+        PlayerSettingsCard(
+            playerName = "Ana",
+            selected = DieStyle.BLACK,
+            onSelect = {},
+            pawnColors = PawnColorChoice(
+                selected = PawnColor.PURPLE,
+                taken = setOf(PawnColor.RED, PawnColor.GREEN),
+                onSelect = {},
+            ),
+            onDismiss = {},
+        )
+    }
 }
 
 @Preview(showBackground = true)

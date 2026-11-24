@@ -16,32 +16,40 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 @Composable
-actual fun rememberDiceRollSound(): DiceRollSound {
+actual fun rememberSoundEffect(path: String, voices: Int, volume: Float): SoundEffect {
     val context = LocalContext.current.applicationContext
-    return remember { AndroidDiceRollSound.also { it.ensureLoaded(context) } }
+    return remember(path) { AndroidSoundEffects.get(context, path, voices, volume) }
 }
 
-private object AndroidDiceRollSound : DiceRollSound {
+private object AndroidSoundEffects {
+    private val effects = mutableMapOf<String, AndroidSoundEffect>()
+
+    fun get(context: Context, path: String, voices: Int, volume: Float): AndroidSoundEffect =
+        effects.getOrPut(path) { AndroidSoundEffect(path, voices, volume).also { it.load(context) } }
+}
+
+private class AndroidSoundEffect(
+    private val path: String,
+    private val voices: Int,
+    private val volume: Float,
+) : SoundEffect {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private var loadStarted = false
     private var soundPool: SoundPool? = null
     private var soundId = 0
 
     @Volatile
     private var loaded = false
 
-    fun ensureLoaded(context: Context) {
-        if (loadStarted) return
-        loadStarted = true
+    fun load(context: Context) {
         scope.launch {
             try {
-                val bytes = Res.readBytes(DICE_ROLL_SOUND_PATH)
+                val bytes = Res.readBytes(path)
                 val file = withContext(Dispatchers.IO) {
-                    File(context.cacheDir, "dice_roll.wav").apply { writeBytes(bytes) }
+                    File(context.cacheDir, path.substringAfterLast('/')).apply { writeBytes(bytes) }
                 }
                 val pool = SoundPool.Builder()
-                    .setMaxStreams(DICE_ROLL_SOUND_VOICES)
+                    .setMaxStreams(voices)
                     .setAudioAttributes(
                         AudioAttributes.Builder()
                             .setUsage(AudioAttributes.USAGE_GAME)
@@ -53,13 +61,13 @@ private object AndroidDiceRollSound : DiceRollSound {
                 soundPool = pool
                 soundId = pool.load(file.path, 1)
             } catch (e: Exception) {
-                log("DiceRollSound", "Could not load the dice roll sound: $e")
+                log("SoundEffect", "Could not load $path: $e")
             }
         }
     }
 
-    override fun play() {
+    override fun play(rate: Float) {
         if (!loaded) return
-        soundPool?.play(soundId, DICE_ROLL_SOUND_VOLUME, DICE_ROLL_SOUND_VOLUME, 1, 0, randomDiceRollSoundRate())
+        soundPool?.play(soundId, volume, volume, 1, 0, rate)
     }
 }

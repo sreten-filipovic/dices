@@ -15,6 +15,7 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
         val lastOpenedDemoItemId = stringPreferencesKey("last_opened_demo_item_id")
         val playerDieStyles = stringPreferencesKey("player_die_styles")
         val playerNames = stringPreferencesKey("player_names")
+        val playerPawnColors = stringPreferencesKey("player_pawn_colors")
         val userName = stringPreferencesKey("user_name")
         val userEmail = stringPreferencesKey("user_email")
     }
@@ -41,6 +42,14 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
 
     fun savePlayerDieStyles(styles: List<String>) = runBlocking {
         dataStore.edit { it[Keys.playerDieStyles] = styles.joinToString(SEPARATOR) }
+    }
+
+    fun getPlayerPawnColors(): List<String> = runBlocking {
+        dataStore.data.first()[Keys.playerPawnColors]?.split(SEPARATOR) ?: emptyList()
+    }
+
+    fun savePlayerPawnColors(colors: List<String>) = runBlocking {
+        dataStore.edit { it[Keys.playerPawnColors] = colors.joinToString(SEPARATOR) }
     }
 
     fun getPlayerNames(): List<String> = runBlocking {

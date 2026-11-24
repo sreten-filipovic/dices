@@ -14,6 +14,7 @@ import com.cubes.template.shared.domain.straight.StraightRoll
 import com.cubes.template.shared.domain.straight.StraightState
 import com.cubes.template.shared.domain.seven.SevenState
 import com.cubes.template.shared.ui.common.views.DieStyle
+import com.cubes.template.shared.ui.common.views.PawnColor
 import com.cubes.template.shared.ui.main.risk_it.RiskItUi
 import com.cubes.template.shared.ui.main.risk_it.RiskItViewListener
 import com.cubes.template.shared.ui.main.sevens.SevensUi
@@ -37,7 +38,6 @@ object PreviewHelper {
 
     fun home() = Home.ViewData(listener = object : HomeViewListener {
         override fun onGameClick(game: Home.GameCard) = Unit
-        override fun onLudoClick() = Unit
     })
 
     fun diceRoll(value: Int?) = DiceRoll.ViewData(value = value, listener = object : DiceRollViewListener {
@@ -256,6 +256,7 @@ object PreviewHelper {
             override fun onRemovePlayerClick(index: Int) = Unit
             override fun onSettingsClick(index: Int) = Unit
             override fun onDieStyleSelected(style: DieStyle) = Unit
+            override fun onPawnColorSelected(color: PawnColor) = Unit
             override fun onSettingsDismiss() = Unit
             override fun onTotalRoundsChanged(totalRounds: Int) = Unit
             override fun onDiceCountChanged(diceCount: Int) = Unit

@@ -19,46 +19,53 @@ import platform.Foundation.NSData
 import platform.Foundation.create
 
 @Composable
-actual fun rememberDiceRollSound(): DiceRollSound =
-    remember { IosDiceRollSound.also { it.ensureLoaded() } }
+actual fun rememberSoundEffect(path: String, voices: Int, volume: Float): SoundEffect =
+    remember(path) { IosSoundEffects.get(path, voices, volume) }
+
+private object IosSoundEffects {
+    private val effects = mutableMapOf<String, IosSoundEffect>()
+
+    fun get(path: String, voices: Int, volume: Float): IosSoundEffect =
+        effects.getOrPut(path) { IosSoundEffect(path, voices, volume).also { it.load() } }
+}
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
-private object IosDiceRollSound : DiceRollSound {
+private class IosSoundEffect(
+    private val path: String,
+    private val voices: Int,
+    private val volume: Float,
+) : SoundEffect {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private var loadStarted = false
-
     private var players: List<AVAudioPlayer> = emptyList()
     private var nextPlayer = 0
 
-    fun ensureLoaded() {
-        if (loadStarted) return
-        loadStarted = true
+    fun load() {
         scope.launch {
             try {
-                val bytes = Res.readBytes(DICE_ROLL_SOUND_PATH)
+                val bytes = Res.readBytes(path)
                 val data = bytes.usePinned { NSData.create(bytes = it.addressOf(0), length = bytes.size.toULong()) }
                 AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryAmbient, error = null)
-                players = List(DICE_ROLL_SOUND_VOICES) {
+                players = List(voices) {
                     AVAudioPlayer(data = data, error = null).apply {
                         enableRate = true
-                        volume = DICE_ROLL_SOUND_VOLUME
+                        volume = this@IosSoundEffect.volume
                         prepareToPlay()
                     }
                 }
             } catch (e: Exception) {
-                log("DiceRollSound", "Could not load the dice roll sound: $e")
+                log("SoundEffect", "Could not load $path: $e")
             }
         }
     }
 
-    override fun play() {
+    override fun play(rate: Float) {
         if (players.isEmpty()) return
         val player = players[nextPlayer]
         nextPlayer = (nextPlayer + 1) % players.size
         player.stop()
         player.currentTime = 0.0
-        player.rate = randomDiceRollSoundRate()
+        player.rate = rate
         player.play()
     }
 }

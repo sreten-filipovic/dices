@@ -75,8 +75,16 @@ fun MainView(
                     ProfileView(viewModel = viewModel)
                 }
 
-                entry<MainScreen.Ludo> {
-                    LudoView(onBack = mainScreenNavigator::back)
+                entry<MainScreen.Ludo> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getLudoViewModel(
+                            playerNames = screen.playerNames,
+                            dieStyles = screen.dieStyles,
+                            pawnColors = screen.pawnColors,
+                            onBack = mainScreenNavigator::back,
+                        )
+                    }
+                    LudoView(viewModel = viewModel)
                 }
 
                 entry<MainScreen.DiceRoll> {

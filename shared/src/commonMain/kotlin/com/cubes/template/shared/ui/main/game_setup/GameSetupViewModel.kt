@@ -13,6 +13,7 @@ import com.cubes.template.shared.resources.setup_player_hint
 import com.cubes.template.shared.ui.common.popup.PopupManager
 import com.cubes.template.shared.ui.common.popup.PopupState
 import com.cubes.template.shared.ui.common.views.DieStyle
+import com.cubes.template.shared.ui.common.views.PawnColor
 import com.cubes.template.shared.ui.main.home.Home
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -24,7 +25,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class GameSetupViewModel(
-    game: Home.GameCard,
+    private val game: Home.GameCard,
     private val screenNavigator: GameSetupScreenNavigator,
     private val stringProvider: StringProvider,
     private val localDataSource: LocalDataSource,
@@ -38,8 +39,14 @@ class GameSetupViewModel(
 
     private fun rememberedStyle(slot: Int): DieStyle = rememberedStyles.getOrNull(slot) ?: DieStyle.WHITE
 
+    private val rememberedPawnColors: List<PawnColor?> = localDataSource.getPlayerPawnColors()
+        .map { name -> PawnColor.entries.firstOrNull { it.name == name } }
+
+    private fun rememberedPawnColor(slot: Int, taken: List<PawnColor?>): PawnColor? =
+        rememberedPawnColors.getOrNull(slot)?.takeIf { it !in taken }
+
     private val initialNames: List<String> = localDataSource.getPlayerNames()
-        .take(GameSetup.MAX_PLAYERS)
+        .take(GameSetup.maxPlayers(game))
         .let { names -> names + List((GameSetup.MIN_PLAYERS - names.size).coerceAtLeast(0)) { "" } }
 
     private val _viewData = MutableStateFlow(
@@ -47,6 +54,9 @@ class GameSetupViewModel(
             game = game,
             names = initialNames,
             dieStyles = List(initialNames.size, ::rememberedStyle),
+            chosenPawnColors = initialNames.indices.fold(emptyList<PawnColor?>()) { colors, slot ->
+                colors + rememberedPawnColor(slot, colors)
+            },
             listener = this,
         )
     )
@@ -93,7 +103,14 @@ class GameSetupViewModel(
     }
 
     override fun onAddPlayerClick() {
-        _viewData.update { if (it.canAddPlayer) it.copy(names = it.names + "", dieStyles = it.dieStyles + rememberedStyle(it.names.size)) else it }
+        _viewData.update {
+            if (!it.canAddPlayer) return@update it
+            it.copy(
+                names = it.names + "",
+                dieStyles = it.dieStyles + rememberedStyle(it.names.size),
+                chosenPawnColors = it.chosenPawnColors + rememberedPawnColor(it.names.size, it.chosenPawnColors),
+            )
+        }
         persist()
     }
 
@@ -103,6 +120,7 @@ class GameSetupViewModel(
             data.copy(
                 names = data.names.filterIndexed { i, _ -> i != index },
                 dieStyles = data.dieStyles.filterIndexed { i, _ -> i != index },
+                chosenPawnColors = data.chosenPawnColors.filterIndexed { i, _ -> i != index },
                 settingsPlayer = null,
             )
         }
@@ -117,6 +135,17 @@ class GameSetupViewModel(
         _viewData.update { data ->
             val player = data.settingsPlayer ?: return@update data
             data.copy(dieStyles = data.dieStyles.mapIndexed { i, old -> if (i == player) style else old })
+        }
+        persist()
+    }
+
+    override fun onPawnColorSelected(color: PawnColor) {
+        _viewData.update { data ->
+            val player = data.settingsPlayer ?: return@update data
+            if (color in data.pawnColorsTakenByOthers(player)) return@update data
+            val current = data.chosenPawnColors.getOrNull(player)
+            val chosen = if (current == color) null else color
+            data.copy(chosenPawnColors = data.chosenPawnColors.mapIndexed { i, old -> if (i == player) chosen else old })
         }
         persist()
     }
@@ -149,6 +178,7 @@ class GameSetupViewModel(
                 playerNames = names,
                 dieStyles = data.dieStyles,
                 totalRounds = data.totalRounds,
+                pawnColors = data.pawnColors,
             )
         }
     }
@@ -164,6 +194,9 @@ class GameSetupViewModel(
         val data = _viewData.value
         localDataSource.savePlayerNames(data.names.map { it.trim() })
         localDataSource.savePlayerDieStyles((data.dieStyles + rememberedStyles.drop(data.dieStyles.size)).map { it.name })
+        if (data.choosesPawnColor) {
+            localDataSource.savePlayerPawnColors(data.chosenPawnColors.map { it?.name.orEmpty() })
+        }
     }
 
     private companion object {

@@ -7,6 +7,7 @@ import com.cubes.template.shared.domain.game.RandomDiceRoller
 import com.cubes.template.shared.ui.auth.AuthViewModel
 import com.cubes.template.shared.ui.common.Validator
 import com.cubes.template.shared.ui.common.views.DieStyle
+import com.cubes.template.shared.ui.common.views.PawnColor
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelViewModel
 import com.cubes.template.shared.ui.main.dice_jack.DiceJackViewModel
 import com.cubes.template.shared.ui.main.dice_roll.DiceRollViewModel
@@ -17,6 +18,7 @@ import com.cubes.template.shared.ui.main.game_setup.GameSetupViewModel
 import com.cubes.template.shared.ui.main.home.Home
 import com.cubes.template.shared.ui.main.home.HomeScreenNavigator
 import com.cubes.template.shared.ui.main.home.HomeViewModel
+import com.cubes.template.shared.ui.main.ludo.LudoViewModel
 import com.cubes.template.shared.ui.main.profile.ProfileScreenNavigator
 import com.cubes.template.shared.ui.main.profile.ProfileViewModel
 import com.cubes.template.shared.ui.main.risk_it.RiskItViewModel
@@ -74,6 +76,19 @@ class ScreenCompositionRoot(
         playerNames = playerNames,
         dieStyles = dieStyles,
         diceCount = diceCount,
+        diceRoller = diceRoller,
+        onBack = onBack,
+    )
+
+    fun getLudoViewModel(
+        playerNames: List<String>,
+        dieStyles: List<DieStyle>,
+        pawnColors: List<PawnColor>,
+        onBack: () -> Unit,
+    ) = LudoViewModel(
+        playerNames = playerNames,
+        dieStyles = dieStyles,
+        pawnColors = pawnColors,
         diceRoller = diceRoller,
         onBack = onBack,
     )

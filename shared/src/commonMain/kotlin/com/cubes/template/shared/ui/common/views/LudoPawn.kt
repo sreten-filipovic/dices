@@ -17,10 +17,34 @@ import androidx.compose.ui.unit.dp
 import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorWhite
 
-val ColorPawnBlue = Color(0xFF2F6FE4)
-val ColorPawnYellow = Color(0xFFFFD21F)
-val ColorPawnRed = Color(0xFFE53935)
-val ColorPawnGreen = Color(0xFF7EDC5A)
+enum class PawnColor(val color: Color) {
+    BLUE(Color(0xFF2F6FE4)),
+    YELLOW(Color(0xFFFFD21F)),
+    RED(Color(0xFFE53935)),
+    GREEN(Color(0xFF7EDC5A)),
+    PURPLE(Color(0xFF8E4FD8)),
+    BLACK(Color(0xFF2E2E36)),
+    ORANGE(Color(0xFFFF8A1F)),
+    BROWN(Color(0xFF8B5A2B));
+
+    companion object {
+        fun defaultsFor(playerCount: Int): List<PawnColor> = when (playerCount) {
+            2 -> listOf(BLUE, RED)
+            3 -> listOf(BLUE, YELLOW, RED)
+            else -> listOf(BLUE, YELLOW, RED, GREEN)
+        }
+
+        fun resolve(chosen: List<PawnColor?>): List<PawnColor> {
+            val defaults = defaultsFor(chosen.size)
+            val taken = chosen.filterNotNull().toMutableSet()
+            return chosen.mapIndexed { index, color ->
+                color ?: (listOfNotNull(defaults.getOrNull(index)) + defaults + entries)
+                    .first { it !in taken }
+                    .also { taken += it }
+            }
+        }
+    }
+}
 
 /** A shaded board-game pawn: round base, flared body and a ball head. Width is [height] × 0.7. */
 @Composable
@@ -70,6 +94,6 @@ fun LudoPawn(color: Color, modifier: Modifier = Modifier, height: Dp = 40.dp) {
 @Composable
 private fun LudoPawnPreview() {
     Row {
-        listOf(ColorPawnBlue, ColorPawnYellow, ColorPawnRed, ColorPawnGreen).forEach { LudoPawn(it, height = 80.dp) }
+        PawnColor.entries.forEach { LudoPawn(it.color, height = 60.dp) }
     }
 }

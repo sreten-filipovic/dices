@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.cubes.template.shared.OpenUrlHandler
 import com.cubes.template.shared.ui.app.AppScreenNavigator
 import com.cubes.template.shared.ui.common.views.DieStyle
+import com.cubes.template.shared.ui.common.views.PawnColor
 import com.cubes.template.shared.ui.main.game.GameScreenNavigator
 import com.cubes.template.shared.ui.main.game_setup.GameSetupScreenNavigator
 import com.cubes.template.shared.ui.main.home.Home
@@ -60,19 +61,19 @@ class MainNavigatorImpl(
 
     override fun showGameSetup(game: Home.GameCard) = navigateTo(MainScreen.GameSetup(game))
 
-    override fun showLudo() = navigateTo(MainScreen.Ludo)
-
     override fun startGame(
         game: Home.GameCard,
         playerNames: List<String>,
         dieStyles: List<DieStyle>,
         totalRounds: Int,
+        pawnColors: List<PawnColor>,
     ) {
         val screen = when (game) {
             Home.GameCard.SEVENS -> MainScreen.Sevens(playerNames, dieStyles, totalRounds)
             Home.GameCard.STRAIGHT_ROLL -> MainScreen.StraightRoll(playerNames, dieStyles, totalRounds)
             Home.GameCard.RISK_IT -> MainScreen.RiskIt(playerNames, dieStyles, totalRounds)
             Home.GameCard.DICE_JACK -> MainScreen.DiceJack(playerNames, dieStyles, totalRounds)
+            Home.GameCard.LUDO -> MainScreen.Ludo(playerNames, dieStyles, pawnColors)
             else -> MainScreen.Game(playerNames, dieStyles, totalRounds)
         }
         backStack.update { it.dropLastWhile { last -> last is MainScreen.GameSetup } + screen }

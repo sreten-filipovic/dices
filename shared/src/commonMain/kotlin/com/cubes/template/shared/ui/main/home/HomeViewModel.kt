@@ -16,9 +16,8 @@ class HomeViewModel(
             Home.GameCard.DICE_DUEL,
             Home.GameCard.SEVENS,
             Home.GameCard.RISK_IT,
-            Home.GameCard.STRAIGHT_ROLL -> screenNavigator.showGameSetup(game)
+            Home.GameCard.STRAIGHT_ROLL,
+            Home.GameCard.LUDO -> screenNavigator.showGameSetup(game)
         }
     }
-
-    override fun onLudoClick() = screenNavigator.showLudo()
 }

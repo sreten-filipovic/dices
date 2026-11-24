@@ -57,8 +57,16 @@
     <string name="game_straight_roll">Straight Roll</string>
     <string name="game_ludo">Ludo</string>
 
-    <string name="ludo_coming_soon">Coming soon…</string>
-    <string name="ludo_coming_soon_message">We\'re setting up the board. Ludo will be here soon.</string>
+    <string name="ludo_turn">%1$s\'s turn</string>
+    <string name="ludo_finished">%1$d/%2$d home</string>
+    <string name="ludo_hint_roll">Roll the die.</string>
+    <string name="ludo_hint_need_six">Roll a 6 to bring a pawn out. Tries left: %1$d</string>
+    <string name="ludo_hint_roll_again">You rolled a 6, roll again!</string>
+    <string name="ludo_hint_pick_pawn">Tap a pawn to move it %1$d.</string>
+    <string name="ludo_place">Place %1$d</string>
+    <string name="ludo_hint_finished">%1$s finished in place %2$d!</string>
+    <string name="ludo_hint_no_moves">No move possible. Next player.</string>
+    <string name="rules_ludo">• 2–4 players take turns on one device. Everyone has four pawns of their colour waiting in their home corner.\n\n• On your turn roll the die, then tap the pawn you want to move. Pawns travel clockwise around the board.\n\n• A pawn leaves home only with a 6 and is placed on your start square, the one in your colour.\n\n• While none of your pawns can move without a 6, you get up to three rolls to get one.\n\n• After a 6 you roll again.\n\n• Landing on an opponent\'s pawn sends it back home. You can\'t land on your own pawn.\n\n• After a full lap a pawn enters the finish row of your colour. It needs the exact number to reach a free square there and can\'t jump over your other pawns.\n\n• The first player with all four pawns in the finish row wins. The others play on for the next places until only one player is left.</string>
 
     <string name="duel_dice_count">Number of dice</string>
     <string name="duel_wins">Wins: %1$d</string>
@@ -114,6 +122,7 @@
     <string name="setup_remove_player">Remove player</string>
     <string name="setup_player_settings">Player settings</string>
     <string name="setup_dice_color">Dice color</string>
+    <string name="setup_pawn_color">Pawn color</string>
     <string name="setup_rounds">Number of rounds</string>
     <string name="setup_start">Start</string>
     <string name="setup_tab_local">Local</string>
