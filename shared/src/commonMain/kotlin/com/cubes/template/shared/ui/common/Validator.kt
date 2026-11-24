@@ -2,6 +2,7 @@ package com.cubes.template.shared.ui.common
 
 import com.cubes.template.shared.StringProvider
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.auth_username_length
 import com.cubes.template.shared.resources.error_invalid_email
 import com.cubes.template.shared.resources.error_invalid_phone
 import com.cubes.template.shared.resources.error_required_field
@@ -12,6 +13,8 @@ import com.cubes.template.shared.ui.common.ValidationResult.Success
 class Validator(private val stringProvider: StringProvider) {
 
     companion object {
+        val USERNAME_LENGTH = 3..20
+
         fun String.isPhoneNumber(): Boolean =
             this.trim().startsWith("+") || this.trim().startsWith("00")
 
@@ -30,6 +33,12 @@ class Validator(private val stringProvider: StringProvider) {
     fun validateEmail(value: String): ValidationResult {
         if (value.isBlank()) return Fail(stringProvider.getString(Res.string.error_required_field))
         return if (value.isEmail()) Success else Fail(stringProvider.getString(Res.string.error_invalid_email))
+    }
+
+    fun validateUsername(value: String, lengths: IntRange = USERNAME_LENGTH): ValidationResult {
+        if (value.isBlank()) return Fail(stringProvider.getString(Res.string.error_required_field))
+        return if (value.trim().length in lengths) Success
+        else Fail(stringProvider.getString(Res.string.auth_username_length))
     }
 
     fun validatePassword(value: String, minLength: Int = 8): ValidationResult {

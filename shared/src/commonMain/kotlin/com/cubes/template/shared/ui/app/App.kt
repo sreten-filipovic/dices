@@ -20,6 +20,7 @@ import com.cubes.template.shared.OpenUrlHandler
 import com.cubes.template.shared.data.remote.createImageLoader
 import com.cubes.template.shared.di.AppCompositionRoot
 import com.cubes.template.shared.di.ScreenCompositionRoot
+import com.cubes.template.shared.ui.auth.AuthView
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.LocalTrustAllCertificates
 import com.cubes.template.shared.ui.common.popup.GlobalPopupRenderer
@@ -41,7 +42,10 @@ fun App(appCompositionRoot: AppCompositionRoot) {
     val screenCompositionRoot = remember { ScreenCompositionRoot(appCompositionRoot) }
 
     val startupViewModel: AppViewModel = viewModel {
-        AppViewModel(localDataSource = appCompositionRoot.localDataSource)
+        AppViewModel(
+            localDataSource = appCompositionRoot.localDataSource,
+            userSession = appCompositionRoot.userSession,
+        )
     }
     val startupState by startupViewModel.state.collectAsState()
 
@@ -73,6 +77,20 @@ fun App(appCompositionRoot: AppCompositionRoot) {
                             ),
                             onBack = { appScreenNavigator.back() },
                             entryProvider = entryProvider {
+
+                                entry<AppScreen.Auth> { screen ->
+                                    val viewModel = viewModel {
+                                        screenCompositionRoot.getAuthViewModel(
+                                            canGoBack = screen.canGoBack,
+                                            onFinished = if (screen.canGoBack) {
+                                                appScreenNavigator::back
+                                            } else {
+                                                appScreenNavigator::showMain
+                                            },
+                                        )
+                                    }
+                                    AuthView(viewModel = viewModel)
+                                }
 
                                 entry<AppScreen.Main> { entry ->
                                     val mainScreenNavigator = viewModel {

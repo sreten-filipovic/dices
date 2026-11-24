@@ -12,6 +12,40 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
 
+    <string name="auth_tab_login">Log in</string>
+    <string name="auth_tab_register">Register</string>
+    <string name="auth_username">Username</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_show_password">Show</string>
+    <string name="auth_hide_password">Hide</string>
+    <string name="auth_login_button">Log in</string>
+    <string name="auth_register_button">Create account</string>
+    <string name="auth_online_hint">An account lets you play online with friends.</string>
+    <string name="auth_skip">Play locally</string>
+    <string name="auth_skip_hint">No account needed to play on one device.</string>
+    <string name="auth_username_length">Username must have 3–20 characters</string>
+    <string name="auth_failed_title">Couldn\'t sign in</string>
+
+    <string name="tab_games">Games</string>
+    <string name="tab_shop">Shop</string>
+    <string name="tab_profile">Profile</string>
+
+    <string name="profile_title">Profile</string>
+    <string name="profile_guest_title">Playing as guest</string>
+    <string name="profile_guest_message">Log in or create an account to play online with friends.</string>
+    <string name="profile_login">Log in or register</string>
+    <string name="profile_username">Username</string>
+    <string name="profile_save">Save</string>
+    <string name="profile_logout">Log out</string>
+    <string name="profile_delete">Delete account</string>
+    <string name="profile_delete_title">Delete account?</string>
+    <string name="profile_delete_message">Your account and online progress will be removed for good. This can\'t be undone.</string>
+    <string name="profile_delete_confirm">Delete</string>
+    <string name="profile_deleted_title">Account deleted</string>
+    <string name="profile_deleted_message">You can still play locally on this device.</string>
+    <string name="profile_error_title">Something went wrong</string>
+
     <string name="home_title">Dice Games</string>
     <string name="home_coming_soon">Coming soon</string>
 
@@ -21,6 +55,10 @@
     <string name="game_sevens">Sevens</string>
     <string name="game_risk_it">Risk It</string>
     <string name="game_straight_roll">Straight Roll</string>
+    <string name="game_ludo">Ludo</string>
+
+    <string name="ludo_coming_soon">Coming soon…</string>
+    <string name="ludo_coming_soon_message">We\'re setting up the board. Ludo will be here soon.</string>
 
     <string name="duel_dice_count">Number of dice</string>
     <string name="duel_wins">Wins: %1$d</string>

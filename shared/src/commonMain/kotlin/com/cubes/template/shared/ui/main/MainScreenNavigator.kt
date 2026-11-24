@@ -8,15 +8,21 @@ import com.cubes.template.shared.ui.main.game.GameScreenNavigator
 import com.cubes.template.shared.ui.main.game_setup.GameSetupScreenNavigator
 import com.cubes.template.shared.ui.main.home.Home
 import com.cubes.template.shared.ui.main.home.HomeScreenNavigator
+import com.cubes.template.shared.ui.main.profile.ProfileScreenNavigator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-interface MainScreenNavigator : HomeScreenNavigator, GameSetupScreenNavigator, GameScreenNavigator {
+interface MainScreenNavigator :
+    HomeScreenNavigator,
+    GameSetupScreenNavigator,
+    GameScreenNavigator,
+    ProfileScreenNavigator {
 
     val backStack: StateFlow<List<MainScreen>>
 
     fun navigateTo(screen: MainScreen)
+    fun selectTab(tab: MainTab)
     override fun back()
 }
 
@@ -33,12 +39,28 @@ class MainNavigatorImpl(
     }
 
     override fun back() {
-        if (backStack.value.size > 1) {
-            backStack.update { it.dropLast(1) }
+        val stack = backStack.value
+        when {
+            stack.size > 1 -> backStack.update { it.dropLast(1) }
+            stack.single() != MainScreen.Home -> showHome()
         }
     }
 
+    override fun selectTab(tab: MainTab) {
+        backStack.value = listOf(
+            when (tab) {
+                MainTab.GAMES -> MainScreen.Home
+                MainTab.PROFILE -> MainScreen.Profile
+                MainTab.SHOP -> return
+            }
+        )
+    }
+
+    override fun showAuth() = appScreenNavigator.showAuth()
+
     override fun showGameSetup(game: Home.GameCard) = navigateTo(MainScreen.GameSetup(game))
+
+    override fun showLudo() = navigateTo(MainScreen.Ludo)
 
     override fun startGame(
         game: Home.GameCard,

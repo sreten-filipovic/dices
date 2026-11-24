@@ -4,6 +4,7 @@ import com.cubes.template.shared.StringProvider
 import com.cubes.template.shared.StringProviderImpl
 import com.cubes.template.shared.domain.game.DiceRoller
 import com.cubes.template.shared.domain.game.RandomDiceRoller
+import com.cubes.template.shared.ui.auth.AuthViewModel
 import com.cubes.template.shared.ui.common.Validator
 import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.main.dice_duel.DiceDuelViewModel
@@ -16,6 +17,8 @@ import com.cubes.template.shared.ui.main.game_setup.GameSetupViewModel
 import com.cubes.template.shared.ui.main.home.Home
 import com.cubes.template.shared.ui.main.home.HomeScreenNavigator
 import com.cubes.template.shared.ui.main.home.HomeViewModel
+import com.cubes.template.shared.ui.main.profile.ProfileScreenNavigator
+import com.cubes.template.shared.ui.main.profile.ProfileViewModel
 import com.cubes.template.shared.ui.main.risk_it.RiskItViewModel
 import com.cubes.template.shared.ui.main.sevens.SevensViewModel
 import com.cubes.template.shared.ui.main.straight_roll.StraightRollViewModel
@@ -29,9 +32,29 @@ class ScreenCompositionRoot(
     val popupManager get() = appCompositionRoot.popupManager
     val connectivityMonitor get() = appCompositionRoot.connectivityMonitor
     val userSession get() = appCompositionRoot.userSession
+    val authRepository get() = appCompositionRoot.authRepository
     val stringProvider: StringProvider get() = StringProviderImpl()
     val validator get() = Validator(stringProvider)
     val diceRoller: DiceRoller get() = RandomDiceRoller()
+
+    fun getAuthViewModel(canGoBack: Boolean, onFinished: () -> Unit) = AuthViewModel(
+        canGoBack = canGoBack,
+        authRepository = authRepository,
+        userSession = userSession,
+        validator = validator,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        onFinished = onFinished,
+    )
+
+    fun getProfileViewModel(screenNavigator: ProfileScreenNavigator) = ProfileViewModel(
+        authRepository = authRepository,
+        userSession = userSession,
+        validator = validator,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        screenNavigator = screenNavigator,
+    )
 
     fun getHomeViewModel(screenNavigator: HomeScreenNavigator) = HomeViewModel(
         screenNavigator = screenNavigator,

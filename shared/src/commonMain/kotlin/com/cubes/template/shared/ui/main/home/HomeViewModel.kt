@@ -19,4 +19,6 @@ class HomeViewModel(
             Home.GameCard.STRAIGHT_ROLL -> screenNavigator.showGameSetup(game)
         }
     }
+
+    override fun onLudoClick() = screenNavigator.showLudo()
 }

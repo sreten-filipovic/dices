@@ -18,8 +18,10 @@ object Home {
 
 interface HomeViewListener {
     fun onGameClick(game: Home.GameCard)
+    fun onLudoClick()
 }
 
 interface HomeScreenNavigator {
     fun showGameSetup(game: Home.GameCard)
+    fun showLudo()
 }

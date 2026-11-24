@@ -37,6 +37,7 @@ object PreviewHelper {
 
     fun home() = Home.ViewData(listener = object : HomeViewListener {
         override fun onGameClick(game: Home.GameCard) = Unit
+        override fun onLudoClick() = Unit
     })
 
     fun diceRoll(value: Int?) = DiceRoll.ViewData(value = value, listener = object : DiceRollViewListener {

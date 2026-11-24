@@ -18,9 +18,16 @@ sealed interface PopupState {
         val onDismiss: (() -> Unit)? = null,
     ) : PopupState
 
+    /**
+     * Shown centered on a dice table, with a die that rolls to one. With [onConfirm] it asks for
+     * confirmation: [onConfirm] runs after the popup has closed, so it may show another popup.
+     */
     data class Info(
         val title: String? = null,
         val message: String? = null,
+        val confirmText: String? = null,
+        val isDestructive: Boolean = false,
+        val onConfirm: (() -> Unit)? = null,
     ) : PopupState
 }
 

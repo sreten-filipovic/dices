@@ -4,6 +4,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.cubes.template.shared.AppInfo
 import com.cubes.template.shared.OpenUrlHandler
+import com.cubes.template.shared.data.auth.AuthRepository
+import com.cubes.template.shared.data.auth.PlaceholderAuthRepository
 import com.cubes.template.shared.data.local.DataStoreRepository
 import com.cubes.template.shared.data.local.LocalDataSource
 import com.cubes.template.shared.data.network.ConnectivityMonitor
@@ -46,7 +48,9 @@ class AppCompositionRoot(
         RemoteDataSource(apiClient = apiClient)
     }
 
-    val userSession by lazy { UserSession() }
+    val userSession by lazy { UserSession(localDataSource) }
+
+    val authRepository: AuthRepository by lazy { PlaceholderAuthRepository() }
 
     val popupManager: PopupManager by lazy { GlobalPopupManager() }
 

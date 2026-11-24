@@ -15,6 +15,8 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
         val lastOpenedDemoItemId = stringPreferencesKey("last_opened_demo_item_id")
         val playerDieStyles = stringPreferencesKey("player_die_styles")
         val playerNames = stringPreferencesKey("player_names")
+        val userName = stringPreferencesKey("user_name")
+        val userEmail = stringPreferencesKey("user_email")
     }
 
     fun isOnboardingDone(): Boolean = runBlocking {
@@ -47,6 +49,28 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
 
     fun savePlayerNames(names: List<String>) = runBlocking {
         dataStore.edit { it[Keys.playerNames] = names.joinToString(NAME_SEPARATOR) { name -> name.replace(NAME_SEPARATOR, " ") } }
+    }
+
+    /** Returns the saved username and email, or null when nobody is signed in. */
+    fun getUser(): Pair<String, String>? = runBlocking {
+        val prefs = dataStore.data.first()
+        val name = prefs[Keys.userName] ?: return@runBlocking null
+        val email = prefs[Keys.userEmail] ?: return@runBlocking null
+        name to email
+    }
+
+    fun saveUser(username: String, email: String) = runBlocking {
+        dataStore.edit {
+            it[Keys.userName] = username
+            it[Keys.userEmail] = email
+        }
+    }
+
+    fun clearUser() = runBlocking {
+        dataStore.edit {
+            it.remove(Keys.userName)
+            it.remove(Keys.userEmail)
+        }
     }
 
     private companion object {

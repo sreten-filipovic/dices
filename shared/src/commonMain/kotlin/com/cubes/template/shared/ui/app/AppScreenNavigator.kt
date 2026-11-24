@@ -8,6 +8,7 @@ interface AppScreenNavigator {
     val backStack: StateFlow<List<AppScreen>>
 
     fun showMain()
+    fun showAuth()
     fun back()
 }
 
@@ -20,6 +21,10 @@ class AppScreenNavigatorImpl(
 
     override fun showMain() {
         _backStack.value = listOf(AppScreen.Main())
+    }
+
+    override fun showAuth() {
+        _backStack.update { it + AppScreen.Auth(canGoBack = true) }
     }
 
     override fun back() {

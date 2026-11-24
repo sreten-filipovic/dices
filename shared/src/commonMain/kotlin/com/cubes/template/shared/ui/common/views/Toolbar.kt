@@ -180,7 +180,7 @@ private fun LogoDiceRow(rollKey: Int, animateOnAppear: Boolean, modifier: Modifi
 }
 
 @Composable
-private fun BackArrow(onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun BackArrow(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .size(48.dp)

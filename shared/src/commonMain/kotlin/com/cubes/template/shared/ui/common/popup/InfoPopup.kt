@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,9 +31,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.cancel
 import com.cubes.template.shared.resources.ok
 import com.cubes.template.shared.ui.common.AppTheme
-import com.cubes.template.shared.ui.common.BoldFont
+import com.cubes.template.shared.ui.common.ColorAccent
+import com.cubes.template.shared.ui.common.SemiBoldFont
 import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorFeltDark
 import com.cubes.template.shared.ui.common.ColorWhite
@@ -48,10 +51,14 @@ import org.jetbrains.compose.resources.stringResource
 fun InfoPopup(state: PopupState.Info, onDismiss: () -> Unit) {
     val visibility = remember { MutableTransitionState(false).apply { targetState = true } }
     val currentOnDismiss by rememberUpdatedState(onDismiss)
+    var confirmed by remember { mutableStateOf(false) }
     val close = { visibility.targetState = false }
 
     LaunchedEffect(visibility.isIdle, visibility.currentState) {
-        if (visibility.isIdle && !visibility.currentState) currentOnDismiss()
+        if (visibility.isIdle && !visibility.currentState) {
+            currentOnDismiss()
+            if (confirmed) state.onConfirm?.invoke()
+        }
     }
 
     Dialog(onDismissRequest = close, properties = popupDialogProperties()) {
@@ -70,14 +77,21 @@ fun InfoPopup(state: PopupState.Info, onDismiss: () -> Unit) {
                 enter = fadeIn() + scaleIn(initialScale = 0.85f),
                 exit = fadeOut() + scaleOut(targetScale = 0.9f),
             ) {
-                InfoPopupContent(state = state, onClose = close)
+                InfoPopupContent(
+                    state = state,
+                    onClose = close,
+                    onConfirm = {
+                        confirmed = true
+                        close()
+                    },
+                )
             }
         }
     }
 }
 
 @Composable
-private fun InfoPopupContent(state: PopupState.Info, onClose: () -> Unit) {
+private fun InfoPopupContent(state: PopupState.Info, onClose: () -> Unit, onConfirm: () -> Unit = {}) {
     var rollKey by remember { mutableStateOf(0) }
 
     DiceTable(modifier = Modifier.fillMaxWidth().clickableNoRipple {}) {
@@ -110,13 +124,31 @@ private fun InfoPopupContent(state: PopupState.Info, onClose: () -> Unit) {
             )
         }
         Spacer(Modifier.height(4.dp))
-        Button(
-            text = stringResource(Res.string.ok),
-            onClick = onClose,
-            backgroundColor = ColorWhite,
-            textColor = ColorFeltDark,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        if (state.onConfirm != null) {
+            Button(
+                text = state.confirmText ?: stringResource(Res.string.ok),
+                onClick = onConfirm,
+                backgroundColor = if (state.isDestructive) ColorAccent else ColorWhite,
+                textColor = if (state.isDestructive) ColorWhite else ColorFeltDark,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            TextButton(onClick = onClose) {
+                Text(
+                    text = stringResource(Res.string.cancel),
+                    fontFamily = SemiBoldFont(),
+                    fontSize = 16.sp,
+                    color = ColorWhite,
+                )
+            }
+        } else {
+            Button(
+                text = stringResource(Res.string.ok),
+                onClick = onClose,
+                backgroundColor = ColorWhite,
+                textColor = ColorFeltDark,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }
 

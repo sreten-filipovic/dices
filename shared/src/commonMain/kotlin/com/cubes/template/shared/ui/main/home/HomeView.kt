@@ -2,8 +2,9 @@ package com.cubes.template.shared.ui.main.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,16 +13,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,12 +31,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cubes.template.shared.resources.Res
 import com.cubes.template.shared.resources.game_dice_duel
 import com.cubes.template.shared.resources.game_dice_jack
 import com.cubes.template.shared.resources.game_dice_poker
+import com.cubes.template.shared.resources.game_ludo
 import com.cubes.template.shared.resources.game_sevens
 import com.cubes.template.shared.resources.game_risk_it
 import com.cubes.template.shared.resources.game_straight_roll
@@ -46,19 +49,22 @@ import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorFeltDark
 import com.cubes.template.shared.ui.common.ColorFeltLight
-import com.cubes.template.shared.ui.common.ColorTextPrimary
 import com.cubes.template.shared.ui.common.ColorWhite
-import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.RegularFont
-import com.cubes.template.shared.ui.common.views.AnimatedDie
-import com.cubes.template.shared.ui.common.views.DieAnimation
 import com.cubes.template.shared.ui.common.views.DieFace
+import com.cubes.template.shared.ui.common.views.ColorPawnBlue
+import com.cubes.template.shared.ui.common.views.ColorPawnGreen
+import com.cubes.template.shared.ui.common.views.ColorPawnRed
+import com.cubes.template.shared.ui.common.views.ColorPawnYellow
 import com.cubes.template.shared.ui.common.views.GameRules
+import com.cubes.template.shared.ui.common.views.LudoPawn
+import com.cubes.template.shared.ui.common.views.Toolbar
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 private const val GRID_COLUMNS = 2
+private val CARD_SPACING = 12.dp
 
 @Composable
 fun HomeView(viewModel: HomeViewModel) {
@@ -72,44 +78,21 @@ fun HomeScreen(viewData: Home.ViewData) {
         modifier = Modifier
             .fillMaxSize()
             .background(ColorBackground)
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
-        var logoRollKey by remember { mutableStateOf(0) }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .padding(top = 40.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                ) { logoRollKey++ },
-        ) {
-            repeat(5) { index ->
-                AnimatedDie(
-                    value = 6,
-                    rollKey = logoRollKey,
-                    size = 44.dp,
-                    highlighted = true,
-                    startDelayMillis = index * DieAnimation.STAGGER_MILLIS,
-                )
-            }
-        }
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = stringResource(Res.string.home_title),
-            fontFamily = ExtraBoldFont(),
-            fontSize = 34.sp,
-            color = ColorTextPrimary,
-        )
-        Spacer(Modifier.height(28.dp))
+        Toolbar(title = stringResource(Res.string.home_title))
 
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // No bottom inset here: the list scrolls right up to the tab bar, which handles the system bar.
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(CARD_SPACING),
+        ) {
             viewData.games.chunked(GRID_COLUMNS).forEach { rowGames ->
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(CARD_SPACING)) {
                     rowGames.forEach { game ->
                         GameCardView(
                             game = game,
@@ -120,6 +103,7 @@ fun HomeScreen(viewData: Home.ViewData) {
                     repeat(GRID_COLUMNS - rowGames.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
+            LudoCardView(onClick = listener::onLudoClick)
         }
     }
 }
@@ -165,6 +149,51 @@ private fun GameCardView(game: Home.GameCard, onClick: () -> Unit, modifier: Mod
                 maxLines = 1,
             )
         }
+    }
+}
+
+/** A full-width card; its height matches a row of the square cards above it. */
+@Composable
+private fun LudoCardView(onClick: () -> Unit) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val squareSide = (maxWidth - CARD_SPACING * (GRID_COLUMNS - 1)) / GRID_COLUMNS
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(squareSide)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Brush.radialGradient(listOf(ColorFeltLight, ColorFeltDark)))
+                .clickable(onClick = onClick)
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                LudoArtwork(pawnHeight = 44.dp, dieSize = 30.dp)
+            }
+            Text(
+                text = stringResource(Res.string.game_ludo),
+                fontFamily = BoldFont(),
+                fontSize = 17.sp,
+                color = ColorWhite,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+/** Four pawns side by side with a die in front of them. */
+@Composable
+internal fun LudoArtwork(pawnHeight: Dp, dieSize: Dp, modifier: Modifier = Modifier) {
+    Box(modifier = modifier, contentAlignment = Alignment.BottomCenter) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(pawnHeight * 0.08f),
+            modifier = Modifier.padding(bottom = dieSize * 0.55f),
+        ) {
+            listOf(ColorPawnBlue, ColorPawnYellow, ColorPawnRed, ColorPawnGreen).forEach { color ->
+                LudoPawn(color = color, height = pawnHeight)
+            }
+        }
+        DieFace(value = 6, size = dieSize)
     }
 }
 

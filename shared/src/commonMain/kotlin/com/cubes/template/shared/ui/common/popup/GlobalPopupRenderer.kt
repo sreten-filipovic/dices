@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +24,8 @@ fun GlobalPopupRenderer(
     onDismiss: () -> Unit
 ) {
     if (state is PopupState.Info) {
-        InfoPopup(state = state, onDismiss = onDismiss)
+        // Keyed so a popup shown right after another one gets a fresh enter animation.
+        key(state) { InfoPopup(state = state, onDismiss = onDismiss) }
         return
     }
     Dialog(
