@@ -1,5 +1,13 @@
 package com.cubes.template.shared.ui.main
 
+import com.cubes.template.shared.ui.main.game_setup.OnlineComingSoon
+import com.cubes.template.shared.ui.main.online.ludo.OnlineLudoView
+import com.cubes.template.shared.ui.main.online.room.OnlineRoomView
+import com.cubes.template.shared.ui.main.online.lobby.OnlineLobbyView
+import com.cubes.template.shared.ui.main.home.Home
+import com.cubes.template.shared.domain.ludo.Ludo
+import com.cubes.template.shared.data.online.OnlineGame
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.background
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -45,6 +53,7 @@ fun MainView(
     screenCompositionRoot: ScreenCompositionRoot,
 ) {
     val backStack by mainScreenNavigator.backStack.collectAsState()
+    viewModel { screenCompositionRoot.getResumeGameViewModel(mainScreenNavigator) }
     // The tab bar belongs to the tab roots only; screens opened from them (setup, games) take the full screen.
     val selectedTab = backStack.singleOrNull()?.tab
 
@@ -58,7 +67,7 @@ fun MainView(
                 .weight(1f)
                 .then(if (selectedTab != null) Modifier.consumeWindowInsets(WindowInsets.navigationBars) else Modifier),
             backStack = backStack,
-            onBack = { mainScreenNavigator.back() },
+            onBack = { mainScreenNavigator.systemBack() },
             entryDecorators = listOf(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()
@@ -110,7 +119,45 @@ fun MainView(
                     val viewModel = viewModel {
                         screenCompositionRoot.getGameSetupViewModel(screen.game, mainScreenNavigator)
                     }
-                    GameSetupView(viewModel = viewModel)
+                    GameSetupView(
+                        viewModel = viewModel,
+                        onlineContent = { modifier ->
+                            if (screen.game == Home.GameCard.LUDO) {
+                                val lobbyViewModel = viewModel {
+                                    screenCompositionRoot.getOnlineLobbyViewModel(
+                                        game = OnlineGame.LUDO,
+                                        playerOptions = (Ludo.MIN_PLAYERS..Ludo.MAX_PLAYERS).toList(),
+                                        navigator = mainScreenNavigator,
+                                    )
+                                }
+                                OnlineLobbyView(viewModel = lobbyViewModel, modifier = modifier)
+                            } else {
+                                OnlineComingSoon(modifier)
+                            }
+                        },
+                    )
+                }
+
+                entry<MainScreen.OnlineRoom> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getOnlineRoomViewModel(screen.roomId, mainScreenNavigator)
+                    }
+                    DisposableEffect(viewModel) {
+                        mainScreenNavigator.setBackHandler(screen, viewModel::onLeaveClick)
+                        onDispose { mainScreenNavigator.setBackHandler(screen, null) }
+                    }
+                    OnlineRoomView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.OnlineLudo> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getOnlineLudoViewModel(screen.roomId, onBack = mainScreenNavigator::back)
+                    }
+                    DisposableEffect(viewModel) {
+                        mainScreenNavigator.setBackHandler(screen, viewModel::onBackClick)
+                        onDispose { mainScreenNavigator.setBackHandler(screen, null) }
+                    }
+                    OnlineLudoView(viewModel = viewModel)
                 }
 
                 entry<MainScreen.Game> { screen ->

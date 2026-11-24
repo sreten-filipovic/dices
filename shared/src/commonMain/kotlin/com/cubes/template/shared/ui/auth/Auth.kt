@@ -26,6 +26,7 @@ interface AuthViewListener {
     fun onEmailChanged(email: String)
     fun onPasswordChanged(password: String)
     fun onSubmitClick()
+    fun onForgotPasswordClick()
     fun onSkipClick()
     fun onBackClick()
 }

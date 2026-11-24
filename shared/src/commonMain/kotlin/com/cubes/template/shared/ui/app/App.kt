@@ -21,6 +21,8 @@ import com.cubes.template.shared.data.remote.createImageLoader
 import com.cubes.template.shared.di.AppCompositionRoot
 import com.cubes.template.shared.di.ScreenCompositionRoot
 import com.cubes.template.shared.ui.auth.AuthView
+import com.cubes.template.shared.ui.password.Password
+import com.cubes.template.shared.ui.password.PasswordView
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.LocalTrustAllCertificates
 import com.cubes.template.shared.ui.common.popup.GlobalPopupRenderer
@@ -88,9 +90,24 @@ fun App(appCompositionRoot: AppCompositionRoot) {
                                             } else {
                                                 appScreenNavigator::showMain
                                             },
+                                            onForgotPassword = { email ->
+                                                appScreenNavigator.showPassword(Password.Mode.FORGOT, email)
+                                            },
                                         )
                                     }
                                     AuthView(viewModel = viewModel)
+                                }
+
+                                entry<AppScreen.Password> { screen ->
+                                    val viewModel = viewModel {
+                                        screenCompositionRoot.getPasswordViewModel(
+                                            mode = screen.mode,
+                                            email = screen.email,
+                                            onBack = appScreenNavigator::back,
+                                            onSignedIn = appScreenNavigator::finishSignIn,
+                                        )
+                                    }
+                                    PasswordView(viewModel = viewModel)
                                 }
 
                                 entry<AppScreen.Main> { entry ->

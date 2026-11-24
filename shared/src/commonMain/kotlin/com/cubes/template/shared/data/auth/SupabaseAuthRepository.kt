@@ -2,6 +2,7 @@ package com.cubes.template.shared.data.auth
 
 import com.cubes.template.shared.data.remote.Result
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.OtpType
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.exception.AuthErrorCode
 import io.github.jan.supabase.auth.exception.AuthRestException
@@ -69,6 +70,37 @@ class SupabaseAuthRepository(private val supabase: SupabaseClient) : AuthReposit
         profile.toUser(user.email)
     }
 
+    override suspend fun changePassword(user: User, currentPassword: String, newPassword: String): Result<Unit> =
+        attempt {
+            try {
+                auth.signInWith(Email, redirectUrl = null) {
+                    this.email = user.email
+                    this.password = currentPassword
+                }
+            } catch (e: AuthRestException) {
+                if (e.errorCode == AuthErrorCode.InvalidCredentials) {
+                    throw AuthFailure(AuthFailure.Reason.WRONG_CURRENT_PASSWORD, e)
+                }
+                throw e
+            }
+            auth.updateUser(redirectUrl = null) { password = newPassword }
+            Unit
+        }
+
+    override suspend fun sendPasswordResetCode(email: String): Result<Unit> = attempt {
+        auth.resetPasswordForEmail(email, redirectUrl = null)
+    }
+
+    override suspend fun verifyPasswordResetCode(email: String, code: String): Result<Unit> = attempt {
+        auth.verifyEmailOtp(type = OtpType.Email.RECOVERY, email = email, token = code)
+        Unit
+    }
+
+    override suspend fun setNewPassword(newPassword: String): Result<User> = attempt {
+        auth.updateUser(redirectUrl = null) { password = newPassword }
+        fetchUser(currentUser())
+    }
+
     override suspend fun logout(): Result<Unit> = attempt {
         try {
             auth.signOut()
@@ -121,6 +153,10 @@ class SupabaseAuthRepository(private val supabase: SupabaseClient) : AuthReposit
                 AuthErrorCode.EmailExists, AuthErrorCode.UserAlreadyExists -> AuthFailure.Reason.EMAIL_TAKEN
                 AuthErrorCode.WeakPassword -> AuthFailure.Reason.WEAK_PASSWORD
                 AuthErrorCode.EmailNotConfirmed -> AuthFailure.Reason.EMAIL_NOT_CONFIRMED
+                AuthErrorCode.SamePassword -> AuthFailure.Reason.SAME_PASSWORD
+                AuthErrorCode.OtpExpired -> AuthFailure.Reason.INVALID_CODE
+                AuthErrorCode.OverEmailSendRateLimit, AuthErrorCode.OverRequestRateLimit ->
+                    AuthFailure.Reason.TOO_MANY_REQUESTS
                 else -> AuthFailure.Reason.UNKNOWN
             },
             this,

@@ -15,6 +15,8 @@ sealed class MainScreen {
     ) : MainScreen()
     data class DiceDuel(val playerNames: List<String>, val dieStyles: List<DieStyle>, val diceCount: Int) : MainScreen()
     data class GameSetup(val game: Home.GameCard) : MainScreen()
+    data class OnlineRoom(val roomId: String) : MainScreen()
+    data class OnlineLudo(val roomId: String) : MainScreen()
     data class Game(val playerNames: List<String>, val dieStyles: List<DieStyle>, val totalRounds: Int) : MainScreen()
     data class DiceJack(val playerNames: List<String>, val dieStyles: List<DieStyle>, val totalRounds: Int) : MainScreen()
     data class StraightRoll(val playerNames: List<String>, val dieStyles: List<DieStyle>, val totalRounds: Int) : MainScreen()

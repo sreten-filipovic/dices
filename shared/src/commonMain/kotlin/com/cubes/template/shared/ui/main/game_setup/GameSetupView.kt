@@ -56,7 +56,7 @@ import com.cubes.template.shared.resources.setup_players
 import com.cubes.template.shared.resources.setup_remove_player
 import com.cubes.template.shared.resources.setup_start
 import com.cubes.template.shared.resources.setup_rounds
-import com.cubes.template.shared.resources.setup_online_coming_soon
+import com.cubes.template.shared.resources.online_coming_soon_game
 import com.cubes.template.shared.resources.setup_tab_local
 import com.cubes.template.shared.resources.setup_tab_online
 import com.cubes.template.shared.ui.common.ColorDivider
@@ -91,13 +91,16 @@ import org.jetbrains.compose.resources.stringResource
 private const val PAWN_COLOR_COLUMNS = 4
 
 @Composable
-fun GameSetupView(viewModel: GameSetupViewModel) {
+fun GameSetupView(viewModel: GameSetupViewModel, onlineContent: @Composable (Modifier) -> Unit) {
     val viewData by viewModel.viewData.collectAsState()
-    GameSetupScreen(viewData = viewData)
+    GameSetupScreen(viewData = viewData, onlineContent = onlineContent)
 }
 
 @Composable
-fun GameSetupScreen(viewData: GameSetup.ViewData) {
+fun GameSetupScreen(
+    viewData: GameSetup.ViewData,
+    onlineContent: @Composable (Modifier) -> Unit = { OnlineComingSoon(it) },
+) {
     val listener = viewData.listener
     val focusManager = LocalFocusManager.current
     Column(
@@ -124,7 +127,7 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
 
         when (viewData.mode) {
             GameSetup.Mode.LOCAL -> LocalSetup(viewData, modifier = Modifier.weight(1f))
-            GameSetup.Mode.ONLINE -> OnlineSetup(modifier = Modifier.weight(1f))
+            GameSetup.Mode.ONLINE -> onlineContent(Modifier.weight(1f))
         }
     }
 
@@ -207,10 +210,10 @@ private fun ModeTab(
 }
 
 @Composable
-private fun OnlineSetup(modifier: Modifier = Modifier) {
+fun OnlineComingSoon(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth().padding(20.dp), contentAlignment = Alignment.Center) {
         Text(
-            text = stringResource(Res.string.setup_online_coming_soon),
+            text = stringResource(Res.string.online_coming_soon_game),
             fontFamily = SemiBoldFont(),
             fontSize = 16.sp,
             color = ColorTextSecondary,

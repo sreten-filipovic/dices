@@ -39,6 +39,7 @@ import com.cubes.template.shared.resources.profile_delete
 import com.cubes.template.shared.resources.profile_guest_message
 import com.cubes.template.shared.resources.profile_guest_title
 import com.cubes.template.shared.resources.profile_login
+import com.cubes.template.shared.resources.profile_change_password
 import com.cubes.template.shared.resources.profile_logout
 import com.cubes.template.shared.resources.profile_save
 import com.cubes.template.shared.resources.profile_title
@@ -198,6 +199,14 @@ private fun UserContent(viewData: Profile.ViewData, user: User) {
 
     Spacer(Modifier.height(8.dp))
     Button(
+        text = stringResource(Res.string.profile_change_password),
+        onClick = listener::onChangePasswordClick,
+        enabled = !viewData.isBusy,
+        backgroundColor = ColorPrimaryLight,
+        textColor = ColorPrimary,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    Button(
         text = stringResource(Res.string.profile_logout),
         onClick = listener::onLogoutClick,
         enabled = !viewData.isBusy,
@@ -220,6 +229,7 @@ private val previewListener = object : ProfileViewListener {
     override fun onLoginClick() = Unit
     override fun onUsernameChanged(username: String) = Unit
     override fun onSaveUsernameClick() = Unit
+    override fun onChangePasswordClick() = Unit
     override fun onLogoutClick() = Unit
     override fun onDeleteAccountClick() = Unit
 }

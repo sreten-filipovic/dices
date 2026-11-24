@@ -26,6 +26,7 @@ sealed interface PopupState {
         val title: String? = null,
         val message: String? = null,
         val confirmText: String? = null,
+        val cancelText: String? = null,
         val isDestructive: Boolean = false,
         val onConfirm: (() -> Unit)? = null,
     ) : PopupState

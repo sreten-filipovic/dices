@@ -22,8 +22,11 @@ data class LudoState(
     val lastRoll: Int? = null,
     val lastMove: LudoMove? = null,
     val ranking: List<Int> = emptyList(),
+    val forfeited: List<Int> = emptyList(),
     val phase: LudoPhase = LudoPhase.WaitingForRoll,
 ) {
+    fun isActive(player: Int): Boolean = player !in ranking && player !in forfeited
+
     val current: LudoPlayer get() = players[currentPlayer]
 
     fun finishedCount(player: Int): Int = pawns[player].count { it >= Ludo.TRACK_LENGTH }
@@ -119,14 +122,8 @@ object Ludo {
             phase = LudoPhase.WaitingForRoll,
         )
         if (pawns[player].all { it >= TRACK_LENGTH }) {
-            val ranking = state.ranking + player
-            val remaining = state.players.indices.filter { it !in ranking }
-            return if (remaining.size <= 1) {
-                val finalRanking = ranking + remaining
-                moved.copy(ranking = finalRanking, phase = LudoPhase.GameOver(finalRanking))
-            } else {
-                nextPlayer(moved.copy(ranking = ranking))
-            }
+            val ranked = moved.copy(ranking = state.ranking + player)
+            return finishIfDecided(ranked) ?: nextPlayer(ranked)
         }
         return when {
             phase.roll == EXIT_ROLL -> moved.copy(rollsLeft = rollsFor(pawns[player]))
@@ -134,11 +131,29 @@ object Ludo {
         }
     }
 
+    fun forfeit(state: LudoState, player: Int): LudoState {
+        if (state.phase is LudoPhase.GameOver || !state.isActive(player)) return state
+        val out = state.copy(
+            pawns = state.pawns.mapIndexed { owner, list -> if (owner == player) list.map { HOME } else list },
+            forfeited = state.forfeited + player,
+            lastMove = null,
+        )
+        finishIfDecided(out)?.let { return it }
+        return if (player == state.currentPlayer) nextPlayer(out.copy(phase = LudoPhase.WaitingForRoll)) else out
+    }
+
+    private fun finishIfDecided(state: LudoState): LudoState? {
+        val remaining = state.players.indices.filter(state::isActive)
+        if (remaining.size > 1) return null
+        val finalRanking = state.ranking + remaining + state.forfeited.reversed()
+        return state.copy(ranking = finalRanking, phase = LudoPhase.GameOver(finalRanking))
+    }
+
     private fun nextPlayer(state: LudoState): LudoState {
         val count = state.players.size
         val next = (1..count)
             .map { (state.currentPlayer + it) % count }
-            .first { it !in state.ranking }
+            .first(state::isActive)
         return state.copy(currentPlayer = next, rollsLeft = rollsFor(state.pawns[next]))
     }
 

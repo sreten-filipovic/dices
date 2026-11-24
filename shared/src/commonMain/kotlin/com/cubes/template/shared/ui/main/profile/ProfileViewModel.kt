@@ -79,6 +79,10 @@ class ProfileViewModel(
         }
     }
 
+    override fun onChangePasswordClick() {
+        if (!_viewData.value.isBusy) screenNavigator.showChangePassword()
+    }
+
     override fun onLogoutClick() {
         if (_viewData.value.isBusy) return
         viewModelScope.launch {

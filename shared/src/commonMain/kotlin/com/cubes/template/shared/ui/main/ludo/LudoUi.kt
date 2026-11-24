@@ -8,7 +8,13 @@ import com.cubes.template.shared.ui.common.views.PawnColor
 
 object LudoUi {
 
-    enum class Hint { ROLL, NEED_SIX, ROLL_AGAIN, PICK_PAWN, NO_MOVES, PLAYER_FINISHED, NONE }
+    enum class Hint { ROLL, NEED_SIX, ROLL_AGAIN, PICK_PAWN, NO_MOVES, PLAYER_FINISHED, WAITING, NONE }
+
+    data class Online(
+        val myPlayer: Int,
+        val secondsLeft: Int? = null,
+        val submitting: Boolean = false,
+    )
 
     data class ViewData(
         val state: LudoState,
@@ -21,14 +27,18 @@ object LudoUi {
         val noMoves: Boolean = false,
         val extraRoll: Boolean = false,
         val finishedPlayer: Int? = null,
+        val online: Online? = null,
         val listener: LudoViewListener,
     ) {
         val busy: Boolean get() = rolling || moving || noMoves
 
-        val canRoll: Boolean get() = !busy && state.phase == LudoPhase.WaitingForRoll
+        val isMyTurn: Boolean
+            get() = online == null || (online.myPlayer == state.currentPlayer && !online.submitting)
+
+        val canRoll: Boolean get() = !busy && isMyTurn && state.phase == LudoPhase.WaitingForRoll
 
         val movable: Set<Int>
-            get() = if (busy) emptySet() else (state.phase as? LudoPhase.ChoosingPawn)?.movable.orEmpty()
+            get() = if (busy || !isMyTurn) emptySet() else (state.phase as? LudoPhase.ChoosingPawn)?.movable.orEmpty()
 
         fun colorOf(player: Int): Color = pawnColors.getOrElse(player) { PawnColor.entries[player] }.color
 
@@ -38,6 +48,8 @@ object LudoUi {
             get() = when {
                 noMoves -> Hint.NO_MOVES
                 rolling || moving -> Hint.NONE
+                state.phase is LudoPhase.GameOver -> Hint.NONE
+                online != null && online.myPlayer != state.currentPlayer -> Hint.WAITING
                 state.phase is LudoPhase.ChoosingPawn -> Hint.PICK_PAWN
                 state.phase is LudoPhase.GameOver -> Hint.NONE
                 finishedPlayer != null -> Hint.PLAYER_FINISHED

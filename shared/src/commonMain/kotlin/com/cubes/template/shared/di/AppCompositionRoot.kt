@@ -12,6 +12,9 @@ import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.functions.Functions
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.realtime.Realtime
+import com.cubes.template.shared.data.online.RoomRepository
+import com.cubes.template.shared.data.online.SupabaseRoomRepository
 import com.cubes.template.shared.data.local.DataStoreRepository
 import com.cubes.template.shared.data.local.LocalDataSource
 import com.cubes.template.shared.data.network.ConnectivityMonitor
@@ -61,8 +64,11 @@ class AppCompositionRoot(
             install(Auth)
             install(Postgrest)
             install(Functions)
+            install(Realtime)
         }
     }
+
+    val roomRepository: RoomRepository by lazy { SupabaseRoomRepository(supabase) }
 
     val authRepository: AuthRepository by lazy {
         if (SupabaseConfig.isConfigured) SupabaseAuthRepository(supabase) else PlaceholderAuthRepository()

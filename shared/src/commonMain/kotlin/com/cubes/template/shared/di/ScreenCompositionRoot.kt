@@ -5,6 +5,14 @@ import com.cubes.template.shared.StringProviderImpl
 import com.cubes.template.shared.domain.game.DiceRoller
 import com.cubes.template.shared.domain.game.RandomDiceRoller
 import com.cubes.template.shared.ui.auth.AuthViewModel
+import com.cubes.template.shared.data.online.OnlineGame
+import com.cubes.template.shared.ui.main.online.OnlineScreenNavigator
+import com.cubes.template.shared.ui.main.online.ResumeGameViewModel
+import com.cubes.template.shared.ui.main.online.lobby.OnlineLobbyViewModel
+import com.cubes.template.shared.ui.main.online.ludo.OnlineLudoViewModel
+import com.cubes.template.shared.ui.main.online.room.OnlineRoomViewModel
+import com.cubes.template.shared.ui.password.Password
+import com.cubes.template.shared.ui.password.PasswordViewModel
 import com.cubes.template.shared.ui.common.Validator
 import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.common.views.PawnColor
@@ -39,14 +47,62 @@ class ScreenCompositionRoot(
     val validator get() = Validator(stringProvider)
     val diceRoller: DiceRoller get() = RandomDiceRoller()
 
-    fun getAuthViewModel(canGoBack: Boolean, onFinished: () -> Unit) = AuthViewModel(
-        canGoBack = canGoBack,
-        authRepository = authRepository,
-        userSession = userSession,
-        validator = validator,
+    fun getAuthViewModel(canGoBack: Boolean, onFinished: () -> Unit, onForgotPassword: (String) -> Unit) =
+        AuthViewModel(
+            canGoBack = canGoBack,
+            authRepository = authRepository,
+            userSession = userSession,
+            validator = validator,
+            stringProvider = stringProvider,
+            popupManager = popupManager,
+            onFinished = onFinished,
+            onForgotPassword = onForgotPassword,
+        )
+
+    fun getPasswordViewModel(mode: Password.Mode, email: String, onBack: () -> Unit, onSignedIn: () -> Unit) =
+        PasswordViewModel(
+            mode = mode,
+            email = email,
+            authRepository = authRepository,
+            userSession = userSession,
+            validator = validator,
+            stringProvider = stringProvider,
+            popupManager = popupManager,
+            onBack = onBack,
+            onSignedIn = onSignedIn,
+        )
+
+    fun getOnlineLobbyViewModel(game: OnlineGame, playerOptions: List<Int>, navigator: OnlineScreenNavigator) =
+        OnlineLobbyViewModel(
+            game = game,
+            playerOptions = playerOptions,
+            roomRepository = appCompositionRoot.roomRepository,
+            stringProvider = stringProvider,
+            popupManager = popupManager,
+            navigator = navigator,
+        )
+
+    fun getResumeGameViewModel(navigator: OnlineScreenNavigator) = ResumeGameViewModel(
+        roomRepository = appCompositionRoot.roomRepository,
         stringProvider = stringProvider,
         popupManager = popupManager,
-        onFinished = onFinished,
+        navigator = navigator,
+    )
+
+    fun getOnlineRoomViewModel(roomId: String, navigator: OnlineScreenNavigator) = OnlineRoomViewModel(
+        roomId = roomId,
+        roomRepository = appCompositionRoot.roomRepository,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        navigator = navigator,
+    )
+
+    fun getOnlineLudoViewModel(roomId: String, onBack: () -> Unit) = OnlineLudoViewModel(
+        roomId = roomId,
+        roomRepository = appCompositionRoot.roomRepository,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        onBack = onBack,
     )
 
     fun getProfileViewModel(screenNavigator: ProfileScreenNavigator) = ProfileViewModel(

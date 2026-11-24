@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import com.cubes.template.shared.resources.Res
 import com.cubes.template.shared.resources.app_name
 import com.cubes.template.shared.resources.auth_email
+import com.cubes.template.shared.resources.auth_forgot_password
 import com.cubes.template.shared.resources.auth_hide_password
 import com.cubes.template.shared.resources.auth_login_button
 import com.cubes.template.shared.resources.auth_online_hint
@@ -236,18 +237,23 @@ private fun AuthCard(viewData: Auth.ViewData, modifier: Modifier = Modifier) {
                 listener.onSubmitClick()
             },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            trailing = {
-                TextButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Text(
-                        text = stringResource(
-                            if (passwordVisible) Res.string.auth_hide_password else Res.string.auth_show_password
-                        ),
-                        fontFamily = SemiBoldFont(),
-                        color = ColorPrimary,
-                    )
-                }
-            },
+            trailing = { PasswordVisibilityToggle(passwordVisible) { passwordVisible = !passwordVisible } },
         )
+
+        AnimatedVisibility(
+            visible = !isRegister,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically(),
+            modifier = Modifier.align(Alignment.End),
+        ) {
+            TextButton(onClick = listener::onForgotPasswordClick, enabled = !viewData.isLoading) {
+                Text(
+                    text = stringResource(Res.string.auth_forgot_password),
+                    fontFamily = SemiBoldFont(),
+                    color = ColorPrimary,
+                )
+            }
+        }
 
         Spacer(Modifier.height(4.dp))
         LoadingButton(
@@ -299,7 +305,7 @@ private fun ModeSwitch(selected: Auth.Mode, onSelect: (Auth.Mode) -> Unit) {
 }
 
 @Composable
-private fun AuthField(
+internal fun AuthField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
@@ -327,6 +333,17 @@ private fun AuthField(
     )
 }
 
+@Composable
+internal fun PasswordVisibilityToggle(visible: Boolean, onToggle: () -> Unit) {
+    TextButton(onClick = onToggle) {
+        Text(
+            text = stringResource(if (visible) Res.string.auth_hide_password else Res.string.auth_show_password),
+            fontFamily = SemiBoldFont(),
+            color = ColorPrimary,
+        )
+    }
+}
+
 @Preview
 @Composable
 private fun AuthScreenPreview() {
@@ -341,6 +358,7 @@ private fun AuthScreenPreview() {
                     override fun onEmailChanged(email: String) = Unit
                     override fun onPasswordChanged(password: String) = Unit
                     override fun onSubmitClick() = Unit
+                    override fun onForgotPasswordClick() = Unit
                     override fun onSkipClick() = Unit
                     override fun onBackClick() = Unit
                 },

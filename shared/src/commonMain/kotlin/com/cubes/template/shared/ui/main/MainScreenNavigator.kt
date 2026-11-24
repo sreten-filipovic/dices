@@ -9,7 +9,9 @@ import com.cubes.template.shared.ui.main.game.GameScreenNavigator
 import com.cubes.template.shared.ui.main.game_setup.GameSetupScreenNavigator
 import com.cubes.template.shared.ui.main.home.Home
 import com.cubes.template.shared.ui.main.home.HomeScreenNavigator
+import com.cubes.template.shared.ui.main.online.OnlineScreenNavigator
 import com.cubes.template.shared.ui.main.profile.ProfileScreenNavigator
+import com.cubes.template.shared.ui.password.Password
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -18,9 +20,13 @@ interface MainScreenNavigator :
     HomeScreenNavigator,
     GameSetupScreenNavigator,
     GameScreenNavigator,
-    ProfileScreenNavigator {
+    ProfileScreenNavigator,
+    OnlineScreenNavigator {
 
     val backStack: StateFlow<List<MainScreen>>
+
+    fun systemBack()
+    fun setBackHandler(screen: MainScreen, handler: (() -> Unit)?)
 
     fun navigateTo(screen: MainScreen)
     fun selectTab(tab: MainTab)
@@ -34,6 +40,22 @@ class MainNavigatorImpl(
 ) : ViewModel(), MainScreenNavigator {
 
     override val backStack = MutableStateFlow(initialBackStack)
+
+    private val backHandlers = mutableMapOf<MainScreen, () -> Unit>()
+
+    override fun systemBack() {
+        backHandlers[backStack.value.last()]?.invoke() ?: back()
+    }
+
+    override fun setBackHandler(screen: MainScreen, handler: (() -> Unit)?) {
+        if (handler == null) backHandlers.remove(screen) else backHandlers[screen] = handler
+    }
+
+    override fun showOnlineRoom(roomId: String) = navigateTo(MainScreen.OnlineRoom(roomId))
+
+    override fun showOnlineLudo(roomId: String) {
+        backStack.update { it.dropLastWhile { last -> last is MainScreen.OnlineRoom } + MainScreen.OnlineLudo(roomId) }
+    }
 
     override fun navigateTo(screen: MainScreen) {
         backStack.update { it + screen }
@@ -58,6 +80,8 @@ class MainNavigatorImpl(
     }
 
     override fun showAuth() = appScreenNavigator.showAuth()
+
+    override fun showChangePassword() = appScreenNavigator.showPassword(Password.Mode.CHANGE)
 
     override fun showGameSetup(game: Home.GameCard) = navigateTo(MainScreen.GameSetup(game))
 

@@ -46,6 +46,9 @@ import com.cubes.template.shared.resources.game_ludo
 import com.cubes.template.shared.resources.ludo_finished
 import com.cubes.template.shared.resources.ludo_hint_finished
 import com.cubes.template.shared.resources.ludo_place
+import com.cubes.template.shared.resources.ludo_hint_waiting
+import com.cubes.template.shared.resources.ludo_your_turn
+import com.cubes.template.shared.resources.ludo_left
 import com.cubes.template.shared.resources.ludo_hint_need_six
 import com.cubes.template.shared.resources.ludo_hint_no_moves
 import com.cubes.template.shared.resources.ludo_hint_pick_pawn
@@ -55,6 +58,7 @@ import com.cubes.template.shared.resources.ludo_turn
 import com.cubes.template.shared.resources.roll
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.BoldFont
+import com.cubes.template.shared.ui.common.ColorAccent
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorFeltDark
@@ -165,7 +169,9 @@ private fun PlayersRow(viewData: LudoUi.ViewData) {
                     )
                     val place = state.placeOf(index)
                     Text(
-                        text = if (place != null) {
+                        text = if (index in state.forfeited) {
+                            stringResource(Res.string.ludo_left)
+                        } else if (place != null) {
                             stringResource(Res.string.ludo_place, place)
                         } else {
                             stringResource(Res.string.ludo_finished, state.finishedCount(index), Ludo.PAWNS)
@@ -211,13 +217,27 @@ private fun RollPanel(viewData: LudoUi.ViewData) {
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = stringResource(Res.string.ludo_turn, player.name),
+                    text = if (viewData.online?.myPlayer == viewData.state.currentPlayer) {
+                        stringResource(Res.string.ludo_your_turn)
+                    } else {
+                        stringResource(Res.string.ludo_turn, player.name)
+                    },
                     fontFamily = BoldFont(),
                     fontSize = 16.sp,
                     color = ColorTextPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
                 )
+                viewData.online?.secondsLeft?.let { seconds ->
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = "0:${seconds.toString().padStart(2, '0')}",
+                        fontFamily = BoldFont(),
+                        fontSize = 14.sp,
+                        color = if (seconds <= TIMER_WARNING_SECONDS) ColorAccent else ColorTextSecondary,
+                    )
+                }
             }
             Text(
                 text = hintText(viewData),
@@ -252,8 +272,11 @@ private fun hintText(viewData: LudoUi.ViewData): String = when (viewData.hint) {
             viewData.state.placeOf(player) ?: 0,
         )
     }.orEmpty()
+    LudoUi.Hint.WAITING -> stringResource(Res.string.ludo_hint_waiting, viewData.state.current.name)
     LudoUi.Hint.NONE -> ""
 }
+
+private const val TIMER_WARNING_SECONDS = 10
 
 @Composable
 private fun ResultsCard(viewData: LudoUi.ViewData, ranking: List<Int>) {
@@ -303,13 +326,15 @@ private fun ResultsCard(viewData: LudoUi.ViewData, ranking: List<Int>) {
             }
         }
         Spacer(Modifier.height(4.dp))
-        Button(
-            text = stringResource(Res.string.duel_play_again),
-            onClick = listener::onPlayAgainClick,
-            backgroundColor = ColorWhite,
-            textColor = ColorFeltDark,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        if (viewData.online == null) {
+            Button(
+                text = stringResource(Res.string.duel_play_again),
+                onClick = listener::onPlayAgainClick,
+                backgroundColor = ColorWhite,
+                textColor = ColorFeltDark,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         TextButton(onClick = listener::onBackClick) {
             Text(
                 text = stringResource(Res.string.game_home),

@@ -134,7 +134,7 @@ private fun InfoPopupContent(state: PopupState.Info, onClose: () -> Unit, onConf
             )
             TextButton(onClick = onClose) {
                 Text(
-                    text = stringResource(Res.string.cancel),
+                    text = state.cancelText ?: stringResource(Res.string.cancel),
                     fontFamily = SemiBoldFont(),
                     fontSize = 16.sp,
                     color = ColorWhite,

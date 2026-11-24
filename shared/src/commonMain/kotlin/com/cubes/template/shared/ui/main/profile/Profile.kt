@@ -22,10 +22,12 @@ interface ProfileViewListener {
     fun onLoginClick()
     fun onUsernameChanged(username: String)
     fun onSaveUsernameClick()
+    fun onChangePasswordClick()
     fun onLogoutClick()
     fun onDeleteAccountClick()
 }
 
 interface ProfileScreenNavigator {
     fun showAuth()
+    fun showChangePassword()
 }

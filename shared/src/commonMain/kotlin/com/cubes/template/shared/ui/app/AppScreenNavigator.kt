@@ -1,5 +1,6 @@
 package com.cubes.template.shared.ui.app
 
+import com.cubes.template.shared.ui.password.Password
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -9,6 +10,8 @@ interface AppScreenNavigator {
 
     fun showMain()
     fun showAuth()
+    fun showPassword(mode: Password.Mode, email: String = "")
+    fun finishSignIn()
     fun back()
 }
 
@@ -25,6 +28,14 @@ class AppScreenNavigatorImpl(
 
     override fun showAuth() {
         _backStack.update { it + AppScreen.Auth(canGoBack = true) }
+    }
+
+    override fun showPassword(mode: Password.Mode, email: String) {
+        _backStack.update { it + AppScreen.Password(mode, email) }
+    }
+
+    override fun finishSignIn() {
+        _backStack.update { stack -> stack.filterIsInstance<AppScreen.Main>().ifEmpty { listOf(AppScreen.Main()) } }
     }
 
     override fun back() {

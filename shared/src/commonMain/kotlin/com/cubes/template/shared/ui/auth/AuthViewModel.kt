@@ -27,6 +27,7 @@ class AuthViewModel(
     private val stringProvider: StringProvider,
     private val popupManager: PopupManager,
     private val onFinished: () -> Unit,
+    private val onForgotPassword: (email: String) -> Unit,
 ) : ViewModel(), AuthViewListener {
 
     private val _viewData = MutableStateFlow(Auth.ViewData(canGoBack = canGoBack, listener = this))
@@ -82,6 +83,10 @@ class AuthViewModel(
                 PopupState.Info(title = stringProvider.getString(Res.string.auth_failed_title), message = message)
             )
         }
+    }
+
+    override fun onForgotPasswordClick() {
+        if (!_viewData.value.isLoading) onForgotPassword(_viewData.value.email.trim())
     }
 
     override fun onSkipClick() {
