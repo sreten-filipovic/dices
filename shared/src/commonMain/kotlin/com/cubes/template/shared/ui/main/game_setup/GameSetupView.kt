@@ -244,7 +244,7 @@ private fun PlayerSettingsCard(
             fontSize = 14.sp,
             color = ColorTextSecondary,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             DieStyle.entries.forEach { style ->
                 val isSelected = style == selected
                 Box(
@@ -257,9 +257,9 @@ private fun PlayerSettingsCard(
                             shape = RoundedCornerShape(14.dp),
                         )
                         .clickable { onSelect(style) }
-                        .padding(8.dp),
+                        .padding(6.dp),
                 ) {
-                    DieFace(value = 5, size = 48.dp, style = style)
+                    DieFace(value = 5, size = 40.dp, style = style)
                 }
             }
         }

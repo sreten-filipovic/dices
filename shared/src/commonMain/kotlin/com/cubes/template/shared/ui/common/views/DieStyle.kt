@@ -41,4 +41,11 @@ enum class DieStyle(
         pipLight = Color(0xFFFFFFFF),
         edge = Color(0x40FFFFFF),
     ),
+    RED(
+        body = Color(0xFFE5343D),
+        bodyShade = Color(0xFFA3121C),
+        pip = Color(0xFFE6E7EC),
+        pipLight = Color(0xFFFFFFFF),
+        edge = Color(0x40FFFFFF),
+    ),
 }
