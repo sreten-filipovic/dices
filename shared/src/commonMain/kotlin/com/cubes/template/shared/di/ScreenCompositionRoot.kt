@@ -27,6 +27,8 @@ class ScreenCompositionRoot(
     val remoteDataSource get() = appCompositionRoot.remoteDataSource
     val localDataSource get() = appCompositionRoot.localDataSource
     val popupManager get() = appCompositionRoot.popupManager
+    val connectivityMonitor get() = appCompositionRoot.connectivityMonitor
+    val userSession get() = appCompositionRoot.userSession
     val stringProvider: StringProvider get() = StringProviderImpl()
     val validator get() = Validator(stringProvider)
     val diceRoller: DiceRoller get() = RandomDiceRoller()
@@ -58,6 +60,9 @@ class ScreenCompositionRoot(
         screenNavigator = screenNavigator,
         stringProvider = stringProvider,
         localDataSource = localDataSource,
+        connectivityMonitor = connectivityMonitor,
+        userSession = userSession,
+        popupManager = popupManager,
     )
 
     fun getGameViewModel(

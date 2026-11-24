@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.cubes.template.shared.AndroidAppInfo
 import com.cubes.template.shared.data.local.DataStoreFactoryImpl
+import com.cubes.template.shared.data.network.AndroidConnectivityMonitor
 import com.cubes.template.shared.di.AppCompositionRoot
 
 class MainApplication : Application() {
@@ -22,6 +23,7 @@ class MainApplication : Application() {
             dataStore = dataStore,
             appInfo = AndroidAppInfo(this),
             trustAllCertificates = BuildConfig.BUILD_TYPE != "release",
+            connectivityMonitor = AndroidConnectivityMonitor(this),
         )
     }
 }

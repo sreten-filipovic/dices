@@ -260,6 +260,7 @@ object PreviewHelper {
             override fun onDiceCountChanged(diceCount: Int) = Unit
             override fun onStartClick() = Unit
             override fun onBackClick() = Unit
+            override fun onModeSelected(mode: GameSetup.Mode) = Unit
         },
     )
 

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -30,9 +31,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +54,10 @@ import com.cubes.template.shared.resources.setup_players
 import com.cubes.template.shared.resources.setup_remove_player
 import com.cubes.template.shared.resources.setup_start
 import com.cubes.template.shared.resources.setup_rounds
+import com.cubes.template.shared.resources.setup_online_coming_soon
+import com.cubes.template.shared.resources.setup_tab_local
+import com.cubes.template.shared.resources.setup_tab_online
+import com.cubes.template.shared.ui.common.ColorDivider
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorAccent
@@ -100,83 +107,18 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
             title = stringResource(viewData.game.title),
         )
 
-        Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                SectionTitle(stringResource(Res.string.setup_players))
+        ModeTabs(
+            selected = viewData.mode,
+            isOnlineAvailable = viewData.isOnlineAvailable,
+            onSelect = { mode ->
+                focusManager.clearFocus()
+                listener.onModeSelected(mode)
+            },
+        )
 
-                viewData.names.forEachIndexed { index, name ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { listener.onNameChanged(index, it) },
-                            placeholder = { Text(stringResource(Res.string.setup_player_hint, index + 1)) },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                            keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
-                            modifier = Modifier.weight(1f),
-                        )
-                        IconButton(onClick = {
-                            focusManager.clearFocus()
-                            listener.onSettingsClick(index)
-                        }) {
-                            Icon(
-                                painter = painterResource(Res.drawable.ic_settings),
-                                contentDescription = stringResource(Res.string.setup_player_settings),
-                                tint = ColorPrimary,
-                            )
-                        }
-                        if (viewData.canRemovePlayer) {
-                            IconButton(onClick = { listener.onRemovePlayerClick(index) }) {
-                                Icon(
-                                    painter = painterResource(Res.drawable.ic_delete),
-                                    contentDescription = stringResource(Res.string.setup_remove_player),
-                                    tint = ColorAccent,
-                                )
-                            }
-                        }
-                    }
-                }
-
-                if (viewData.canAddPlayer) {
-                    TextButton(onClick = listener::onAddPlayerClick) {
-                        Text(
-                            text = stringResource(Res.string.setup_add_player),
-                            color = ColorPrimary,
-                            fontFamily = SemiBoldFont(),
-                        )
-                    }
-                }
-
-                if (viewData.choosesDiceCount) {
-                    SectionTitle(stringResource(Res.string.duel_dice_count))
-                    OptionChips(
-                        options = GameSetup.DICE_COUNT_OPTIONS,
-                        selected = viewData.diceCount,
-                        onSelect = listener::onDiceCountChanged,
-                    )
-                } else {
-                    SectionTitle(stringResource(Res.string.setup_rounds))
-                    OptionChips(
-                        options = GameSetup.ROUND_OPTIONS,
-                        selected = viewData.totalRounds,
-                        onSelect = listener::onTotalRoundsChanged,
-                    )
-                }
-            }
-
-            Button(
-                text = stringResource(Res.string.setup_start),
-                onClick = listener::onStartClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-                    .navigationBarsPadding(),
-            )
+        when (viewData.mode) {
+            GameSetup.Mode.LOCAL -> LocalSetup(viewData, modifier = Modifier.weight(1f))
+            GameSetup.Mode.ONLINE -> OnlineSetup(modifier = Modifier.weight(1f))
         }
     }
 
@@ -187,6 +129,161 @@ fun GameSetupScreen(viewData: GameSetup.ViewData) {
             selected = viewData.dieStyles[player],
             onSelect = listener::onDieStyleSelected,
             onDismiss = listener::onSettingsDismiss,
+        )
+    }
+}
+
+@Composable
+private fun ModeTabs(
+    selected: GameSetup.Mode,
+    isOnlineAvailable: Boolean,
+    onSelect: (GameSetup.Mode) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth().background(ColorSurface)) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            GameSetup.Mode.entries.forEach { mode ->
+                ModeTab(
+                    text = stringResource(
+                        when (mode) {
+                            GameSetup.Mode.LOCAL -> Res.string.setup_tab_local
+                            GameSetup.Mode.ONLINE -> Res.string.setup_tab_online
+                        }
+                    ),
+                    isSelected = mode == selected,
+                    isEnabled = mode == GameSetup.Mode.LOCAL || isOnlineAvailable,
+                    onClick = { onSelect(mode) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(ColorDivider))
+    }
+}
+
+@Composable
+private fun ModeTab(
+    text: String,
+    isSelected: Boolean,
+    isEnabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    // A disabled tab stays clickable so the view model can explain why it is unavailable.
+    Column(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .alpha(if (isEnabled) 1f else 0.4f),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = text,
+            fontFamily = if (isSelected) BoldFont() else SemiBoldFont(),
+            fontSize = 16.sp,
+            color = if (isSelected) ColorPrimary else ColorTextSecondary,
+            modifier = Modifier.padding(vertical = 12.dp),
+        )
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(3.dp)
+                .background(if (isSelected) ColorPrimary else ColorTransparent)
+        )
+    }
+}
+
+@Composable
+private fun OnlineSetup(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxWidth().padding(20.dp), contentAlignment = Alignment.Center) {
+        Text(
+            text = stringResource(Res.string.setup_online_coming_soon),
+            fontFamily = SemiBoldFont(),
+            fontSize = 16.sp,
+            color = ColorTextSecondary,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun LocalSetup(viewData: GameSetup.ViewData, modifier: Modifier = Modifier) {
+    val listener = viewData.listener
+    val focusManager = LocalFocusManager.current
+    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            SectionTitle(stringResource(Res.string.setup_players))
+
+            viewData.names.forEachIndexed { index, name ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { listener.onNameChanged(index, it) },
+                        placeholder = { Text(stringResource(Res.string.setup_player_hint, index + 1)) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                        modifier = Modifier.weight(1f),
+                    )
+                    IconButton(onClick = {
+                        focusManager.clearFocus()
+                        listener.onSettingsClick(index)
+                    }) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_settings),
+                            contentDescription = stringResource(Res.string.setup_player_settings),
+                            tint = ColorPrimary,
+                        )
+                    }
+                    if (viewData.canRemovePlayer) {
+                        IconButton(onClick = { listener.onRemovePlayerClick(index) }) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_delete),
+                                contentDescription = stringResource(Res.string.setup_remove_player),
+                                tint = ColorAccent,
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (viewData.canAddPlayer) {
+                TextButton(onClick = listener::onAddPlayerClick) {
+                    Text(
+                        text = stringResource(Res.string.setup_add_player),
+                        color = ColorPrimary,
+                        fontFamily = SemiBoldFont(),
+                    )
+                }
+            }
+
+            if (viewData.choosesDiceCount) {
+                SectionTitle(stringResource(Res.string.duel_dice_count))
+                OptionChips(
+                    options = GameSetup.DICE_COUNT_OPTIONS,
+                    selected = viewData.diceCount,
+                    onSelect = listener::onDiceCountChanged,
+                )
+            } else {
+                SectionTitle(stringResource(Res.string.setup_rounds))
+                OptionChips(
+                    options = GameSetup.ROUND_OPTIONS,
+                    selected = viewData.totalRounds,
+                    onSelect = listener::onTotalRoundsChanged,
+                )
+            }
+        }
+
+        Button(
+            text = stringResource(Res.string.setup_start),
+            onClick = listener::onStartClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+                .navigationBarsPadding(),
         )
     }
 }

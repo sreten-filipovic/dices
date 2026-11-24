@@ -17,6 +17,11 @@ sealed interface PopupState {
         val message: String? = null,
         val onDismiss: (() -> Unit)? = null,
     ) : PopupState
+
+    data class Info(
+        val title: String? = null,
+        val message: String? = null,
+    ) : PopupState
 }
 
 interface PopupManager {

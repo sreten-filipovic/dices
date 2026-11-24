@@ -11,8 +11,12 @@ object GameSetup {
     val ROUND_OPTIONS = listOf(1, 3, 5)
     val DICE_COUNT_OPTIONS = DiceDuel.DICE_COUNT_OPTIONS
 
+    enum class Mode { LOCAL, ONLINE }
+
     data class ViewData(
         val game: Home.GameCard = Home.GameCard.DICE_POKER,
+        val mode: Mode = Mode.LOCAL,
+        val isOnlineAvailable: Boolean = false,
         val names: List<String> = List(MIN_PLAYERS) { "" },
         val dieStyles: List<DieStyle> = List(MIN_PLAYERS) { DieStyle.WHITE },
         val settingsPlayer: Int? = null,
@@ -38,6 +42,7 @@ interface GameSetupViewListener {
     fun onDiceCountChanged(diceCount: Int)
     fun onStartClick()
     fun onBackClick()
+    fun onModeSelected(mode: GameSetup.Mode)
 }
 
 interface GameSetupScreenNavigator {

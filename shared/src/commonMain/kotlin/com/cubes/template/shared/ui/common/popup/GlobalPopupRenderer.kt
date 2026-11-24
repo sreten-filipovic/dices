@@ -22,6 +22,10 @@ fun GlobalPopupRenderer(
     state: PopupState,
     onDismiss: () -> Unit
 ) {
+    if (state is PopupState.Info) {
+        InfoPopup(state = state, onDismiss = onDismiss)
+        return
+    }
     Dialog(
         onDismissRequest = onDismiss,
         properties = popupDialogProperties()
@@ -58,6 +62,7 @@ fun GlobalPopupRenderer(
                 when (state) {
                     is PopupState.Success -> SuccessPopupContent(state = state, onClose = onDismiss)
                     is PopupState.Error -> ErrorPopupContent(state = state, onClose = onDismiss)
+                    is PopupState.Info -> Unit
                 }
             }
         }

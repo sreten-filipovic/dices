@@ -12,7 +12,8 @@ struct iosAppApp: App {
             baseApiUrl: Constants.BASE_URL,
             dataStore: DataStoreFactoryImpl().get(),
             appInfo: IosAppInfo(),
-            trustAllCertificates: Self.trustAllCertificates
+            trustAllCertificates: Self.trustAllCertificates,
+            connectivityMonitor: IosConnectivityMonitor()
         )
     }
 
