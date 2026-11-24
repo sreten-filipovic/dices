@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-/** Holds the signed-in player and remembers them between launches. */
 class UserSession(private val localDataSource: LocalDataSource) {
 
     private val _currentUser = MutableStateFlow(localDataSource.getUser())
@@ -15,7 +14,6 @@ class UserSession(private val localDataSource: LocalDataSource) {
     private val _isLoggedIn = MutableStateFlow(_currentUser.value != null)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
 
-    /** Stores a new sign-in or updated details of the signed-in player. */
     fun signIn(user: User) {
         localDataSource.saveUser(user)
         _currentUser.value = user

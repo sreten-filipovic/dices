@@ -80,6 +80,11 @@ kotlin {
                 implementation(libs.ktor.client.auth)
                 implementation(libs.kotlinx.serialization)
 
+                implementation(project.dependencies.platform(libs.supabase.bom))
+                implementation(libs.supabase.auth)
+                implementation(libs.supabase.postgrest)
+                implementation(libs.supabase.functions)
+
                 implementation(libs.datastore)
                 implementation(libs.datastore.preferences)
 

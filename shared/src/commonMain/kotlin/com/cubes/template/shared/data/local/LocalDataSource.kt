@@ -1,6 +1,7 @@
 package com.cubes.template.shared.data.local
 
 import com.cubes.template.shared.data.auth.User
+import kotlinx.serialization.json.Json
 
 class LocalDataSource(
     private val dataStoreRepository: DataStoreRepository,
@@ -21,7 +22,10 @@ class LocalDataSource(
     fun getPlayerNames(): List<String> = dataStoreRepository.getPlayerNames()
     fun savePlayerNames(names: List<String>) = dataStoreRepository.savePlayerNames(names)
 
-    fun getUser(): User? = dataStoreRepository.getUser()?.let { (username, email) -> User(username, email) }
-    fun saveUser(user: User) = dataStoreRepository.saveUser(user.username, user.email)
+    fun getUser(): User? = dataStoreRepository.getUserJson()?.let { json ->
+        runCatching { Json.decodeFromString<User>(json) }.getOrNull()
+    }
+
+    fun saveUser(user: User) = dataStoreRepository.saveUserJson(Json.encodeToString(user))
     fun clearUser() = dataStoreRepository.clearUser()
 }

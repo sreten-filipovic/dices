@@ -3,6 +3,7 @@ package com.cubes.template.shared.ui.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cubes.template.shared.StringProvider
+import com.cubes.template.shared.data.auth.AuthFailure
 import com.cubes.template.shared.data.auth.AuthRepository
 import com.cubes.template.shared.data.remote.Result
 import com.cubes.template.shared.data.session.UserSession
@@ -67,13 +68,19 @@ class AuthViewModel(
                     userSession.signIn(result.data)
                     onFinished()
                 }
-                is Result.Error -> popupManager.show(
-                    PopupState.Info(
-                        title = stringProvider.getString(Res.string.auth_failed_title),
-                        message = result.ex.message,
-                    )
-                )
+                is Result.Error -> showError(result.ex)
             }
+        }
+    }
+
+    private fun showError(error: Exception) {
+        val message = stringProvider.authErrorMessage(error)
+        when (error.authFailureReason) {
+            AuthFailure.Reason.USERNAME_TAKEN -> _viewData.update { it.copy(usernameError = message) }
+            AuthFailure.Reason.EMAIL_TAKEN -> _viewData.update { it.copy(emailError = message) }
+            else -> popupManager.show(
+                PopupState.Info(title = stringProvider.getString(Res.string.auth_failed_title), message = message)
+            )
         }
     }
 

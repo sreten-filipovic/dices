@@ -2,9 +2,11 @@ package com.cubes.template.shared.ui.app
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cubes.template.shared.data.auth.AuthRepository
 import com.cubes.template.shared.data.local.LocalDataSource
 import com.cubes.template.shared.data.session.UserSession
 import com.cubes.template.shared.ui.splash.SplashAnimation
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +21,7 @@ sealed interface AppStartupState {
 class AppViewModel(
     private val localDataSource: LocalDataSource,
     private val userSession: UserSession,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<AppStartupState>(AppStartupState.Loading)
@@ -36,7 +39,11 @@ class AppViewModel(
     private fun start() {
         viewModelScope.launch {
             try {
-                delay(SplashAnimation.totalMillis)
+                coroutineScope {
+                    launch { delay(SplashAnimation.totalMillis) }
+                    val user = authRepository.restoreSession(userSession.currentUser.value)
+                    if (user != null) userSession.signIn(user) else userSession.signOut()
+                }
 
                 val nextScreen = if (userSession.isLoggedIn.value) AppScreen.Main() else AppScreen.Auth()
                 localDataSource.setOnboardingDone(true)

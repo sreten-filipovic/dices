@@ -25,7 +25,15 @@
     <string name="auth_skip">Play locally</string>
     <string name="auth_skip_hint">No account needed to play on one device.</string>
     <string name="auth_username_length">Username must have 3–20 characters</string>
-    <string name="auth_failed_title">Couldn\'t sign in</string>
+    <string name="auth_failed_title">Couldn't sign in</string>
+    <string name="auth_error_invalid_credentials">Wrong email or password.</string>
+    <string name="auth_error_email_taken">An account with this email already exists.</string>
+    <string name="auth_error_username_taken">This username is already taken.</string>
+    <string name="auth_error_weak_password">This password is too weak. Try a longer one with letters and numbers.</string>
+    <string name="auth_error_email_not_confirmed">Confirm your email address using the link we sent you, then log in.</string>
+    <string name="auth_error_not_signed_in">You are not signed in. Please log in again.</string>
+    <string name="auth_error_network">Can't reach the server. Check your internet connection and try again.</string>
+    <string name="auth_error_unknown">Something went wrong. Please try again.</string>
 
     <string name="tab_games">Games</string>
     <string name="tab_shop">Shop</string>
@@ -40,7 +48,7 @@
     <string name="profile_logout">Log out</string>
     <string name="profile_delete">Delete account</string>
     <string name="profile_delete_title">Delete account?</string>
-    <string name="profile_delete_message">Your account and online progress will be removed for good. This can\'t be undone.</string>
+    <string name="profile_delete_message">Your account and online progress will be removed for good. This can't be undone.</string>
     <string name="profile_delete_confirm">Delete</string>
     <string name="profile_deleted_title">Account deleted</string>
     <string name="profile_deleted_message">You can still play locally on this device.</string>
@@ -57,7 +65,7 @@
     <string name="game_straight_roll">Straight Roll</string>
     <string name="game_ludo">Ludo</string>
 
-    <string name="ludo_turn">%1$s\'s turn</string>
+    <string name="ludo_turn">%1$s's turn</string>
     <string name="ludo_finished">%1$d/%2$d home</string>
     <string name="ludo_hint_roll">Roll the die.</string>
     <string name="ludo_hint_need_six">Roll a 6 to bring a pawn out. Tries left: %1$d</string>
@@ -66,7 +74,7 @@
     <string name="ludo_place">Place %1$d</string>
     <string name="ludo_hint_finished">%1$s finished in place %2$d!</string>
     <string name="ludo_hint_no_moves">No move possible. Next player.</string>
-    <string name="rules_ludo">• 2–4 players take turns on one device. Everyone has four pawns of their colour waiting in their home corner.\n\n• On your turn roll the die, then tap the pawn you want to move. Pawns travel clockwise around the board.\n\n• A pawn leaves home only with a 6 and is placed on your start square, the one in your colour.\n\n• While none of your pawns can move without a 6, you get up to three rolls to get one.\n\n• After a 6 you roll again.\n\n• Landing on an opponent\'s pawn sends it back home. You can\'t land on your own pawn.\n\n• After a full lap a pawn enters the finish row of your colour. It needs the exact number to reach a free square there and can\'t jump over your other pawns.\n\n• The first player with all four pawns in the finish row wins. The others play on for the next places until only one player is left.</string>
+    <string name="rules_ludo">• 2–4 players take turns on one device. Everyone has four pawns of their colour waiting in their home corner.\n\n• On your turn roll the die, then tap the pawn you want to move. Pawns travel clockwise around the board.\n\n• A pawn leaves home only with a 6 and is placed on your start square, the one in your colour.\n\n• While none of your pawns can move without a 6, you get up to three rolls to get one.\n\n• After a 6 you roll again.\n\n• Landing on an opponent's pawn sends it back home. You can't land on your own pawn.\n\n• After a full lap a pawn enters the finish row of your colour. It needs the exact number to reach a free square there and can't jump over your other pawns.\n\n• The first player with all four pawns in the finish row wins. The others play on for the next places until only one player is left.</string>
 
     <string name="duel_dice_count">Number of dice</string>
     <string name="duel_wins">Wins: %1$d</string>

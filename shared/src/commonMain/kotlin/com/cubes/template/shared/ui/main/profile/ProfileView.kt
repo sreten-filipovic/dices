@@ -236,7 +236,7 @@ private fun ProfileUserPreview() {
     AppTheme {
         ProfileScreen(
             Profile.ViewData(
-                user = User(username = "ana", email = "ana@example.com"),
+                user = User(id = "preview", username = "ana", email = "ana@example.com"),
                 usernameInput = "ana_k",
                 listener = previewListener,
             )

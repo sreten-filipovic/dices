@@ -3,6 +3,7 @@ package com.cubes.template.shared.ui.main.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cubes.template.shared.StringProvider
+import com.cubes.template.shared.data.auth.AuthFailure
 import com.cubes.template.shared.data.auth.AuthRepository
 import com.cubes.template.shared.data.remote.Result
 import com.cubes.template.shared.data.session.UserSession
@@ -13,6 +14,8 @@ import com.cubes.template.shared.resources.profile_delete_title
 import com.cubes.template.shared.resources.profile_deleted_message
 import com.cubes.template.shared.resources.profile_deleted_title
 import com.cubes.template.shared.resources.profile_error_title
+import com.cubes.template.shared.ui.auth.authErrorMessage
+import com.cubes.template.shared.ui.auth.authFailureReason
 import com.cubes.template.shared.ui.common.ValidationResult
 import com.cubes.template.shared.ui.common.Validator
 import com.cubes.template.shared.ui.common.popup.PopupManager
@@ -67,7 +70,11 @@ class ProfileViewModel(
             _viewData.update { it.copy(isSavingUsername = false) }
             when (result) {
                 is Result.Success -> userSession.signIn(result.data)
-                is Result.Error -> showError(result.ex)
+                is Result.Error -> if (result.ex.authFailureReason == AuthFailure.Reason.USERNAME_TAKEN) {
+                    _viewData.update { it.copy(usernameError = stringProvider.authErrorMessage(result.ex)) }
+                } else {
+                    showError(result.ex)
+                }
             }
         }
     }
@@ -116,7 +123,10 @@ class ProfileViewModel(
 
     private fun showError(ex: Exception) {
         popupManager.show(
-            PopupState.Info(title = stringProvider.getString(Res.string.profile_error_title), message = ex.message)
+            PopupState.Info(
+                title = stringProvider.getString(Res.string.profile_error_title),
+                message = stringProvider.authErrorMessage(ex),
+            )
         )
     }
 }

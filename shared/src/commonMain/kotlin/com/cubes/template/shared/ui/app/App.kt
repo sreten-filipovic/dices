@@ -45,6 +45,7 @@ fun App(appCompositionRoot: AppCompositionRoot) {
         AppViewModel(
             localDataSource = appCompositionRoot.localDataSource,
             userSession = appCompositionRoot.userSession,
+            authRepository = appCompositionRoot.authRepository,
         )
     }
     val startupState by startupViewModel.state.collectAsState()

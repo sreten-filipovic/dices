@@ -18,6 +18,7 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
         val playerPawnColors = stringPreferencesKey("player_pawn_colors")
         val userName = stringPreferencesKey("user_name")
         val userEmail = stringPreferencesKey("user_email")
+        val user = stringPreferencesKey("user")
     }
 
     fun isOnboardingDone(): Boolean = runBlocking {
@@ -60,23 +61,17 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[Keys.playerNames] = names.joinToString(NAME_SEPARATOR) { name -> name.replace(NAME_SEPARATOR, " ") } }
     }
 
-    /** Returns the saved username and email, or null when nobody is signed in. */
-    fun getUser(): Pair<String, String>? = runBlocking {
-        val prefs = dataStore.data.first()
-        val name = prefs[Keys.userName] ?: return@runBlocking null
-        val email = prefs[Keys.userEmail] ?: return@runBlocking null
-        name to email
+    fun getUserJson(): String? = runBlocking {
+        dataStore.data.first()[Keys.user]
     }
 
-    fun saveUser(username: String, email: String) = runBlocking {
-        dataStore.edit {
-            it[Keys.userName] = username
-            it[Keys.userEmail] = email
-        }
+    fun saveUserJson(json: String) = runBlocking {
+        dataStore.edit { it[Keys.user] = json }
     }
 
     fun clearUser() = runBlocking {
         dataStore.edit {
+            it.remove(Keys.user)
             it.remove(Keys.userName)
             it.remove(Keys.userEmail)
         }

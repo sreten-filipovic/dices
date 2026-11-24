@@ -6,6 +6,12 @@ import com.cubes.template.shared.AppInfo
 import com.cubes.template.shared.OpenUrlHandler
 import com.cubes.template.shared.data.auth.AuthRepository
 import com.cubes.template.shared.data.auth.PlaceholderAuthRepository
+import com.cubes.template.shared.data.auth.SupabaseAuthRepository
+import com.cubes.template.shared.data.auth.SupabaseConfig
+import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.functions.Functions
+import io.github.jan.supabase.postgrest.Postgrest
 import com.cubes.template.shared.data.local.DataStoreRepository
 import com.cubes.template.shared.data.local.LocalDataSource
 import com.cubes.template.shared.data.network.ConnectivityMonitor
@@ -50,7 +56,17 @@ class AppCompositionRoot(
 
     val userSession by lazy { UserSession(localDataSource) }
 
-    val authRepository: AuthRepository by lazy { PlaceholderAuthRepository() }
+    private val supabase by lazy {
+        createSupabaseClient(SupabaseConfig.URL, SupabaseConfig.PUBLISHABLE_KEY) {
+            install(Auth)
+            install(Postgrest)
+            install(Functions)
+        }
+    }
+
+    val authRepository: AuthRepository by lazy {
+        if (SupabaseConfig.isConfigured) SupabaseAuthRepository(supabase) else PlaceholderAuthRepository()
+    }
 
     val popupManager: PopupManager by lazy { GlobalPopupManager() }
 
