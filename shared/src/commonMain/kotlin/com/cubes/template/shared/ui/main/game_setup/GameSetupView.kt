@@ -76,6 +76,7 @@ import com.cubes.template.shared.ui.common.views.LudoPawn
 import com.cubes.template.shared.ui.common.views.PawnColor
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorPrimary
+import com.cubes.template.shared.ui.common.ColorOnPrimary
 import com.cubes.template.shared.ui.common.ColorPrimaryLight
 import com.cubes.template.shared.ui.common.ColorTextPrimary
 import com.cubes.template.shared.ui.common.ColorWhite
@@ -460,7 +461,7 @@ private fun OptionChips(options: List<Int>, selected: Int, onSelect: (Int) -> Un
             ) {
                 Text(
                     text = value.toString(),
-                    color = if (isSelected) ColorWhite else ColorPrimary,
+                    color = if (isSelected) ColorOnPrimary else ColorPrimary,
                     fontFamily = BoldFont(),
                     fontSize = 18.sp,
                 )

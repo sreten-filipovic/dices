@@ -68,6 +68,7 @@ import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorFeltDark
 import com.cubes.template.shared.ui.common.ColorFeltLight
 import com.cubes.template.shared.ui.common.ColorPrimary
+import com.cubes.template.shared.ui.common.ColorOnPrimary
 import com.cubes.template.shared.ui.common.ColorPrimaryLight
 import com.cubes.template.shared.ui.common.ColorSurface
 import com.cubes.template.shared.ui.common.ColorTextSecondary
@@ -298,7 +299,7 @@ private fun ModeSwitch(selected: Auth.Mode, onSelect: (Auth.Mode) -> Unit) {
                     ),
                     fontFamily = BoldFont(),
                     fontSize = 15.sp,
-                    color = if (isSelected) ColorWhite else ColorPrimary,
+                    color = if (isSelected) ColorOnPrimary else ColorPrimary,
                 )
             }
         }

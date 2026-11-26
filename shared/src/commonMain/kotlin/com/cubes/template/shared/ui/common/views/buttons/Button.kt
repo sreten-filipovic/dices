@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cubes.template.shared.ui.common.ColorPaletteSand
 import com.cubes.template.shared.ui.common.ColorPrimary
+import com.cubes.template.shared.ui.common.ColorOnPrimary
 import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.SemiBoldFont
 import com.cubes.template.shared.ui.common.ShapeMedium
@@ -26,7 +27,7 @@ fun Button(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     backgroundColor: Color = ColorPrimary,
-    textColor: Color = ColorWhite,
+    textColor: Color = ColorOnPrimary,
     borderColor: Color = ColorPaletteSand,
 ) {
     Button(

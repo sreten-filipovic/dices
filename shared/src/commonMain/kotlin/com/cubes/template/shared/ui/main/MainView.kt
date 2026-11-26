@@ -45,6 +45,7 @@ import com.cubes.template.shared.ui.main.ludo.LudoView
 import com.cubes.template.shared.ui.main.profile.ProfileView
 import com.cubes.template.shared.ui.main.risk_it.RiskItView
 import com.cubes.template.shared.ui.main.sevens.SevensView
+import com.cubes.template.shared.ui.main.settings.SettingsView
 import com.cubes.template.shared.ui.main.straight_roll.StraightRollView
 
 @Composable
@@ -82,6 +83,11 @@ fun MainView(
                 entry<MainScreen.Profile>(metadata = NoTransition) {
                     val viewModel = viewModel { screenCompositionRoot.getProfileViewModel(mainScreenNavigator) }
                     ProfileView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.Settings>(metadata = NoTransition) {
+                    val viewModel = viewModel { screenCompositionRoot.getSettingsViewModel() }
+                    SettingsView(viewModel = viewModel)
                 }
 
                 entry<MainScreen.Ludo> { screen ->
@@ -241,5 +247,6 @@ private val MainScreen.tab: MainTab?
     get() = when (this) {
         MainScreen.Home -> MainTab.GAMES
         MainScreen.Profile -> MainTab.PROFILE
+        MainScreen.Settings -> MainTab.SETTINGS
         else -> null
     }

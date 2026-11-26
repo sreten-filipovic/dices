@@ -19,6 +19,7 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
         val userName = stringPreferencesKey("user_name")
         val userEmail = stringPreferencesKey("user_email")
         val user = stringPreferencesKey("user")
+        val themeMode = stringPreferencesKey("theme_mode")
     }
 
     fun isOnboardingDone(): Boolean = runBlocking {
@@ -59,6 +60,14 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
 
     fun savePlayerNames(names: List<String>) = runBlocking {
         dataStore.edit { it[Keys.playerNames] = names.joinToString(NAME_SEPARATOR) { name -> name.replace(NAME_SEPARATOR, " ") } }
+    }
+
+    fun getThemeMode(): String? = runBlocking {
+        dataStore.data.first()[Keys.themeMode]
+    }
+
+    fun saveThemeMode(mode: String) = runBlocking {
+        dataStore.edit { it[Keys.themeMode] = mode }
     }
 
     fun getUserJson(): String? = runBlocking {

@@ -67,6 +67,7 @@ import com.cubes.template.shared.ui.common.ColorOrange
 import com.cubes.template.shared.ui.common.ColorPaletteCream
 import com.cubes.template.shared.ui.common.ColorPaletteSand
 import com.cubes.template.shared.ui.common.ColorPrimary
+import com.cubes.template.shared.ui.common.ColorFeltDark
 import com.cubes.template.shared.ui.common.ColorPrimaryLight
 import com.cubes.template.shared.ui.common.ColorSuccess
 import com.cubes.template.shared.ui.common.ColorSurface
@@ -379,7 +380,7 @@ private fun TableDialogContent(viewData: SevensUi.ViewData) {
                 enabled = enabled && state.canBank,
                 modifier = Modifier.weight(1f),
                 backgroundColor = ColorWhite,
-                textColor = ColorPrimary,
+                textColor = ColorFeltDark,
             )
             Button(
                 text = stringResource(Res.string.roll),
@@ -387,7 +388,7 @@ private fun TableDialogContent(viewData: SevensUi.ViewData) {
                 enabled = enabled && state.canRoll,
                 modifier = Modifier.weight(1f),
 backgroundColor = ColorPaletteSand,
-textColor = ColorPrimary,
+textColor = ColorFeltDark,
 borderColor = ColorPaletteCream,
             )
         }

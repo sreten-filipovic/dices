@@ -48,6 +48,7 @@ import com.cubes.template.shared.resources.online_room_players
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorPrimary
+import com.cubes.template.shared.ui.common.ColorOnPrimary
 import com.cubes.template.shared.ui.common.ColorPrimaryLight
 import com.cubes.template.shared.ui.common.ColorSurface
 import com.cubes.template.shared.ui.common.ColorTextPrimary
@@ -195,7 +196,7 @@ private fun CountChip(count: Int, selected: Boolean, onClick: () -> Unit) {
             text = count.toString(),
             fontFamily = BoldFont(),
             fontSize = 17.sp,
-            color = if (selected) ColorWhite else ColorPrimary,
+            color = if (selected) ColorOnPrimary else ColorPrimary,
         )
     }
 }

@@ -22,6 +22,9 @@ class LocalDataSource(
     fun getPlayerNames(): List<String> = dataStoreRepository.getPlayerNames()
     fun savePlayerNames(names: List<String>) = dataStoreRepository.savePlayerNames(names)
 
+    fun getThemeMode(): String? = dataStoreRepository.getThemeMode()
+    fun saveThemeMode(mode: String) = dataStoreRepository.saveThemeMode(mode)
+
     fun getUser(): User? = dataStoreRepository.getUserJson()?.let { json ->
         runCatching { Json.decodeFromString<User>(json) }.getOrNull()
     }

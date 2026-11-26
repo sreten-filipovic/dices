@@ -74,6 +74,7 @@ class MainNavigatorImpl(
             when (tab) {
                 MainTab.GAMES -> MainScreen.Home
                 MainTab.PROFILE -> MainScreen.Profile
+                MainTab.SETTINGS -> MainScreen.Settings
                 MainTab.SHOP -> return
             }
         )

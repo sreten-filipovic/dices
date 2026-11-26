@@ -77,6 +77,7 @@ import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorPaletteCream
 import com.cubes.template.shared.ui.common.ColorPaletteSand
 import com.cubes.template.shared.ui.common.ColorPrimary
+import com.cubes.template.shared.ui.common.ColorFeltDark
 import com.cubes.template.shared.ui.common.ColorPrimaryLight
 import com.cubes.template.shared.ui.common.ColorSuccess
 import com.cubes.template.shared.ui.common.ColorSurface
@@ -403,7 +404,7 @@ private fun TableDialogContent(viewData: StraightRollUi.ViewData) {
                 enabled = enabled,
                 modifier = Modifier.fillMaxWidth(),
                 backgroundColor = ColorWhite,
-                textColor = ColorPrimary,
+                textColor = ColorFeltDark,
             )
         } else {
             Button(
@@ -412,7 +413,7 @@ private fun TableDialogContent(viewData: StraightRollUi.ViewData) {
                 enabled = enabled && turn.canRoll,
                 modifier = Modifier.fillMaxWidth(),
 backgroundColor = ColorPaletteSand,
-textColor = ColorPrimary,
+textColor = ColorFeltDark,
 borderColor = ColorPaletteCream,
             )
         }

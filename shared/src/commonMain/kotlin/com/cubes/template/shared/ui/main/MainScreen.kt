@@ -7,6 +7,7 @@ import com.cubes.template.shared.ui.main.home.Home
 sealed class MainScreen {
     data object Home : MainScreen()
     data object Profile : MainScreen()
+    data object Settings : MainScreen()
     data object DiceRoll : MainScreen()
     data class Ludo(
         val playerNames: List<String>,

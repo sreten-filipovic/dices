@@ -42,6 +42,7 @@ fun App(appCompositionRoot: AppCompositionRoot) {
     val openUrlHandler = appCompositionRoot.openUrlHandler
     val popupManager = appCompositionRoot.popupManager
     val screenCompositionRoot = remember { ScreenCompositionRoot(appCompositionRoot) }
+    remember { appCompositionRoot.themeController }
 
     val startupViewModel: AppViewModel = viewModel {
         AppViewModel(

@@ -29,6 +29,7 @@ import com.cubes.template.shared.ui.main.home.HomeViewModel
 import com.cubes.template.shared.ui.main.ludo.LudoViewModel
 import com.cubes.template.shared.ui.main.profile.ProfileScreenNavigator
 import com.cubes.template.shared.ui.main.profile.ProfileViewModel
+import com.cubes.template.shared.ui.main.settings.SettingsViewModel
 import com.cubes.template.shared.ui.main.risk_it.RiskItViewModel
 import com.cubes.template.shared.ui.main.sevens.SevensViewModel
 import com.cubes.template.shared.ui.main.straight_roll.StraightRollViewModel
@@ -112,6 +113,10 @@ class ScreenCompositionRoot(
         stringProvider = stringProvider,
         popupManager = popupManager,
         screenNavigator = screenNavigator,
+    )
+
+    fun getSettingsViewModel() = SettingsViewModel(
+        themeController = appCompositionRoot.themeController,
     )
 
     fun getHomeViewModel(screenNavigator: HomeScreenNavigator) = HomeViewModel(

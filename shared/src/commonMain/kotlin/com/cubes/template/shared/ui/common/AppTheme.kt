@@ -6,6 +6,7 @@ import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -26,18 +27,34 @@ fun AppTheme(
     )
 
     MaterialTheme(
-        colorScheme = lightColorScheme(
-            primary = ColorPrimary,
-            onPrimary = ColorWhite,
-            secondary = ColorPaletteOlive,
-            tertiary = ColorPaletteSand,
-            onBackground = ColorTextPrimary,
-            onSurface = ColorTextPrimary,
-            outline = ColorPaletteOlive,
-            background = ColorBackground,
-            surface = ColorSurface,
-            error = ColorError,
-        ),
+        colorScheme = if (ThemeState.isDark) {
+            darkColorScheme(
+                primary = ColorPrimary,
+                onPrimary = ColorOnPrimary,
+                secondary = ColorPaletteOlive,
+                tertiary = ColorPaletteSand,
+                onBackground = ColorTextPrimary,
+                onSurface = ColorTextPrimary,
+                onSurfaceVariant = ColorTextSecondary,
+                outline = ColorPaletteOlive,
+                background = ColorBackground,
+                surface = ColorSurface,
+                error = ColorError,
+            )
+        } else {
+            lightColorScheme(
+                primary = ColorPrimary,
+                onPrimary = ColorOnPrimary,
+                secondary = ColorPaletteOlive,
+                tertiary = ColorPaletteSand,
+                onBackground = ColorTextPrimary,
+                onSurface = ColorTextPrimary,
+                outline = ColorPaletteOlive,
+                background = ColorBackground,
+                surface = ColorSurface,
+                error = ColorError,
+            )
+        },
         shapes = AppShapes,
         typography = Typography()
     ) {

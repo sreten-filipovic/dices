@@ -80,6 +80,7 @@ import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorPaletteCream
 import com.cubes.template.shared.ui.common.ColorPaletteSand
 import com.cubes.template.shared.ui.common.ColorPrimary
+import com.cubes.template.shared.ui.common.ColorFeltDark
 import com.cubes.template.shared.ui.common.ColorPrimaryLight
 import com.cubes.template.shared.ui.common.ColorSuccess
 import com.cubes.template.shared.ui.common.ColorSurface
@@ -511,7 +512,7 @@ private fun RollDialogContent(viewData: Game.ViewData, dialog: Game.RollDialog) 
                         onClick = listener::onKeepClick,
                         modifier = Modifier.weight(1f),
                         backgroundColor = ColorWhite,
-                        textColor = ColorPrimary,
+                        textColor = ColorFeltDark,
                     )
                     Button(
                         text = stringResource(Res.string.game_reroll_selected),
@@ -519,7 +520,7 @@ private fun RollDialogContent(viewData: Game.ViewData, dialog: Game.RollDialog) 
                         enabled = turn.selected.isNotEmpty(),
                         modifier = Modifier.weight(1f),
 backgroundColor = ColorPaletteSand,
-textColor = ColorPrimary,
+textColor = ColorFeltDark,
 borderColor = ColorPaletteCream,
                     )
                 }
@@ -529,7 +530,7 @@ borderColor = ColorPaletteCream,
                     onClick = listener::onDoneClick,
                     modifier = Modifier.fillMaxWidth(),
 backgroundColor = ColorPaletteSand,
-textColor = ColorPrimary,
+textColor = ColorFeltDark,
 borderColor = ColorPaletteCream,
                 )
             }

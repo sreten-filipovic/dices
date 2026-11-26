@@ -55,6 +55,7 @@ import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorPrimary
+import com.cubes.template.shared.ui.common.ColorFeltDark
 import com.cubes.template.shared.ui.common.ColorSuccess
 import com.cubes.template.shared.ui.common.ColorSurface
 import com.cubes.template.shared.ui.common.ColorTextPrimary
@@ -325,7 +326,7 @@ private fun TableDialogContent(viewData: DiceDuelUi.ViewData) {
             enabled = viewData.dialogOpen && !viewData.rolling,
             modifier = Modifier.fillMaxWidth(),
             backgroundColor = ColorWhite,
-            textColor = ColorPrimary,
+            textColor = ColorFeltDark,
         )
     }
 }

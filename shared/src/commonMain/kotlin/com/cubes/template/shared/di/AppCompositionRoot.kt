@@ -22,6 +22,7 @@ import com.cubes.template.shared.data.remote.ApiClient
 import com.cubes.template.shared.data.remote.NoAuthExtension
 import com.cubes.template.shared.data.remote.RemoteDataSource
 import com.cubes.template.shared.data.session.UserSession
+import com.cubes.template.shared.ui.common.ThemeController
 import com.cubes.template.shared.ui.common.popup.GlobalPopupManager
 import com.cubes.template.shared.ui.common.popup.PopupManager
 import kotlinx.coroutines.CoroutineScope
@@ -56,6 +57,8 @@ class AppCompositionRoot(
     val remoteDataSource by lazy {
         RemoteDataSource(apiClient = apiClient)
     }
+
+    val themeController by lazy { ThemeController(localDataSource) }
 
     val userSession by lazy { UserSession(localDataSource) }
 
