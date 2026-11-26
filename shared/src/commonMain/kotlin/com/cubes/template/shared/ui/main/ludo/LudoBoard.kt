@@ -82,9 +82,9 @@ private const val FINISH_SOUND_PATH = "files/ludo_finish.wav"
 private const val DARK_COLOR_LUMINANCE = 0.06f
 private const val DARK_COLOR_LIGHTENING = 0.4f
 
-private val ColorBoard = Color(0xFFFFF4DA)
-private val ColorBoardEdge = Color(0xFFE2C98F)
-private val ColorCellLine = Color(0xFF5B4A2E)
+private val ColorBoard = Color(0xFFF5F0E6)
+private val ColorBoardEdge = Color(0xFFC8B48A)
+private val ColorCellLine = Color(0xFF1E3B2F)
 
 object LudoGeometry {
     const val GRID = 11

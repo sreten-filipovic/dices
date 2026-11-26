@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -77,6 +76,9 @@ import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.SemiBoldFont
+import com.cubes.template.shared.ui.common.ShapeLarge
+import com.cubes.template.shared.ui.common.ShapeMedium
+import com.cubes.template.shared.ui.common.ShapeSmall
 import com.cubes.template.shared.ui.common.views.LoadingIndicator
 import com.cubes.template.shared.ui.common.views.LudoPawn
 import com.cubes.template.shared.ui.common.views.PawnColor
@@ -144,7 +146,7 @@ private fun CodeCard(code: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(ShapeLarge)
             .background(Brush.radialGradient(listOf(ColorFeltLight, ColorFeltDark)))
             .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -187,7 +189,7 @@ private fun StatusCard(text: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(ShapeMedium)
             .background(ColorPrimaryLight)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -203,7 +205,7 @@ private fun SectionCard(title: String, content: @Composable ColumnScope.() -> Un
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(ShapeLarge)
             .background(ColorSurface)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -277,7 +279,7 @@ private fun Badge(text: String) {
         fontSize = 11.sp,
         color = ColorPrimary,
         modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(ShapeSmall)
             .background(ColorPrimaryLight)
             .padding(horizontal = 8.dp, vertical = 3.dp),
     )

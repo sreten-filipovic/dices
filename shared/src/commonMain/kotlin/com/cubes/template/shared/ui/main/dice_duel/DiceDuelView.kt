@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,6 +66,7 @@ import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.SemiBoldFont
+import com.cubes.template.shared.ui.common.ShapeMedium
 import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DiceTable
 import com.cubes.template.shared.ui.common.views.DieAnimation
@@ -165,7 +165,7 @@ private fun PlayersPanel(viewData: DiceDuelUi.ViewData) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(ShapeMedium)
                     .background(if (isWinner) ColorSuccess.copy(alpha = 0.15f) else ColorSurface)
                     .border(
                         width = 2.dp,
@@ -174,7 +174,7 @@ private fun PlayersPanel(viewData: DiceDuelUi.ViewData) {
                             isCurrent -> ColorPrimary
                             else -> ColorTransparent
                         },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = ShapeMedium,
                     )
                     .padding(12.dp),
             ) {
@@ -244,7 +244,7 @@ private fun ResultPanel(state: DuelState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(ShapeMedium)
             .background(ColorSurface)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,6 +47,7 @@ import com.cubes.template.shared.ui.common.ColorTextSecondary
 import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.SemiBoldFont
+import com.cubes.template.shared.ui.common.ShapeLarge
 import com.cubes.template.shared.ui.common.popup.popupDialogProperties
 import com.cubes.template.shared.ui.common.views.buttons.Button
 import org.jetbrains.compose.resources.StringResource
@@ -89,7 +89,7 @@ private fun RulesCard(rules: GameRules, onDismiss: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(ShapeLarge)
             .background(ColorSurface)
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
             .padding(20.dp),

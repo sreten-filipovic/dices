@@ -1,17 +1,16 @@
 package com.cubes.template.shared.ui.main.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,15 +25,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cubes.template.shared.domain.ludo.Ludo
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.cover_dice_duel
+import com.cubes.template.shared.resources.cover_dice_jack
+import com.cubes.template.shared.resources.cover_dice_poker
+import com.cubes.template.shared.resources.cover_ludo
+import com.cubes.template.shared.resources.cover_risk_it
+import com.cubes.template.shared.resources.cover_sevens
+import com.cubes.template.shared.resources.cover_straight_roll
 import com.cubes.template.shared.resources.game_dice_duel
 import com.cubes.template.shared.resources.game_dice_jack
 import com.cubes.template.shared.resources.game_dice_poker
@@ -46,23 +47,22 @@ import com.cubes.template.shared.resources.game_straight_roll
 import com.cubes.template.shared.resources.home_coming_soon
 import com.cubes.template.shared.resources.home_title
 import com.cubes.template.shared.ui.common.AppTheme
-import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorFeltDark
-import com.cubes.template.shared.ui.common.ColorFeltLight
 import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.RegularFont
-import com.cubes.template.shared.ui.common.views.DieFace
+import com.cubes.template.shared.ui.common.ShapeLarge
 import com.cubes.template.shared.ui.common.views.GameRules
-import com.cubes.template.shared.ui.common.views.LudoPawn
-import com.cubes.template.shared.ui.common.views.PawnColor
 import com.cubes.template.shared.ui.common.views.Toolbar
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 private const val GRID_COLUMNS = 2
 private val CARD_SPACING = 12.dp
+private const val LUDO_COVER_RATIO = 1800f / 800f
 
 @Composable
 fun HomeView(viewModel: HomeViewModel) {
@@ -107,35 +107,20 @@ fun HomeScreen(viewData: Home.ViewData) {
 
 @Composable
 private fun GameCardView(game: Home.GameCard, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Column(
+    Box(
         modifier = modifier
             .aspectRatio(1f)
             .alpha(if (game.available) 1f else 0.55f)
-            .clip(RoundedCornerShape(20.dp))
-            .background(Brush.radialGradient(listOf(ColorFeltLight, ColorFeltDark)))
-            .clickable(enabled = game.available, onClick = onClick)
-            .padding(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .clip(ShapeLarge)
+            .background(ColorFeltDark)
+            .clickable(enabled = game.available, onClick = onClick),
+        contentAlignment = Alignment.BottomCenter,
     ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            game.dice.forEach { diceRow ->
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    diceRow.forEach { value -> DieFace(value = value, size = 28.dp) }
-                }
-            }
-        }
-        Text(
-            text = stringResource(game.title),
-            fontFamily = BoldFont(),
-            fontSize = 17.sp,
-            color = ColorWhite,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+        Image(
+            painter = painterResource(game.cover),
+            contentDescription = stringResource(game.title),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
         )
         if (!game.available) {
             Text(
@@ -144,6 +129,7 @@ private fun GameCardView(game: Home.GameCard, onClick: () -> Unit, modifier: Mod
                 fontSize = 12.sp,
                 color = ColorWhite,
                 maxLines = 1,
+                modifier = Modifier.padding(bottom = 12.dp),
             )
         }
     }
@@ -151,46 +137,29 @@ private fun GameCardView(game: Home.GameCard, onClick: () -> Unit, modifier: Mod
 
 @Composable
 private fun LudoCardView(onClick: () -> Unit) {
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val squareSide = (maxWidth - CARD_SPACING * (GRID_COLUMNS - 1)) / GRID_COLUMNS
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(squareSide)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Brush.radialGradient(listOf(ColorFeltLight, ColorFeltDark)))
-                .clickable(onClick = onClick)
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                LudoArtwork(pawnHeight = 44.dp, dieSize = 30.dp)
-            }
-            Text(
-                text = stringResource(Res.string.game_ludo),
-                fontFamily = BoldFont(),
-                fontSize = 17.sp,
-                color = ColorWhite,
-                maxLines = 1,
-            )
-        }
-    }
+    Image(
+        painter = painterResource(Home.GameCard.LUDO.cover),
+        contentDescription = stringResource(Res.string.game_ludo),
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(LUDO_COVER_RATIO)
+            .clip(ShapeLarge)
+            .background(ColorFeltDark)
+            .clickable(onClick = onClick),
+    )
 }
 
-@Composable
-private fun LudoArtwork(pawnHeight: Dp, dieSize: Dp, modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.BottomCenter) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(pawnHeight * 0.08f),
-            modifier = Modifier.padding(bottom = dieSize * 0.55f),
-        ) {
-            PawnColor.defaultsFor(Ludo.MAX_PLAYERS).map { it.color }.forEach { color ->
-                LudoPawn(color = color, height = pawnHeight)
-            }
-        }
-        DieFace(value = 6, size = dieSize)
+private val Home.GameCard.cover: DrawableResource
+    get() = when (this) {
+        Home.GameCard.DICE_POKER -> Res.drawable.cover_dice_poker
+        Home.GameCard.DICE_JACK -> Res.drawable.cover_dice_jack
+        Home.GameCard.DICE_DUEL -> Res.drawable.cover_dice_duel
+        Home.GameCard.SEVENS -> Res.drawable.cover_sevens
+        Home.GameCard.RISK_IT -> Res.drawable.cover_risk_it
+        Home.GameCard.STRAIGHT_ROLL -> Res.drawable.cover_straight_roll
+        Home.GameCard.LUDO -> Res.drawable.cover_ludo
     }
-}
 
 internal val Home.GameCard.title: StringResource
     get() = when (this) {

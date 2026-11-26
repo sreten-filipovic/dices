@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,6 +74,8 @@ import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorBlack
+import com.cubes.template.shared.ui.common.ColorPaletteCream
+import com.cubes.template.shared.ui.common.ColorPaletteSand
 import com.cubes.template.shared.ui.common.ColorPrimary
 import com.cubes.template.shared.ui.common.ColorPrimaryLight
 import com.cubes.template.shared.ui.common.ColorSuccess
@@ -88,6 +89,7 @@ import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.PreviewHelper
 import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.SemiBoldFont
+import com.cubes.template.shared.ui.common.ShapeMedium
 import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DiceTable
 import com.cubes.template.shared.ui.common.views.DieAnimation
@@ -194,7 +196,7 @@ private fun ResultPanel(state: StraightState) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(ShapeMedium)
             .background(ColorSurface)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -232,7 +234,7 @@ private fun Scoreboard(viewData: StraightRollUi.ViewData) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
+                    .clip(ShapeMedium)
                     .background(if (isWinner) ColorSuccess.copy(alpha = 0.15f) else ColorSurface)
                     .border(
                         width = 2.dp,
@@ -241,7 +243,7 @@ private fun Scoreboard(viewData: StraightRollUi.ViewData) {
                             isCurrent -> ColorPrimary
                             else -> ColorTransparent
                         },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = ShapeMedium,
                     )
                     .padding(12.dp),
             ) {
@@ -409,6 +411,9 @@ private fun TableDialogContent(viewData: StraightRollUi.ViewData) {
                 onClick = listener::onRollClick,
                 enabled = enabled && turn.canRoll,
                 modifier = Modifier.fillMaxWidth(),
+backgroundColor = ColorPaletteSand,
+textColor = ColorPrimary,
+borderColor = ColorPaletteCream,
             )
         }
     }

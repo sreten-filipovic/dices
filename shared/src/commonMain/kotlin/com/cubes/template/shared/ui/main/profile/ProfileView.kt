@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -58,6 +57,7 @@ import com.cubes.template.shared.ui.common.ColorTextSecondary
 import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.RegularFont
+import com.cubes.template.shared.ui.common.ShapeLarge
 import com.cubes.template.shared.ui.common.clearFocusOnTapOutside
 import com.cubes.template.shared.ui.common.views.PersonIcon
 import com.cubes.template.shared.ui.common.views.Toolbar
@@ -165,7 +165,7 @@ private fun UserContent(viewData: Profile.ViewData, user: User) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(ShapeLarge)
             .background(ColorSurface)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),

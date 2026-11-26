@@ -28,10 +28,17 @@ fun AppTheme(
     MaterialTheme(
         colorScheme = lightColorScheme(
             primary = ColorPrimary,
+            onPrimary = ColorWhite,
+            secondary = ColorPaletteOlive,
+            tertiary = ColorPaletteSand,
+            onBackground = ColorTextPrimary,
+            onSurface = ColorTextPrimary,
+            outline = ColorPaletteOlive,
             background = ColorBackground,
             surface = ColorSurface,
             error = ColorError,
         ),
+        shapes = AppShapes,
         typography = Typography()
     ) {
         CompositionLocalProvider(LocalRippleConfiguration provides rippleConfiguration, content)

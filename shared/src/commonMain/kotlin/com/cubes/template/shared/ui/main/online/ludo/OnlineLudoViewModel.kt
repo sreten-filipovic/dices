@@ -154,9 +154,9 @@ class OnlineLudoViewModel(
                 it?.copy(state = new, rolling = false, extraRoll = roll == Ludo.EXIT_ROLL)
             }
             else -> {
-                _viewData.update { it?.copy(rolling = false, noMoves = true) }
+                _viewData.update { it?.copy(rolling = false, noMoves = true, threeSixes = roll == Ludo.EXIT_ROLL) }
                 delay(NO_MOVES_MILLIS)
-                _viewData.update { it?.copy(state = new, noMoves = false) }
+                _viewData.update { it?.copy(state = new, noMoves = false, threeSixes = false) }
             }
         }
     }

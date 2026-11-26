@@ -20,6 +20,7 @@ data class LudoState(
     val currentPlayer: Int = 0,
     val rollsLeft: Int,
     val lastRoll: Int? = null,
+    val sixesInRow: Int = 0,
     val lastMove: LudoMove? = null,
     val ranking: List<Int> = emptyList(),
     val forfeited: List<Int> = emptyList(),
@@ -44,6 +45,7 @@ object Ludo {
     const val LAST = TRACK_LENGTH + GOAL_LENGTH - 1
     const val EXIT_ROLL = 6
     const val TRIES_WITHOUT_PAWN_IN_PLAY = 3
+    const val MAX_SIXES_IN_ROW = 3
     private const val ARM = TRACK_LENGTH / 4
 
     fun seatsFor(playerCount: Int): List<LudoSeat> = when (playerCount) {
@@ -83,8 +85,10 @@ object Ludo {
     fun roll(state: LudoState, roller: DiceRoller): LudoState {
         if (state.phase != LudoPhase.WaitingForRoll) return state
         val roll = roller.roll()
+        val sixes = if (roll == EXIT_ROLL) state.sixesInRow + 1 else 0
+        val rolled = state.copy(lastRoll = roll, lastMove = null, sixesInRow = sixes)
+        if (sixes >= MAX_SIXES_IN_ROW) return nextPlayer(rolled)
         val movable = movablePawns(state, roll)
-        val rolled = state.copy(lastRoll = roll, lastMove = null)
         return when {
             movable.isNotEmpty() -> rolled.copy(phase = LudoPhase.ChoosingPawn(roll, movable))
             roll == EXIT_ROLL -> rolled.copy(rollsLeft = rollsFor(state.pawns[state.currentPlayer]))
@@ -154,7 +158,7 @@ object Ludo {
         val next = (1..count)
             .map { (state.currentPlayer + it) % count }
             .first(state::isActive)
-        return state.copy(currentPlayer = next, rollsLeft = rollsFor(state.pawns[next]))
+        return state.copy(currentPlayer = next, rollsLeft = rollsFor(state.pawns[next]), sixesInRow = 0)
     }
 
     private fun rollsFor(pawns: List<Int>): Int {

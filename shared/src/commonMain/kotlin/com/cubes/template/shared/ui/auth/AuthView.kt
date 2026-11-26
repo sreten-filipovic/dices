@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -76,6 +75,8 @@ import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.SemiBoldFont
+import com.cubes.template.shared.ui.common.ShapeLarge
+import com.cubes.template.shared.ui.common.ShapeMedium
 import com.cubes.template.shared.ui.common.clearFocusOnTapOutside
 import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DieAnimation
@@ -184,7 +185,7 @@ private fun AuthCard(viewData: Auth.ViewData, modifier: Modifier = Modifier) {
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
+            .clip(ShapeLarge)
             .background(ColorSurface)
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -273,7 +274,7 @@ private fun ModeSwitch(selected: Auth.Mode, onSelect: (Auth.Mode) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(50.dp))
+            .clip(ShapeMedium)
             .background(ColorPrimaryLight)
             .padding(4.dp),
     ) {
@@ -282,7 +283,7 @@ private fun ModeSwitch(selected: Auth.Mode, onSelect: (Auth.Mode) -> Unit) {
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(50.dp))
+                    .clip(ShapeMedium)
                     .background(if (isSelected) ColorPrimary else ColorPrimaryLight)
                     .clickable { onSelect(mode) }
                     .padding(vertical = 10.dp),

@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
@@ -67,6 +65,8 @@ import com.cubes.template.shared.ui.common.ColorBlack
 import com.cubes.template.shared.ui.common.ColorSurface
 import com.cubes.template.shared.ui.common.ColorTextSecondary
 import com.cubes.template.shared.ui.common.ColorTransparent
+import com.cubes.template.shared.ui.common.ShapeLarge
+import com.cubes.template.shared.ui.common.ShapeMedium
 import com.cubes.template.shared.ui.common.clearFocusOnTapOutside
 import com.cubes.template.shared.ui.common.clickableNoRipple
 import com.cubes.template.shared.ui.common.popup.popupDialogProperties
@@ -358,7 +358,7 @@ private fun PlayerSettingsCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(ShapeLarge)
             .background(ColorSurface)
             .clickableNoRipple {}
             .padding(20.dp),
@@ -384,12 +384,12 @@ private fun PlayerSettingsCard(
                 val isSelected = style == selected
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(14.dp))
+                        .clip(ShapeMedium)
                         .background(if (isSelected) ColorPrimaryLight else ColorTransparent)
                         .border(
                             width = 2.dp,
                             color = if (isSelected) ColorPrimary else ColorTransparent,
-                            shape = RoundedCornerShape(14.dp),
+                            shape = ShapeMedium,
                         )
                         .clickable { onSelect(style) }
                         .padding(6.dp),
@@ -426,12 +426,12 @@ private fun PawnColorGrid(choice: PawnColorChoice) {
                     Box(
                         modifier = Modifier
                             .alpha(if (isTaken) 0.25f else 1f)
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(ShapeMedium)
                             .background(if (isSelected) color.color.copy(alpha = 0.2f) else ColorTransparent)
                             .border(
                                 width = 2.dp,
                                 color = if (isSelected) color.color else ColorTransparent,
-                                shape = RoundedCornerShape(14.dp),
+                                shape = ShapeMedium,
                             )
                             .clickable(enabled = !isTaken) { choice.onSelect(color) }
                             .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -453,7 +453,7 @@ private fun OptionChips(options: List<Int>, selected: Int, onSelect: (Int) -> Un
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .clip(CircleShape)
+                    .clip(ShapeMedium)
                     .background(if (isSelected) ColorPrimary else ColorPrimaryLight)
                     .clickable { onSelect(value) },
                 contentAlignment = Alignment.Center,

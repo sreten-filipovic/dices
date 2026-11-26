@@ -165,4 +165,43 @@ class LudoTest {
 
         assertEquals(1, state.currentPlayer)
     }
+
+    @Test
+    fun threeSixesInARowEndTheTurnWithoutMoving() {
+        var state = newGame().withPawns(listOf(5, HOME, HOME, HOME), listOf(HOME, HOME, HOME, HOME))
+
+        state = state.roll(6).move(0)
+        assertEquals(1, state.sixesInRow)
+        state = state.roll(6).move(0)
+        assertEquals(2, state.sixesInRow)
+        assertEquals(0, state.currentPlayer)
+
+        state = state.roll(6)
+        assertEquals(1, state.currentPlayer)
+        assertEquals(LudoPhase.WaitingForRoll, state.phase)
+        assertEquals(listOf(17, HOME, HOME, HOME), state.pawns[0])
+        assertEquals(0, state.sixesInRow)
+    }
+
+    @Test
+    fun aRollThatIsNotASixResetsTheSixCount() {
+        var state = newGame().withPawns(listOf(5, HOME, HOME, HOME), listOf(HOME, HOME, HOME, HOME))
+
+        state = state.roll(6).move(0).roll(6).move(0)
+        assertEquals(2, state.sixesInRow)
+
+        state = state.roll(2).move(0)
+        assertEquals(1, state.currentPlayer)
+        assertEquals(0, state.sixesInRow)
+    }
+
+    @Test
+    fun threeSixesWithAllPawnsHomeAlsoEndTheTurn() {
+        var state = newGame().roll(6).move(0).roll(6).move(0)
+        assertEquals(0, state.currentPlayer)
+
+        state = state.roll(6)
+        assertEquals(1, state.currentPlayer)
+        assertEquals(listOf(6, HOME, HOME, HOME), state.pawns[0])
+    }
 }

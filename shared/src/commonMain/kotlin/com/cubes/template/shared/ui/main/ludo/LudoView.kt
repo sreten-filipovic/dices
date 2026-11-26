@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -54,6 +53,7 @@ import com.cubes.template.shared.resources.ludo_hint_no_moves
 import com.cubes.template.shared.resources.ludo_hint_pick_pawn
 import com.cubes.template.shared.resources.ludo_hint_roll
 import com.cubes.template.shared.resources.ludo_hint_roll_again
+import com.cubes.template.shared.resources.ludo_hint_three_sixes
 import com.cubes.template.shared.resources.ludo_turn
 import com.cubes.template.shared.resources.roll
 import com.cubes.template.shared.ui.common.AppTheme
@@ -71,6 +71,8 @@ import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.SemiBoldFont
+import com.cubes.template.shared.ui.common.ShapeMedium
+import com.cubes.template.shared.ui.common.ShapeSmall
 import com.cubes.template.shared.ui.common.clickableNoRipple
 import com.cubes.template.shared.ui.common.views.AnimatedDie
 import com.cubes.template.shared.ui.common.views.DiceTable
@@ -150,9 +152,9 @@ private fun PlayersRow(viewData: LudoUi.ViewData) {
             Row(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(14.dp))
+                    .clip(ShapeMedium)
                     .background(if (isCurrent) color.copy(alpha = 0.22f) else ColorSurface)
-                    .border(2.dp, if (isCurrent) color else ColorTransparent, RoundedCornerShape(14.dp))
+                    .border(2.dp, if (isCurrent) color else ColorTransparent, ShapeMedium)
                     .padding(horizontal = 8.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -212,7 +214,7 @@ private fun RollPanel(viewData: LudoUi.ViewData) {
                 Box(
                     Modifier
                         .size(10.dp)
-                        .clip(RoundedCornerShape(5.dp))
+                        .clip(ShapeSmall)
                         .background(viewData.colorOf(viewData.state.currentPlayer))
                 )
                 Spacer(Modifier.width(6.dp))
@@ -265,6 +267,7 @@ private fun hintText(viewData: LudoUi.ViewData): String = when (viewData.hint) {
     LudoUi.Hint.ROLL_AGAIN -> stringResource(Res.string.ludo_hint_roll_again)
     LudoUi.Hint.PICK_PAWN -> stringResource(Res.string.ludo_hint_pick_pawn, viewData.dieValue ?: 0)
     LudoUi.Hint.NO_MOVES -> stringResource(Res.string.ludo_hint_no_moves)
+    LudoUi.Hint.THREE_SIXES -> stringResource(Res.string.ludo_hint_three_sixes)
     LudoUi.Hint.PLAYER_FINISHED -> viewData.finishedPlayer?.let { player ->
         stringResource(
             Res.string.ludo_hint_finished,
@@ -297,7 +300,7 @@ private fun ResultsCard(viewData: LudoUi.ViewData, ranking: List<Int>) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
+                .clip(ShapeMedium)
                 .background(ColorBlack.copy(alpha = 0.18f))
                 .padding(horizontal = 14.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),

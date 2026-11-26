@@ -8,7 +8,7 @@ import com.cubes.template.shared.ui.common.views.PawnColor
 
 object LudoUi {
 
-    enum class Hint { ROLL, NEED_SIX, ROLL_AGAIN, PICK_PAWN, NO_MOVES, PLAYER_FINISHED, WAITING, NONE }
+    enum class Hint { ROLL, NEED_SIX, ROLL_AGAIN, PICK_PAWN, NO_MOVES, THREE_SIXES, PLAYER_FINISHED, WAITING, NONE }
 
     data class Online(
         val myPlayer: Int,
@@ -25,6 +25,7 @@ object LudoUi {
         val rolling: Boolean = false,
         val moving: Boolean = false,
         val noMoves: Boolean = false,
+        val threeSixes: Boolean = false,
         val extraRoll: Boolean = false,
         val finishedPlayer: Int? = null,
         val online: Online? = null,
@@ -46,7 +47,7 @@ object LudoUi {
 
         val hint: Hint
             get() = when {
-                noMoves -> Hint.NO_MOVES
+                noMoves -> if (threeSixes) Hint.THREE_SIXES else Hint.NO_MOVES
                 rolling || moving -> Hint.NONE
                 state.phase is LudoPhase.GameOver -> Hint.NONE
                 online != null && online.myPlayer != state.currentPlayer -> Hint.WAITING

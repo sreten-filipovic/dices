@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cubes.template.shared.ui.common.ColorPaletteSand
 import com.cubes.template.shared.ui.common.ColorPrimary
 import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.views.LoadingIndicator
@@ -23,6 +24,7 @@ fun LoadingButton(
     enabled: Boolean = true,
     backgroundColor: Color = ColorPrimary,
     textColor: Color = ColorWhite,
+    borderColor: Color = ColorPaletteSand,
 ) {
     Box(
         modifier = modifier,
@@ -35,6 +37,7 @@ fun LoadingButton(
             enabled = enabled && !isLoading,
             backgroundColor = backgroundColor,
             textColor = textColor,
+            borderColor = borderColor,
         )
 
         if (isLoading) {

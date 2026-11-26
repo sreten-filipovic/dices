@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,6 +66,7 @@ import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.ExtraBoldFont
 import com.cubes.template.shared.ui.common.RegularFont
 import com.cubes.template.shared.ui.common.SemiBoldFont
+import com.cubes.template.shared.ui.common.ShapeLarge
 import com.cubes.template.shared.ui.common.clearFocusOnTapOutside
 import com.cubes.template.shared.ui.common.views.BackArrow
 import com.cubes.template.shared.ui.common.views.buttons.LoadingButton
@@ -144,7 +144,7 @@ private fun PasswordCard(viewData: Password.ViewData) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .clip(ShapeLarge)
             .background(ColorSurface)
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
@@ -17,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.cubes.template.shared.ui.common.ColorSurface
+import com.cubes.template.shared.ui.common.ShapeSheet
 
 @Composable
 fun GlobalPopupRenderer(
@@ -52,7 +52,7 @@ fun GlobalPopupRenderer(
                     .fillMaxWidth()
                     .background(
                         color = ColorSurface,
-                        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                        shape = ShapeSheet
                     )
                     .navigationBarsPadding()
                     .clickable(

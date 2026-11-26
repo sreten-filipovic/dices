@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,6 +30,7 @@ import com.cubes.template.shared.ui.common.ColorTextPrimary
 import com.cubes.template.shared.ui.common.ColorTextSecondary
 import com.cubes.template.shared.ui.common.ColorWhite
 import com.cubes.template.shared.ui.common.SemiBoldFont
+import com.cubes.template.shared.ui.common.ShapeSmall
 
 @Composable
 fun RankingSection(title: String, rows: @Composable () -> Unit) {
@@ -53,7 +52,7 @@ fun RankingRow(place: Int, name: String, detail: String?, value: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
+            .clip(ShapeSmall)
             .background(if (isFirst) ColorSuccess.copy(alpha = 0.12f) else ColorBackground)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -89,7 +88,7 @@ private fun PlaceBadge(place: Int) {
     Box(
         modifier = Modifier
             .size(32.dp)
-            .clip(CircleShape)
+            .clip(ShapeSmall)
             .background(color),
         contentAlignment = Alignment.Center,
     ) {
