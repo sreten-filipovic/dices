@@ -39,6 +39,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cubes.template.shared.domain.duel.DuelState
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.online_rematch
+import com.cubes.template.shared.resources.game_home
+import com.cubes.template.shared.resources.online_player_left
+import com.cubes.template.shared.resources.online_waiting_for
+import com.cubes.template.shared.resources.online_your_turn
 import com.cubes.template.shared.resources.duel_play_again
 import com.cubes.template.shared.resources.duel_results
 import com.cubes.template.shared.resources.duel_winner
@@ -51,6 +56,10 @@ import com.cubes.template.shared.resources.game_turn_of
 import com.cubes.template.shared.resources.game_waiting
 import com.cubes.template.shared.resources.roll
 import com.cubes.template.shared.ui.common.AppTheme
+import com.cubes.template.shared.ui.common.ColorOnPrimary
+import com.cubes.template.shared.ui.common.ColorPrimaryLight
+import com.cubes.template.shared.ui.main.online.turn.NextRoundSoon
+import com.cubes.template.shared.ui.main.online.turn.OnlineTimer
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorBlack
@@ -113,25 +122,58 @@ fun DiceDuelScreen(viewData: DiceDuelUi.ViewData) {
                     if (viewData.showResult) ResultPanel(state) else TurnPanel(viewData)
                 }
 
-                Button(
-                    text = stringResource(
-                        when {
-                            !viewData.showResult -> Res.string.roll
-                            state.needsTiebreak -> Res.string.game_play_tiebreak
-                            else -> Res.string.duel_play_again
+                val buttonModifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .navigationBarsPadding()
+                when {
+                    viewData.online == null -> Button(
+                        text = stringResource(
+                            when {
+                                !viewData.showResult -> Res.string.roll
+                                state.needsTiebreak -> Res.string.game_play_tiebreak
+                                else -> Res.string.duel_play_again
+                            }
+                        ),
+                        onClick = when {
+                            !viewData.showResult -> listener::onRollClick
+                            state.needsTiebreak -> listener::onTiebreakClick
+                            else -> listener::onNextDuelClick
+                        },
+                        enabled = !viewData.dialogOpen,
+                        modifier = buttonModifier,
+                    )
+
+                    state.isOver -> Column(
+                        modifier = buttonModifier,
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        if (viewData.canRematch) {
+                            Button(
+                                text = stringResource(Res.string.online_rematch),
+                                onClick = listener::onNextDuelClick,
+                                enabled = !viewData.dialogOpen && viewData.online?.submitting == false,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
                         }
-                    ),
-                    onClick = when {
-                        !viewData.showResult -> listener::onRollClick
-                        state.needsTiebreak -> listener::onTiebreakClick
-                        else -> listener::onNextDuelClick
-                    },
-                    enabled = !viewData.dialogOpen,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                        .navigationBarsPadding(),
-                )
+                        Button(
+                            text = stringResource(Res.string.game_home),
+                            onClick = listener::onBackClick,
+                            modifier = Modifier.fillMaxWidth(),
+                            backgroundColor = if (viewData.canRematch) ColorPrimaryLight else ColorPrimary,
+                            textColor = if (viewData.canRematch) ColorPrimary else ColorOnPrimary,
+                        )
+                    }
+
+                    viewData.showResult && state.needsTiebreak -> Box(buttonModifier) { NextRoundSoon() }
+
+                    viewData.isMyTurn -> Button(
+                        text = stringResource(Res.string.roll),
+                        onClick = listener::onRollClick,
+                        enabled = !viewData.dialogOpen && viewData.canAct,
+                        modifier = buttonModifier,
+                    )
+                }
             }
         }
 
@@ -213,7 +255,9 @@ private fun PlayersPanel(viewData: DiceDuelUi.ViewData) {
                         )
                     } else {
                         Text(
-                            text = stringResource(Res.string.game_waiting),
+                            text = stringResource(
+                                if (index in state.left) Res.string.online_player_left else Res.string.game_waiting
+                            ),
                             fontFamily = RegularFont(),
                             fontSize = 14.sp,
                             color = ColorTextSecondary,
@@ -228,16 +272,27 @@ private fun PlayersPanel(viewData: DiceDuelUi.ViewData) {
 @Composable
 private fun TurnPanel(viewData: DiceDuelUi.ViewData) {
     val player = viewData.state.currentPlayer
-    Text(
-        text = if (player != null) stringResource(Res.string.game_turn_of, viewData.state.players[player]) else "",
-        fontFamily = ExtraBoldFont(),
-        fontSize = 28.sp,
-        color = ColorTextPrimary,
-        textAlign = TextAlign.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp),
-    )
+    val online = viewData.online
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            text = when {
+                player == null -> ""
+                online == null -> stringResource(Res.string.game_turn_of, viewData.state.players[player])
+                viewData.isMyTurn -> stringResource(Res.string.online_your_turn)
+                else -> stringResource(Res.string.online_waiting_for, viewData.state.players[player])
+            },
+            fontFamily = ExtraBoldFont(),
+            fontSize = 28.sp,
+            color = ColorTextPrimary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        if (player != null) online?.secondsLeft?.let { OnlineTimer(it) }
+    }
 }
 
 @Composable

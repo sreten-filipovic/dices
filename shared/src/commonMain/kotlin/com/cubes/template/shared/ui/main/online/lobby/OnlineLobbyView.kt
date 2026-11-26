@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -45,6 +46,10 @@ import com.cubes.template.shared.resources.online_players_count
 import com.cubes.template.shared.resources.online_request_button
 import com.cubes.template.shared.resources.online_room_host
 import com.cubes.template.shared.resources.online_room_players
+import com.cubes.template.shared.resources.duel_dice_count
+import com.cubes.template.shared.resources.online_room_dice
+import com.cubes.template.shared.resources.online_room_rounds
+import com.cubes.template.shared.resources.online_rounds_label
 import com.cubes.template.shared.ui.common.AppTheme
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorPrimary
@@ -88,14 +93,36 @@ fun OnlineLobbyContent(viewData: OnlineLobby.ViewData, modifier: Modifier = Modi
                 fontSize = 14.sp,
                 color = ColorTextSecondary,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                viewData.playerOptions.forEach { count ->
-                    CountChip(
-                        count = count,
-                        selected = count == viewData.maxPlayers,
-                        onClick = { listener.onMaxPlayersSelected(count) },
-                    )
-                }
+            ChipRow(
+                options = viewData.playerOptions,
+                selected = viewData.maxPlayers,
+                onSelect = listener::onMaxPlayersSelected,
+            )
+            if (viewData.roundOptions.isNotEmpty()) {
+                Text(
+                    text = stringResource(Res.string.online_rounds_label),
+                    fontFamily = SemiBoldFont(),
+                    fontSize = 14.sp,
+                    color = ColorTextSecondary,
+                )
+                ChipRow(
+                    options = viewData.roundOptions,
+                    selected = viewData.rounds,
+                    onSelect = listener::onRoundsSelected,
+                )
+            }
+            if (viewData.diceCountOptions.isNotEmpty()) {
+                Text(
+                    text = stringResource(Res.string.duel_dice_count),
+                    fontFamily = SemiBoldFont(),
+                    fontSize = 14.sp,
+                    color = ColorTextSecondary,
+                )
+                ChipRow(
+                    options = viewData.diceCountOptions,
+                    selected = viewData.diceCount,
+                    onSelect = listener::onDiceCountSelected,
+                )
             }
             LoadingButton(
                 text = stringResource(Res.string.online_create_button),
@@ -182,10 +209,24 @@ private fun LobbyCard(title: String, content: @Composable ColumnScope.() -> Unit
 }
 
 @Composable
-private fun CountChip(count: Int, selected: Boolean, onClick: () -> Unit) {
+private fun ChipRow(options: List<Int>, selected: Int?, onSelect: (Int) -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        options.forEach { count ->
+            CountChip(
+                count = count,
+                selected = count == selected,
+                onClick = { onSelect(count) },
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun CountChip(count: Int, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
-            .width(56.dp)
+        modifier = modifier
+            .widthIn(max = 72.dp)
             .clip(ShapeMedium)
             .background(if (selected) ColorPrimary else ColorPrimaryLight)
             .clickable(onClick = onClick)
@@ -222,7 +263,11 @@ private fun RoomRow(room: RoomSummary, isJoining: Boolean, enabled: Boolean, onC
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = stringResource(Res.string.online_room_players, room.playerCount, room.maxPlayers),
+                text = listOfNotNull(
+                    stringResource(Res.string.online_room_players, room.playerCount, room.maxPlayers),
+                    room.settings.rounds?.let { stringResource(Res.string.online_room_rounds, it) },
+                    room.settings.diceCount?.let { stringResource(Res.string.online_room_dice, it) },
+                ).joinToString(" · "),
                 fontFamily = RegularFont(),
                 fontSize = 13.sp,
                 color = ColorTextSecondary,
@@ -250,6 +295,8 @@ private fun OnlineLobbyPreview() {
                 rooms = listOf(RoomSummary("1", "K7M2QX", "ana", 4, 2), RoomSummary("2", "P3ZT8R", "marko", 2, 1)),
                 listener = object : OnlineLobbyViewListener {
                     override fun onMaxPlayersSelected(count: Int) = Unit
+                    override fun onRoundsSelected(rounds: Int) = Unit
+                    override fun onDiceCountSelected(count: Int) = Unit
                     override fun onCreateRoomClick() = Unit
                     override fun onCodeChanged(code: String) = Unit
                     override fun onJoinByCodeClick() = Unit

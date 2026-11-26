@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cubes.template.shared.data.online.MemberStatus
+import com.cubes.template.shared.data.online.OnlineGame
 import com.cubes.template.shared.data.online.Room
 import com.cubes.template.shared.data.online.RoomMember
 import com.cubes.template.shared.data.online.RoomStatus
@@ -80,6 +81,7 @@ import com.cubes.template.shared.ui.common.ShapeLarge
 import com.cubes.template.shared.ui.common.ShapeMedium
 import com.cubes.template.shared.ui.common.ShapeSmall
 import com.cubes.template.shared.ui.common.views.LoadingIndicator
+import com.cubes.template.shared.ui.common.views.DieFace
 import com.cubes.template.shared.ui.common.views.LudoPawn
 import com.cubes.template.shared.ui.common.views.PawnColor
 import com.cubes.template.shared.ui.common.views.Toolbar
@@ -228,10 +230,14 @@ private fun PlayersCard(viewData: OnlineRoom.ViewData, room: Room) {
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxWidth().height(44.dp),
             ) {
-                LudoPawn(
-                    color = if (member == null) ColorDivider else colors[seat].color,
-                    height = 28.dp,
-                )
+                if (room.game == OnlineGame.LUDO.key) {
+                    LudoPawn(
+                        color = if (member == null) ColorDivider else colors[seat].color,
+                        height = 28.dp,
+                    )
+                } else {
+                    DieFace(value = if (member == null) null else seat + 1, size = 28.dp)
+                }
                 if (member == null) {
                     Text(
                         text = stringResource(Res.string.online_empty_seat),

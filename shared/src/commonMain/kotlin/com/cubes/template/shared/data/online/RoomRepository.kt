@@ -7,7 +7,7 @@ interface RoomRepository {
     val currentUserId: String?
 
     suspend fun activeGameId(): String?
-    suspend fun createRoom(game: OnlineGame, maxPlayers: Int): Result<String>
+    suspend fun createRoom(game: OnlineGame, maxPlayers: Int, settings: RoomSettings): Result<String>
     suspend fun openRooms(game: OnlineGame): Result<List<RoomSummary>>
     suspend fun findRoom(code: String): Result<String>
     suspend fun requestJoin(roomId: String): Result<Unit>
@@ -24,5 +24,8 @@ interface RoomRepository {
     fun eventChanges(roomId: String): Flow<Unit>
     suspend fun submitRoll(roomId: String): Result<Unit>
     suspend fun submitMove(roomId: String, pawn: Int): Result<Unit>
+    suspend fun submitDice(roomId: String, count: Int): Result<Unit>
+    suspend fun submitReroll(roomId: String, indices: Set<Int>): Result<Unit>
+    suspend fun submitAction(roomId: String, action: String): Result<Unit>
     suspend fun submitTimeout(roomId: String, afterSeq: Int): Result<Unit>
 }

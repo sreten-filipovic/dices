@@ -2,7 +2,24 @@ package com.cubes.template.shared.data.online
 
 import kotlinx.serialization.json.JsonObject
 
-enum class OnlineGame(val key: String) { LUDO("ludo") }
+enum class OnlineGame(val key: String) {
+    LUDO("ludo"),
+    DICE_POKER("dice_poker"),
+    DICE_DUEL("dice_duel"),
+    DICE_JACK("dice_jack"),
+    SEVENS("sevens"),
+    RISK_IT("risk_it"),
+    STRAIGHT_ROLL("straight_roll");
+
+    companion object {
+        fun fromKey(key: String): OnlineGame? = entries.firstOrNull { it.key == key }
+    }
+}
+
+data class RoomSettings(
+    val rounds: Int? = null,
+    val diceCount: Int? = null,
+)
 
 data class RoomSummary(
     val id: String,
@@ -10,6 +27,7 @@ data class RoomSummary(
     val hostName: String,
     val maxPlayers: Int,
     val playerCount: Int,
+    val settings: RoomSettings = RoomSettings(),
 )
 
 enum class RoomStatus { OPEN, PLAYING, FINISHED, CLOSED }
@@ -29,6 +47,7 @@ data class Room(
     val game: String,
     val hostId: String,
     val maxPlayers: Int,
+    val settings: RoomSettings = RoomSettings(),
     val status: RoomStatus,
     val members: List<RoomMember>,
 ) {

@@ -10,6 +10,9 @@ data class DuelState(
     val starter: Int = 0,
     val participants: List<Int> = players.indices.toList(),
     val tiedSums: List<List<Int>> = List(players.size) { emptyList() },
+    val left: Set<Int> = emptySet(),
+    val out: Set<Int> = emptySet(),
+    val ended: Boolean = false,
 ) {
     val isStageOver: Boolean get() = participants.all { hands[it] != null }
 
@@ -23,15 +26,17 @@ data class DuelState(
     val leaders: List<Int>
         get() {
             if (!isStageOver) return emptyList()
-            val best = participants.maxOf { sumOf(it) ?: 0 }
-            return participants.filter { sumOf(it) == best }
+            val contenders = participants.filter { it !in out }
+            val best = contenders.maxOfOrNull { sumOf(it) ?: 0 } ?: return emptyList()
+            return contenders.filter { sumOf(it) == best }
         }
 
-    val needsTiebreak: Boolean get() = leaders.size > 1
+    val needsTiebreak: Boolean get() = !ended && leaders.size > 1
 
-    val winner: Int? get() = leaders.singleOrNull()
+    val winner: Int?
+        get() = leaders.singleOrNull() ?: if (ended) players.indices.singleOrNull { it !in left } else null
 
-    val isOver: Boolean get() = winner != null
+    val isOver: Boolean get() = ended || winner != null || (isStageOver && leaders.isEmpty())
 
     val isTiebreak: Boolean get() = participants.size < players.size
 
@@ -62,13 +67,28 @@ object DiceDuel {
 
     fun roll(state: DuelState, roller: DiceRoller): DuelState {
         val player = state.currentPlayer ?: return state
-        val rolled = state.copy(
-            hands = state.hands.mapIndexed { index, hand ->
-                if (index == player) List(state.diceCount) { roller.roll() } else hand
-            },
-        )
-        val winner = rolled.winner ?: return rolled
-        return rolled.copy(wins = rolled.wins.mapIndexed { index, wins -> if (index == winner) wins + 1 else wins })
+        return withHand(state, player, List(state.diceCount) { roller.roll() })
+    }
+
+    fun skip(state: DuelState): DuelState {
+        val player = state.currentPlayer ?: return state
+        return withHand(state, player, emptyList())
+    }
+
+    fun forfeit(state: DuelState): DuelState =
+        if (state.winner != null) state.copy(ended = true) else awardWin(state.copy(ended = true))
+
+    fun withLeft(state: DuelState, left: Set<Int>): DuelState =
+        if (state.isOver) state.copy(left = left) else state.copy(left = left, out = left)
+
+    fun rematch(state: DuelState): DuelState? = if (state.isOver && !state.ended) nextDuel(state) else null
+
+    private fun withHand(state: DuelState, player: Int, hand: List<Int>): DuelState =
+        awardWin(state.copy(hands = state.hands.mapIndexed { index, old -> if (index == player) hand else old }))
+
+    private fun awardWin(state: DuelState): DuelState {
+        val winner = state.winner ?: return state
+        return state.copy(wins = state.wins.mapIndexed { index, wins -> if (index == winner) wins + 1 else wins })
     }
 
     fun tiebreak(state: DuelState): DuelState {
@@ -90,6 +110,8 @@ object DiceDuel {
                 diceCount = state.diceCount,
                 wins = state.wins,
                 starter = (state.starter + 1) % state.players.size,
+                left = state.left,
+                out = state.left,
             )
         } else {
             state

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cubes.template.shared.StringProvider
 import com.cubes.template.shared.data.online.MemberStatus
+import com.cubes.template.shared.data.online.OnlineGame
 import com.cubes.template.shared.data.online.Room
 import com.cubes.template.shared.data.online.RoomFailure
 import com.cubes.template.shared.data.online.RoomRepository
@@ -82,7 +83,7 @@ class OnlineRoomViewModel(
         when {
             room.status == RoomStatus.PLAYING && me?.status == MemberStatus.ACCEPTED -> {
                 done = true
-                navigator.showOnlineLudo(roomId)
+                OnlineGame.fromKey(room.game)?.let { navigator.showOnlineGame(roomId, it) } ?: navigator.back()
             }
             me?.status == MemberStatus.REJECTED -> close(
                 Res.string.online_declined_title,

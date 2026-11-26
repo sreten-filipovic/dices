@@ -29,6 +29,12 @@ import com.cubes.template.shared.ui.main.home.HomeViewModel
 import com.cubes.template.shared.ui.main.ludo.LudoViewModel
 import com.cubes.template.shared.ui.main.profile.ProfileScreenNavigator
 import com.cubes.template.shared.ui.main.profile.ProfileViewModel
+import com.cubes.template.shared.ui.main.online.poker.OnlineDicePokerViewModel
+import com.cubes.template.shared.ui.main.online.risk.OnlineRiskItViewModel
+import com.cubes.template.shared.ui.main.online.duel.OnlineDiceDuelViewModel
+import com.cubes.template.shared.ui.main.online.jack.OnlineDiceJackViewModel
+import com.cubes.template.shared.ui.main.online.sevens.OnlineSevensViewModel
+import com.cubes.template.shared.ui.main.online.straight.OnlineStraightRollViewModel
 import com.cubes.template.shared.ui.main.settings.SettingsViewModel
 import com.cubes.template.shared.ui.main.risk_it.RiskItViewModel
 import com.cubes.template.shared.ui.main.sevens.SevensViewModel
@@ -73,10 +79,18 @@ class ScreenCompositionRoot(
             onSignedIn = onSignedIn,
         )
 
-    fun getOnlineLobbyViewModel(game: OnlineGame, playerOptions: List<Int>, navigator: OnlineScreenNavigator) =
+    fun getOnlineLobbyViewModel(
+        game: OnlineGame,
+        playerOptions: List<Int>,
+        roundOptions: List<Int>,
+        diceCountOptions: List<Int>,
+        navigator: OnlineScreenNavigator,
+    ) =
         OnlineLobbyViewModel(
             game = game,
             playerOptions = playerOptions,
+            roundOptions = roundOptions,
+            diceCountOptions = diceCountOptions,
             roomRepository = appCompositionRoot.roomRepository,
             stringProvider = stringProvider,
             popupManager = popupManager,
@@ -99,6 +113,54 @@ class ScreenCompositionRoot(
     )
 
     fun getOnlineLudoViewModel(roomId: String, onBack: () -> Unit) = OnlineLudoViewModel(
+        roomId = roomId,
+        roomRepository = appCompositionRoot.roomRepository,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        onBack = onBack,
+    )
+
+    fun getOnlineDicePokerViewModel(roomId: String, onBack: () -> Unit) = OnlineDicePokerViewModel(
+        roomId = roomId,
+        roomRepository = appCompositionRoot.roomRepository,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        onBack = onBack,
+    )
+
+    fun getOnlineRiskItViewModel(roomId: String, onBack: () -> Unit) = OnlineRiskItViewModel(
+        roomId = roomId,
+        roomRepository = appCompositionRoot.roomRepository,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        onBack = onBack,
+    )
+
+    fun getOnlineDiceJackViewModel(roomId: String, onBack: () -> Unit) = OnlineDiceJackViewModel(
+        roomId = roomId,
+        roomRepository = appCompositionRoot.roomRepository,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        onBack = onBack,
+    )
+
+    fun getOnlineSevensViewModel(roomId: String, onBack: () -> Unit) = OnlineSevensViewModel(
+        roomId = roomId,
+        roomRepository = appCompositionRoot.roomRepository,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        onBack = onBack,
+    )
+
+    fun getOnlineStraightRollViewModel(roomId: String, onBack: () -> Unit) = OnlineStraightRollViewModel(
+        roomId = roomId,
+        roomRepository = appCompositionRoot.roomRepository,
+        stringProvider = stringProvider,
+        popupManager = popupManager,
+        onBack = onBack,
+    )
+
+    fun getOnlineDiceDuelViewModel(roomId: String, onBack: () -> Unit) = OnlineDiceDuelViewModel(
         roomId = roomId,
         roomRepository = appCompositionRoot.roomRepository,
         stringProvider = stringProvider,

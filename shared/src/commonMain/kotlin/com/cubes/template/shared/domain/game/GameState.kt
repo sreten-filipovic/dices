@@ -70,6 +70,7 @@ data class GameState(
     val phase: RoundPhase,
     val turns: Map<String, PlayerTurn>,
     val lastRoundPoints: Map<String, Int> = emptyMap(),
+    val leftIds: Set<String> = emptySet(),
 ) {
     val turnOrder: List<Player>
         get() = List(players.size) { players[(startingPlayerIndex + it) % players.size] }
@@ -87,7 +88,8 @@ data class GameState(
 
     val leaderIds: List<String>
         get() {
-            val max = scores.values.maxOrNull() ?: 0
-            return players.map { it.id }.filter { scoreOf(it) == max }
+            val active = players.map { it.id }.filter { it !in leftIds }
+            val max = active.maxOfOrNull { scoreOf(it) } ?: 0
+            return active.filter { scoreOf(it) == max }
         }
 }

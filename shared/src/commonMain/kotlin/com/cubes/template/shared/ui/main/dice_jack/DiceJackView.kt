@@ -43,6 +43,9 @@ import com.cubes.template.shared.domain.jack.JackPhase
 import com.cubes.template.shared.domain.jack.JackState
 import com.cubes.template.shared.domain.jack.JackTurn
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.online_player_left
+import com.cubes.template.shared.resources.online_waiting_for
+import com.cubes.template.shared.resources.online_your_turn
 import com.cubes.template.shared.resources.game_dice_jack
 import com.cubes.template.shared.resources.game_done
 import com.cubes.template.shared.resources.game_final_standings
@@ -65,6 +68,9 @@ import com.cubes.template.shared.resources.jack_triple
 import com.cubes.template.shared.resources.jack_turn_hint
 import com.cubes.template.shared.resources.roll
 import com.cubes.template.shared.ui.common.AppTheme
+import com.cubes.template.shared.ui.main.online.turn.NextRoundSoon
+import com.cubes.template.shared.ui.main.online.turn.OnlineTimer
+import com.cubes.template.shared.ui.main.online.turn.OnlineWatching
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorAccent
 import com.cubes.template.shared.ui.common.ColorBackground
@@ -133,7 +139,7 @@ fun DiceJackScreen(viewData: DiceJackUi.ViewData) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Scoreboard(viewData)
-                    if (state.phase == JackPhase.Playing) TurnPanel(state) else ResultPanel(state)
+                    if (state.phase == JackPhase.Playing) TurnPanel(viewData) else ResultPanel(state)
                 }
 
                 ActionButtons(viewData)
@@ -161,14 +167,20 @@ fun DiceJackScreen(viewData: DiceJackUi.ViewData) {
 }
 
 @Composable
-private fun TurnPanel(state: JackState) {
+private fun TurnPanel(viewData: DiceJackUi.ViewData) {
+    val state = viewData.state
+    val online = viewData.online
     Column(
         modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            text = stringResource(Res.string.game_turn_of, state.players[state.currentPlayer]),
+            text = when {
+                online == null -> stringResource(Res.string.game_turn_of, state.players[state.currentPlayer])
+                viewData.isMyTurn -> stringResource(Res.string.online_your_turn)
+                else -> stringResource(Res.string.online_waiting_for, state.players[state.currentPlayer])
+            },
             fontFamily = ExtraBoldFont(),
             fontSize = 28.sp,
             color = ColorTextPrimary,
@@ -181,6 +193,7 @@ private fun TurnPanel(state: JackState) {
             color = ColorTextSecondary,
             textAlign = TextAlign.Center,
         )
+        online?.secondsLeft?.let { OnlineTimer(it) }
     }
 }
 
@@ -272,7 +285,9 @@ private fun Scoreboard(viewData: DiceJackUi.ViewData) {
                     FinishedTurnRow(turn, viewData.dieStyleOf(index))
                 } else {
                     Text(
-                        text = stringResource(Res.string.game_waiting),
+                        text = stringResource(
+                            if (index in state.left) Res.string.online_player_left else Res.string.game_waiting
+                        ),
                         fontFamily = RegularFont(),
                         fontSize = 14.sp,
                         color = ColorTextSecondary,
@@ -385,7 +400,9 @@ private fun TableDialogContent(viewData: DiceJackUi.ViewData) {
         )
 
         val enabled = viewData.dialogOpen && settled
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (!viewData.controlsTable) {
+            OnlineWatching(viewData.state.players[viewData.tablePlayer])
+        } else Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Button(
                 text = stringResource(if (turn.canRoll) Res.string.jack_stand else Res.string.game_done),
                 onClick = listener::onStandClick,
@@ -419,20 +436,32 @@ private fun ActionButtons(viewData: DiceJackUi.ViewData) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         when (state.phase) {
-            JackPhase.Playing -> Button(
-                text = stringResource(Res.string.roll),
-                onClick = listener::onRollClick,
-                enabled = !viewData.dialogOpen,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            JackPhase.Playing -> if (viewData.online == null || viewData.isMyTurn) {
+                Button(
+                    text = stringResource(Res.string.roll),
+                    onClick = listener::onRollClick,
+                    enabled = !viewData.dialogOpen && viewData.canAct,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            JackPhase.RoundOver -> Button(
-                text = stringResource(Res.string.game_next_round),
-                onClick = listener::onNextRoundClick,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            JackPhase.RoundOver -> if (viewData.online != null) {
+                NextRoundSoon()
+            } else {
+                Button(
+                    text = stringResource(Res.string.game_next_round),
+                    onClick = listener::onNextRoundClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            JackPhase.MatchOver -> {
+            JackPhase.MatchOver -> if (viewData.online != null) {
+                Button(
+                    text = stringResource(Res.string.game_home),
+                    onClick = listener::onHomeClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
                 Button(
                     text = stringResource(Res.string.game_new_match),
                     onClick = listener::onNewMatchClick,

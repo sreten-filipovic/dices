@@ -2,6 +2,7 @@ package com.cubes.template.shared.ui.main
 
 import androidx.lifecycle.ViewModel
 import com.cubes.template.shared.OpenUrlHandler
+import com.cubes.template.shared.data.online.OnlineGame
 import com.cubes.template.shared.ui.app.AppScreenNavigator
 import com.cubes.template.shared.ui.common.views.DieStyle
 import com.cubes.template.shared.ui.common.views.PawnColor
@@ -53,8 +54,18 @@ class MainNavigatorImpl(
 
     override fun showOnlineRoom(roomId: String) = navigateTo(MainScreen.OnlineRoom(roomId))
 
-    override fun showOnlineLudo(roomId: String) {
-        backStack.update { it.dropLastWhile { last -> last is MainScreen.OnlineRoom } + MainScreen.OnlineLudo(roomId) }
+    override fun showOnlineGame(roomId: String, game: OnlineGame) {
+        val screen = when (game) {
+            OnlineGame.LUDO -> MainScreen.OnlineLudo(roomId)
+            OnlineGame.DICE_POKER -> MainScreen.OnlineDicePoker(roomId)
+            OnlineGame.RISK_IT -> MainScreen.OnlineRiskIt(roomId)
+            OnlineGame.DICE_DUEL -> MainScreen.OnlineDiceDuel(roomId)
+            OnlineGame.DICE_JACK -> MainScreen.OnlineDiceJack(roomId)
+            OnlineGame.SEVENS -> MainScreen.OnlineSevens(roomId)
+            OnlineGame.STRAIGHT_ROLL -> MainScreen.OnlineStraightRoll(roomId)
+            else -> return back()
+        }
+        backStack.update { it.dropLastWhile { last -> last is MainScreen.OnlineRoom } + screen }
     }
 
     override fun navigateTo(screen: MainScreen) {

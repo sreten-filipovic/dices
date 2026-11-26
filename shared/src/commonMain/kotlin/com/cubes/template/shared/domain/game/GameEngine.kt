@@ -30,6 +30,29 @@ object GameEngine {
             GameAction.NextRound -> nextRound(state)
         }
 
+    fun removePlayer(state: GameState, playerId: String): GameState {
+        if (state.phase is RoundPhase.MatchOver || playerId in state.leftIds || state.player(playerId) == null) return state
+        val left = state.copy(leftIds = state.leftIds + playerId)
+        val remaining = left.players.filter { it.id !in left.leftIds }
+        if (remaining.size <= 1) {
+            val winner = remaining.singleOrNull()?.id ?: playerId
+            return left.copy(phase = RoundPhase.MatchOver(winnerId = winner, roundWinnerIds = emptyList()))
+        }
+        val phase = state.phase
+        if (phase != RoundPhase.FirstRoll && phase != RoundPhase.SecondRoll) return left
+
+        val position = state.turnOrder.indexOfFirst { it.id == playerId }
+        if (position < 0) return left
+        val wasCurrent = position == state.currentTurnIndex
+        val shrunk = left.copy(
+            participantIds = state.participantIds - playerId,
+            turns = state.turns - playerId,
+            currentTurnIndex = if (position < state.currentTurnIndex) state.currentTurnIndex - 1 else state.currentTurnIndex,
+            phase = if (wasCurrent) RoundPhase.FirstRoll else phase,
+        )
+        return if (shrunk.currentTurnIndex > shrunk.turnOrder.lastIndex) finishRound(shrunk) else shrunk
+    }
+
     fun pointsForPlace(place: Int, participants: Int): Int = participants - place
 
     fun roundRanking(state: GameState): List<RankedPlayer> {
@@ -93,7 +116,8 @@ object GameEngine {
 
     private fun nextRound(state: GameState): GameState {
         if (state.phase !is RoundPhase.RoundOver) return state
-        val participants = if (state.round >= state.totalRounds) state.leaderIds else state.players.map { it.id }
+        val participants = (if (state.round >= state.totalRounds) state.leaderIds else state.players.map { it.id })
+            .filter { it !in state.leftIds }
         return state.copy(
             round = state.round + 1,
             startingPlayerIndex = (state.startingPlayerIndex + 1) % state.players.size,

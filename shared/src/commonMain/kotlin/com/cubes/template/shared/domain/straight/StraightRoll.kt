@@ -34,6 +34,7 @@ data class StraightState(
     val roundScores: List<Int?> = List(players.size) { null },
     val roundTurns: List<StraightTurn?> = List(players.size) { null },
     val phase: StraightPhase = StraightPhase.Playing,
+    val left: Set<Int> = emptySet(),
 ) {
     val currentPlayer: Int get() = (starter + turnsTaken) % players.size
 
@@ -43,8 +44,9 @@ data class StraightState(
 
     val leaders: List<Int>
         get() {
-            val max = scores.max()
-            return scores.indices.filter { scores[it] == max }
+            val active = scores.indices.filter { it !in left }
+            val max = active.maxOfOrNull { scores[it] } ?: 0
+            return active.filter { scores[it] == max }
         }
 }
 
@@ -82,15 +84,23 @@ object StraightRoll {
 
     fun finish(state: StraightState): StraightState {
         if (!state.canFinish) return state
+        return endTurn(state, state.turn, state.turn.points)
+    }
+
+    fun skip(state: StraightState): StraightState {
+        if (state.phase != StraightPhase.Playing) return state
+        return endTurn(state, StraightTurn(points = 0), 0)
+    }
+
+    private fun endTurn(state: StraightState, finished: StraightTurn, points: Int): StraightState {
         val player = state.currentPlayer
-        val points = state.turn.points
         val roundFinished = state.turnsTaken + 1 == state.players.size
         return state.copy(
             scores = state.scores.mapIndexed { index, score -> if (index == player) score + points else score },
             roundScores = state.roundScores.mapIndexed { index, score -> if (index == player) points else score },
-            roundTurns = state.roundTurns.mapIndexed { index, turn -> if (index == player) state.turn else turn },
+            roundTurns = state.roundTurns.mapIndexed { index, turn -> if (index == player) finished else turn },
             turnsTaken = if (roundFinished) state.turnsTaken else state.turnsTaken + 1,
-            turn = if (roundFinished) state.turn else StraightTurn(),
+            turn = if (roundFinished) finished else StraightTurn(),
             phase = when {
                 !roundFinished -> StraightPhase.Playing
                 state.round >= state.totalRounds -> StraightPhase.MatchOver

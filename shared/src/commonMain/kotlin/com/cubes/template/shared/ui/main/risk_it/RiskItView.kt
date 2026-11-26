@@ -44,6 +44,10 @@ import com.cubes.template.shared.domain.risk.RiskPhase
 import com.cubes.template.shared.domain.risk.RiskState
 import com.cubes.template.shared.domain.risk.RiskTurn
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.online_playing
+import com.cubes.template.shared.resources.online_player_left
+import com.cubes.template.shared.resources.online_waiting_for
+import com.cubes.template.shared.resources.online_your_turn
 import com.cubes.template.shared.resources.game_risk_it
 import com.cubes.template.shared.resources.game_done
 import com.cubes.template.shared.resources.game_round_points
@@ -64,6 +68,8 @@ import com.cubes.template.shared.resources.game_turn_of
 import com.cubes.template.shared.resources.game_waiting
 import com.cubes.template.shared.resources.roll
 import com.cubes.template.shared.ui.common.AppTheme
+import com.cubes.template.shared.ui.main.online.turn.NextRoundSoon
+import com.cubes.template.shared.ui.main.online.turn.OnlineTimer
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorAccent
 import com.cubes.template.shared.ui.common.ColorBackground
@@ -131,7 +137,7 @@ fun RiskItScreen(viewData: RiskItUi.ViewData) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Scoreboard(viewData)
-                    if (state.phase == RiskPhase.Playing) TurnPanel(state) else ResultPanel(state)
+                    if (state.phase == RiskPhase.Playing) TurnPanel(viewData) else ResultPanel(state)
                 }
 
                 ActionButtons(viewData)
@@ -159,14 +165,20 @@ fun RiskItScreen(viewData: RiskItUi.ViewData) {
 }
 
 @Composable
-private fun TurnPanel(state: RiskState) {
+private fun TurnPanel(viewData: RiskItUi.ViewData) {
+    val state = viewData.state
+    val online = viewData.online
     Column(
         modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            text = stringResource(Res.string.game_turn_of, state.players[state.currentPlayer]),
+            text = when {
+                online == null -> stringResource(Res.string.game_turn_of, state.players[state.currentPlayer])
+                viewData.isMyTurn -> stringResource(Res.string.online_your_turn)
+                else -> stringResource(Res.string.online_waiting_for, state.players[state.currentPlayer])
+            },
             fontFamily = ExtraBoldFont(),
             fontSize = 28.sp,
             color = ColorTextPrimary,
@@ -179,6 +191,7 @@ private fun TurnPanel(state: RiskState) {
             color = ColorTextSecondary,
             textAlign = TextAlign.Center,
         )
+        online?.secondsLeft?.let { OnlineTimer(it) }
     }
 }
 
@@ -261,7 +274,9 @@ private fun Scoreboard(viewData: RiskItUi.ViewData) {
                     FinishedTurnRow(turn, viewData.dieStyleOf(index))
                 } else {
                     Text(
-                        text = stringResource(Res.string.game_waiting),
+                        text = stringResource(
+                            if (index in state.left) Res.string.online_player_left else Res.string.game_waiting
+                        ),
                         fontFamily = RegularFont(),
                         fontSize = 14.sp,
                         color = ColorTextSecondary,
@@ -360,7 +375,16 @@ private fun TableDialogContent(viewData: RiskItUi.ViewData) {
         )
 
         val enabled = viewData.dialogOpen && settled
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (!viewData.controlsTable) {
+            Text(
+                text = stringResource(Res.string.online_playing, viewData.state.players[viewData.tablePlayer]),
+                fontFamily = SemiBoldFont(),
+                fontSize = 15.sp,
+                color = ColorWhite.copy(alpha = 0.85f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.height(56.dp),
+            )
+        } else Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Button(
                 text = stringResource(if (turn.canRoll) Res.string.risk_stop else Res.string.game_done),
                 onClick = listener::onStopClick,
@@ -394,20 +418,32 @@ private fun ActionButtons(viewData: RiskItUi.ViewData) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         when (state.phase) {
-            RiskPhase.Playing -> Button(
-                text = stringResource(Res.string.roll),
-                onClick = listener::onRollClick,
-                enabled = !viewData.dialogOpen,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            RiskPhase.Playing -> if (viewData.online == null || viewData.isMyTurn) {
+                Button(
+                    text = stringResource(Res.string.roll),
+                    onClick = listener::onRollClick,
+                    enabled = !viewData.dialogOpen && viewData.canAct,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            RiskPhase.RoundOver -> Button(
-                text = stringResource(Res.string.game_next_round),
-                onClick = listener::onNextRoundClick,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            RiskPhase.RoundOver -> if (viewData.online != null) {
+                NextRoundSoon()
+            } else {
+                Button(
+                    text = stringResource(Res.string.game_next_round),
+                    onClick = listener::onNextRoundClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            RiskPhase.MatchOver -> {
+            RiskPhase.MatchOver -> if (viewData.online != null) {
+                Button(
+                    text = stringResource(Res.string.game_home),
+                    onClick = listener::onHomeClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
                 Button(
                     text = stringResource(Res.string.game_new_match),
                     onClick = listener::onNewMatchClick,

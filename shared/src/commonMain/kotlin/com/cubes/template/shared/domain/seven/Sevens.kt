@@ -30,6 +30,7 @@ data class SevenState(
     val roundScores: List<Int?>,
     val roundTurns: List<SevenTurn?> = List(players.size) { null },
     val phase: SevenPhase = SevenPhase.Playing,
+    val left: Set<Int> = emptySet(),
 ) {
     val currentPlayer: Int get() = (starter + turnsTaken) % players.size
 
@@ -42,8 +43,9 @@ data class SevenState(
 
     val leaders: List<Int>
         get() {
-            val max = scores.max()
-            return scores.indices.filter { scores[it] == max }
+            val active = scores.indices.filter { it !in left }
+            val max = active.maxOfOrNull { scores[it] } ?: 0
+            return active.filter { scores[it] == max }
         }
 }
 
@@ -75,17 +77,26 @@ object Sevens {
 
     fun bank(state: SevenState): SevenState {
         if (!state.canBank) return state
+        return endTurn(state, state.turn, setsRollLimit = state.turnsTaken == 0)
+    }
+
+    fun skip(state: SevenState): SevenState {
+        if (state.phase != SevenPhase.Playing) return state
+        return endTurn(state, SevenTurn(), setsRollLimit = false)
+    }
+
+    private fun endTurn(state: SevenState, finished: SevenTurn, setsRollLimit: Boolean): SevenState {
         val player = state.currentPlayer
-        val points = state.turn.score
+        val points = finished.score
         val turnsTaken = state.turnsTaken + 1
         val roundFinished = turnsTaken == state.players.size
         return state.copy(
             scores = state.scores.mapIndexed { index, score -> if (index == player) score + points else score },
             roundScores = state.roundScores.mapIndexed { index, score -> if (index == player) points else score },
-            roundTurns = state.roundTurns.mapIndexed { index, turn -> if (index == player) state.turn else turn },
-            rollLimit = if (state.turnsTaken == 0) state.turn.rolls else state.rollLimit,
+            roundTurns = state.roundTurns.mapIndexed { index, turn -> if (index == player) finished else turn },
+            rollLimit = if (setsRollLimit) finished.rolls else state.rollLimit,
             turnsTaken = if (roundFinished) state.turnsTaken else turnsTaken,
-            turn = if (roundFinished) state.turn else SevenTurn(),
+            turn = if (roundFinished) finished else SevenTurn(),
             phase = when {
                 !roundFinished -> SevenPhase.Playing
                 state.round >= state.totalRounds -> SevenPhase.MatchOver

@@ -42,6 +42,9 @@ import com.cubes.template.shared.domain.seven.SevenPhase
 import com.cubes.template.shared.domain.seven.SevenState
 import com.cubes.template.shared.domain.seven.SevenTurn
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.online_player_left
+import com.cubes.template.shared.resources.online_waiting_for
+import com.cubes.template.shared.resources.online_your_turn
 import com.cubes.template.shared.resources.game_final_standings
 import com.cubes.template.shared.resources.game_home
 import com.cubes.template.shared.resources.game_sevens
@@ -59,6 +62,9 @@ import com.cubes.template.shared.resources.seven_hint
 import com.cubes.template.shared.resources.seven_max_rolls
 import com.cubes.template.shared.resources.seven_rolls_left
 import com.cubes.template.shared.ui.common.AppTheme
+import com.cubes.template.shared.ui.main.online.turn.NextRoundSoon
+import com.cubes.template.shared.ui.main.online.turn.OnlineTimer
+import com.cubes.template.shared.ui.main.online.turn.OnlineWatching
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorAccent
 import com.cubes.template.shared.ui.common.ColorBackground
@@ -129,7 +135,7 @@ fun SevensScreen(viewData: SevensUi.ViewData) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Scoreboard(viewData)
-                    if (state.phase == SevenPhase.Playing) TurnPanel(state) else ResultPanel(state)
+                    if (state.phase == SevenPhase.Playing) TurnPanel(viewData) else ResultPanel(state)
                 }
 
                 ActionButtons(viewData)
@@ -157,14 +163,20 @@ fun SevensScreen(viewData: SevensUi.ViewData) {
 }
 
 @Composable
-private fun TurnPanel(state: SevenState) {
+private fun TurnPanel(viewData: SevensUi.ViewData) {
+    val state = viewData.state
+    val online = viewData.online
     Column(
         modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            text = stringResource(Res.string.game_turn_of, state.players[state.currentPlayer]),
+            text = when {
+                online == null -> stringResource(Res.string.game_turn_of, state.players[state.currentPlayer])
+                viewData.isMyTurn -> stringResource(Res.string.online_your_turn)
+                else -> stringResource(Res.string.online_waiting_for, state.players[state.currentPlayer])
+            },
             fontFamily = ExtraBoldFont(),
             fontSize = 28.sp,
             color = ColorTextPrimary,
@@ -177,6 +189,7 @@ private fun TurnPanel(state: SevenState) {
             color = ColorTextSecondary,
             textAlign = TextAlign.Center,
         )
+        online?.secondsLeft?.let { OnlineTimer(it) }
     }
 }
 
@@ -282,7 +295,9 @@ private fun Scoreboard(viewData: SevensUi.ViewData) {
                     BankedDiceRow(turn, viewData.dieStyleOf(index))
                 } else {
                     Text(
-                        text = stringResource(Res.string.game_waiting),
+                        text = stringResource(
+                            if (index in state.left) Res.string.online_player_left else Res.string.game_waiting
+                        ),
                         fontFamily = RegularFont(),
                         fontSize = 14.sp,
                         color = ColorTextSecondary,
@@ -373,7 +388,9 @@ private fun TableDialogContent(viewData: SevensUi.ViewData) {
         )
 
         val enabled = viewData.dialogOpen && !viewData.rolling
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        if (!viewData.controlsTable) {
+            OnlineWatching(viewData.state.players[viewData.tablePlayer])
+        } else Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Button(
                 text = stringResource(Res.string.seven_bank),
                 onClick = listener::onBankClick,
@@ -407,20 +424,32 @@ private fun ActionButtons(viewData: SevensUi.ViewData) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         when (state.phase) {
-            SevenPhase.Playing -> Button(
-                text = stringResource(Res.string.roll),
-                onClick = listener::onRollClick,
-                enabled = !viewData.dialogOpen,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            SevenPhase.Playing -> if (viewData.online == null || viewData.isMyTurn) {
+                Button(
+                    text = stringResource(Res.string.roll),
+                    onClick = listener::onRollClick,
+                    enabled = !viewData.dialogOpen && viewData.canAct,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            SevenPhase.RoundOver -> Button(
-                text = stringResource(Res.string.game_next_round),
-                onClick = listener::onNextRoundClick,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            SevenPhase.RoundOver -> if (viewData.online != null) {
+                NextRoundSoon()
+            } else {
+                Button(
+                    text = stringResource(Res.string.game_next_round),
+                    onClick = listener::onNextRoundClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            SevenPhase.MatchOver -> {
+            SevenPhase.MatchOver -> if (viewData.online != null) {
+                Button(
+                    text = stringResource(Res.string.game_home),
+                    onClick = listener::onHomeClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
                 Button(
                     text = stringResource(Res.string.game_new_match),
                     onClick = listener::onNewMatchClick,

@@ -6,6 +6,7 @@ import com.cubes.template.shared.StringProvider
 import com.cubes.template.shared.data.online.OnlineGame
 import com.cubes.template.shared.data.online.RoomFailure
 import com.cubes.template.shared.data.online.RoomRepository
+import com.cubes.template.shared.data.online.RoomSettings
 import com.cubes.template.shared.data.remote.Result
 import com.cubes.template.shared.resources.Res
 import com.cubes.template.shared.resources.online_error_title
@@ -24,6 +25,8 @@ import kotlinx.coroutines.launch
 class OnlineLobbyViewModel(
     private val game: OnlineGame,
     playerOptions: List<Int>,
+    roundOptions: List<Int>,
+    diceCountOptions: List<Int>,
     private val roomRepository: RoomRepository,
     private val stringProvider: StringProvider,
     private val popupManager: PopupManager,
@@ -31,7 +34,13 @@ class OnlineLobbyViewModel(
 ) : ViewModel(), OnlineLobbyViewListener {
 
     private val _viewData = MutableStateFlow(
-        OnlineLobby.ViewData(playerOptions = playerOptions, maxPlayers = playerOptions.last(), listener = this)
+        OnlineLobby.ViewData(
+            playerOptions = playerOptions,
+            maxPlayers = playerOptions.last(),
+            roundOptions = roundOptions,
+            diceCountOptions = diceCountOptions,
+            listener = this,
+        )
     )
     val viewData: StateFlow<OnlineLobby.ViewData> = _viewData.asStateFlow()
 
@@ -56,11 +65,19 @@ class OnlineLobbyViewModel(
         _viewData.update { it.copy(maxPlayers = count) }
     }
 
+    override fun onRoundsSelected(rounds: Int) {
+        _viewData.update { it.copy(rounds = rounds) }
+    }
+
+    override fun onDiceCountSelected(count: Int) {
+        _viewData.update { it.copy(diceCount = count) }
+    }
+
     override fun onCreateRoomClick() {
         val data = _viewData.value
         if (data.busy != null) return
         runBusy(OnlineLobby.Busy.Creating) {
-            when (val result = roomRepository.createRoom(game, data.maxPlayers)) {
+            when (val result = roomRepository.createRoom(game, data.maxPlayers, RoomSettings(rounds = data.rounds, diceCount = data.diceCount))) {
                 is Result.Success -> navigator.showOnlineRoom(result.data)
                 is Result.Error -> showError(result.ex)
             }

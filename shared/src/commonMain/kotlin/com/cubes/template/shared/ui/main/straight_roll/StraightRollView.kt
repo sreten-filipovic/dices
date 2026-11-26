@@ -51,6 +51,9 @@ import com.cubes.template.shared.domain.straight.StraightPhase
 import com.cubes.template.shared.domain.straight.StraightState
 import com.cubes.template.shared.domain.straight.StraightTurn
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.online_player_left
+import com.cubes.template.shared.resources.online_waiting_for
+import com.cubes.template.shared.resources.online_your_turn
 import com.cubes.template.shared.resources.game_straight_roll
 import com.cubes.template.shared.resources.game_done
 import com.cubes.template.shared.resources.straight_done
@@ -71,6 +74,9 @@ import com.cubes.template.shared.resources.game_turn_of
 import com.cubes.template.shared.resources.game_waiting
 import com.cubes.template.shared.resources.roll
 import com.cubes.template.shared.ui.common.AppTheme
+import com.cubes.template.shared.ui.main.online.turn.NextRoundSoon
+import com.cubes.template.shared.ui.main.online.turn.OnlineTimer
+import com.cubes.template.shared.ui.main.online.turn.OnlineWatching
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorBlack
@@ -141,7 +147,7 @@ fun StraightRollScreen(viewData: StraightRollUi.ViewData) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Scoreboard(viewData)
-                    if (state.phase == StraightPhase.Playing) TurnPanel(state) else ResultPanel(state)
+                    if (state.phase == StraightPhase.Playing) TurnPanel(viewData) else ResultPanel(state)
                 }
 
                 ActionButtons(viewData)
@@ -169,14 +175,20 @@ fun StraightRollScreen(viewData: StraightRollUi.ViewData) {
 }
 
 @Composable
-private fun TurnPanel(state: StraightState) {
+private fun TurnPanel(viewData: StraightRollUi.ViewData) {
+    val state = viewData.state
+    val online = viewData.online
     Column(
         modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
-            text = stringResource(Res.string.game_turn_of, state.players[state.currentPlayer]),
+            text = when {
+                online == null -> stringResource(Res.string.game_turn_of, state.players[state.currentPlayer])
+                viewData.isMyTurn -> stringResource(Res.string.online_your_turn)
+                else -> stringResource(Res.string.online_waiting_for, state.players[state.currentPlayer])
+            },
             fontFamily = ExtraBoldFont(),
             fontSize = 28.sp,
             color = ColorTextPrimary,
@@ -189,6 +201,7 @@ private fun TurnPanel(state: StraightState) {
             color = ColorTextSecondary,
             textAlign = TextAlign.Center,
         )
+        online?.secondsLeft?.let { OnlineTimer(it) }
     }
 }
 
@@ -280,7 +293,9 @@ private fun Scoreboard(viewData: StraightRollUi.ViewData) {
                     FinishedTurnRow(turn, viewData.dieStyleOf(index))
                 } else {
                     Text(
-                        text = stringResource(Res.string.game_waiting),
+                        text = stringResource(
+                            if (index in state.left) Res.string.online_player_left else Res.string.game_waiting
+                        ),
                         fontFamily = RegularFont(),
                         fontSize = 14.sp,
                         color = ColorTextSecondary,
@@ -397,7 +412,9 @@ private fun TableDialogContent(viewData: StraightRollUi.ViewData) {
             modifier = Modifier.height(34.dp),
         )
 
-        if (over) {
+        if (!viewData.controlsTable) {
+            OnlineWatching(viewData.state.players[viewData.tablePlayer])
+        } else if (over) {
             Button(
                 text = stringResource(Res.string.game_done),
                 onClick = listener::onDoneClick,
@@ -443,20 +460,32 @@ private fun ActionButtons(viewData: StraightRollUi.ViewData) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         when (state.phase) {
-            StraightPhase.Playing -> Button(
-                text = stringResource(Res.string.roll),
-                onClick = listener::onRollClick,
-                enabled = !viewData.dialogOpen,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            StraightPhase.Playing -> if (viewData.online == null || viewData.isMyTurn) {
+                Button(
+                    text = stringResource(Res.string.roll),
+                    onClick = listener::onRollClick,
+                    enabled = !viewData.dialogOpen && viewData.canAct,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            StraightPhase.RoundOver -> Button(
-                text = stringResource(Res.string.game_next_round),
-                onClick = listener::onNextRoundClick,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            StraightPhase.RoundOver -> if (viewData.online != null) {
+                NextRoundSoon()
+            } else {
+                Button(
+                    text = stringResource(Res.string.game_next_round),
+                    onClick = listener::onNextRoundClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            StraightPhase.MatchOver -> {
+            StraightPhase.MatchOver -> if (viewData.online != null) {
+                Button(
+                    text = stringResource(Res.string.game_home),
+                    onClick = listener::onHomeClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
                 Button(
                     text = stringResource(Res.string.game_new_match),
                     onClick = listener::onNewMatchClick,

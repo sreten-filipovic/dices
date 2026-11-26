@@ -31,6 +31,7 @@ data class JackState(
     val roundTurns: List<JackTurn?> = List(players.size) { null },
     val roundPoints: List<Int?> = List(players.size) { null },
     val phase: JackPhase = JackPhase.Playing,
+    val left: Set<Int> = emptySet(),
 ) {
     val currentPlayer: Int get() = (starter + turnsTaken) % players.size
 
@@ -40,8 +41,9 @@ data class JackState(
 
     val leaders: List<Int>
         get() {
-            val max = scores.max()
-            return scores.indices.filter { scores[it] == max }
+            val active = scores.indices.filter { it !in left }
+            val max = active.maxOfOrNull { scores[it] } ?: 0
+            return active.filter { scores[it] == max }
         }
 }
 
@@ -68,8 +70,17 @@ object DiceJack {
 
     fun stand(state: JackState): JackState {
         if (!state.canStand) return state
+        return endTurn(state, state.turn)
+    }
+
+    fun skip(state: JackState): JackState {
+        if (state.phase != JackPhase.Playing) return state
+        return endTurn(state, JackTurn())
+    }
+
+    private fun endTurn(state: JackState, finished: JackTurn): JackState {
         val player = state.currentPlayer
-        val roundTurns = state.roundTurns.mapIndexed { index, turn -> if (index == player) state.turn else turn }
+        val roundTurns = state.roundTurns.mapIndexed { index, turn -> if (index == player) finished else turn }
         if (state.turnsTaken + 1 < state.players.size) {
             return state.copy(roundTurns = roundTurns, turnsTaken = state.turnsTaken + 1, turn = JackTurn())
         }

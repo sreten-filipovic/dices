@@ -1,6 +1,14 @@
 package com.cubes.template.shared.ui.main
 
+import com.cubes.template.shared.ui.main.game_setup.GameSetup
 import com.cubes.template.shared.ui.main.game_setup.OnlineComingSoon
+import com.cubes.template.shared.ui.main.online.poker.OnlineDicePokerView
+import com.cubes.template.shared.ui.main.online.risk.OnlineRiskItView
+import com.cubes.template.shared.ui.main.online.duel.OnlineDiceDuelView
+import com.cubes.template.shared.domain.duel.DiceDuel
+import com.cubes.template.shared.ui.main.online.jack.OnlineDiceJackView
+import com.cubes.template.shared.ui.main.online.sevens.OnlineSevensView
+import com.cubes.template.shared.ui.main.online.straight.OnlineStraightRollView
 import com.cubes.template.shared.ui.main.online.ludo.OnlineLudoView
 import com.cubes.template.shared.ui.main.online.room.OnlineRoomView
 import com.cubes.template.shared.ui.main.online.lobby.OnlineLobbyView
@@ -128,11 +136,25 @@ fun MainView(
                     GameSetupView(
                         viewModel = viewModel,
                         onlineContent = { modifier ->
-                            if (screen.game == Home.GameCard.LUDO) {
+                            val onlineGame = screen.game.onlineGame
+                            if (onlineGame != null) {
                                 val lobbyViewModel = viewModel {
                                     screenCompositionRoot.getOnlineLobbyViewModel(
-                                        game = OnlineGame.LUDO,
-                                        playerOptions = (Ludo.MIN_PLAYERS..Ludo.MAX_PLAYERS).toList(),
+                                        game = onlineGame,
+                                        playerOptions = if (onlineGame == OnlineGame.LUDO) {
+                                            (Ludo.MIN_PLAYERS..Ludo.MAX_PLAYERS).toList()
+                                        } else {
+                                            (GameSetup.MIN_PLAYERS..GameSetup.MAX_PLAYERS).toList()
+                                        },
+                                        roundOptions = when (onlineGame) {
+                                            OnlineGame.LUDO, OnlineGame.DICE_DUEL -> emptyList()
+                                            else -> GameSetup.ROUND_OPTIONS
+                                        },
+                                        diceCountOptions = if (onlineGame == OnlineGame.DICE_DUEL) {
+                                            DiceDuel.DICE_COUNT_OPTIONS
+                                        } else {
+                                            emptyList()
+                                        },
                                         navigator = mainScreenNavigator,
                                     )
                                 }
@@ -164,6 +186,72 @@ fun MainView(
                         onDispose { mainScreenNavigator.setBackHandler(screen, null) }
                     }
                     OnlineLudoView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.OnlineDicePoker> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getOnlineDicePokerViewModel(screen.roomId, onBack = mainScreenNavigator::back)
+                    }
+                    DisposableEffect(viewModel) {
+                        mainScreenNavigator.setBackHandler(screen, viewModel::onHomeClick)
+                        onDispose { mainScreenNavigator.setBackHandler(screen, null) }
+                    }
+                    OnlineDicePokerView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.OnlineRiskIt> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getOnlineRiskItViewModel(screen.roomId, onBack = mainScreenNavigator::back)
+                    }
+                    DisposableEffect(viewModel) {
+                        mainScreenNavigator.setBackHandler(screen, viewModel::onHomeClick)
+                        onDispose { mainScreenNavigator.setBackHandler(screen, null) }
+                    }
+                    OnlineRiskItView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.OnlineDiceJack> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getOnlineDiceJackViewModel(screen.roomId, onBack = mainScreenNavigator::back)
+                    }
+                    DisposableEffect(viewModel) {
+                        mainScreenNavigator.setBackHandler(screen, viewModel::onHomeClick)
+                        onDispose { mainScreenNavigator.setBackHandler(screen, null) }
+                    }
+                    OnlineDiceJackView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.OnlineSevens> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getOnlineSevensViewModel(screen.roomId, onBack = mainScreenNavigator::back)
+                    }
+                    DisposableEffect(viewModel) {
+                        mainScreenNavigator.setBackHandler(screen, viewModel::onHomeClick)
+                        onDispose { mainScreenNavigator.setBackHandler(screen, null) }
+                    }
+                    OnlineSevensView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.OnlineStraightRoll> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getOnlineStraightRollViewModel(screen.roomId, onBack = mainScreenNavigator::back)
+                    }
+                    DisposableEffect(viewModel) {
+                        mainScreenNavigator.setBackHandler(screen, viewModel::onHomeClick)
+                        onDispose { mainScreenNavigator.setBackHandler(screen, null) }
+                    }
+                    OnlineStraightRollView(viewModel = viewModel)
+                }
+
+                entry<MainScreen.OnlineDiceDuel> { screen ->
+                    val viewModel = viewModel {
+                        screenCompositionRoot.getOnlineDiceDuelViewModel(screen.roomId, onBack = mainScreenNavigator::back)
+                    }
+                    DisposableEffect(viewModel) {
+                        mainScreenNavigator.setBackHandler(screen, viewModel::onBackClick)
+                        onDispose { mainScreenNavigator.setBackHandler(screen, null) }
+                    }
+                    OnlineDiceDuelView(viewModel = viewModel)
                 }
 
                 entry<MainScreen.Game> { screen ->
@@ -242,6 +330,18 @@ fun MainView(
 
 /** Tab roots replace each other instantly instead of sliding in like pushed screens. */
 private val NoTransition = NavDisplay.transitionSpec { EnterTransition.None togetherWith ExitTransition.None }
+
+private val Home.GameCard.onlineGame: OnlineGame?
+    get() = when (this) {
+        Home.GameCard.LUDO -> OnlineGame.LUDO
+        Home.GameCard.DICE_POKER -> OnlineGame.DICE_POKER
+        Home.GameCard.RISK_IT -> OnlineGame.RISK_IT
+        Home.GameCard.DICE_DUEL -> OnlineGame.DICE_DUEL
+        Home.GameCard.DICE_JACK -> OnlineGame.DICE_JACK
+        Home.GameCard.SEVENS -> OnlineGame.SEVENS
+        Home.GameCard.STRAIGHT_ROLL -> OnlineGame.STRAIGHT_ROLL
+        else -> null
+    }
 
 private val MainScreen.tab: MainTab?
     get() = when (this) {

@@ -26,6 +26,8 @@ import kotlinx.io.IOException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -42,17 +44,21 @@ class SupabaseRoomRepository(private val supabase: SupabaseClient) : RoomReposit
         return id.removeSurrounding("\"").takeIf { it.isNotEmpty() && it != "null" }
     }
 
-    override suspend fun createRoom(game: OnlineGame, maxPlayers: Int): Result<String> = attempt {
+    override suspend fun createRoom(game: OnlineGame, maxPlayers: Int, settings: RoomSettings): Result<String> = attempt {
         call("create_room", buildJsonObject {
             put("p_game", game.key)
             put("p_max_players", maxPlayers)
+            put("p_settings", buildJsonObject {
+                settings.rounds?.let { put("rounds", it) }
+                settings.diceCount?.let { put("dice_count", it) }
+            })
         }).decodeAs<String>()
     }
 
     override suspend fun openRooms(game: OnlineGame): Result<List<RoomSummary>> = attempt {
         call("list_open_rooms", buildJsonObject { put("p_game", game.key) })
             .decodeList<RoomSummaryDto>()
-            .map { RoomSummary(it.id, it.code, it.hostName, it.maxPlayers, it.playerCount) }
+            .map { RoomSummary(it.id, it.code, it.hostName, it.maxPlayers, it.playerCount, it.settings.toSettings()) }
     }
 
     override suspend fun findRoom(code: String): Result<String> = attempt {
@@ -97,6 +103,7 @@ class SupabaseRoomRepository(private val supabase: SupabaseClient) : RoomReposit
             game = room.game,
             hostId = room.hostId,
             maxPlayers = room.maxPlayers,
+            settings = room.settings.toSettings(),
             status = enumValueOf(room.status.uppercase()),
             members = members.map {
                 RoomMember(it.userId, it.username, enumValueOf(it.status.uppercase()), it.seat)
@@ -124,6 +131,27 @@ class SupabaseRoomRepository(private val supabase: SupabaseClient) : RoomReposit
         call("submit_move", buildJsonObject {
             put("p_room", roomId)
             put("p_pawn", pawn)
+        })
+    }
+
+    override suspend fun submitDice(roomId: String, count: Int): Result<Unit> = attempt {
+        call("submit_dice", buildJsonObject {
+            put("p_room", roomId)
+            put("p_count", count)
+        })
+    }
+
+    override suspend fun submitReroll(roomId: String, indices: Set<Int>): Result<Unit> = attempt {
+        call("submit_reroll", buildJsonObject {
+            put("p_room", roomId)
+            put("p_indices", JsonArray(indices.sorted().map(::JsonPrimitive)))
+        })
+    }
+
+    override suspend fun submitAction(roomId: String, action: String): Result<Unit> = attempt {
+        call("submit_action", buildJsonObject {
+            put("p_room", roomId)
+            put("p_action", action)
         })
     }
 
@@ -184,12 +212,21 @@ class SupabaseRoomRepository(private val supabase: SupabaseClient) : RoomReposit
     }
 
     @Serializable
+    private data class SettingsDto(
+        val rounds: Int? = null,
+        @SerialName("dice_count") val diceCount: Int? = null,
+    ) {
+        fun toSettings() = RoomSettings(rounds = rounds, diceCount = diceCount)
+    }
+
+    @Serializable
     private data class RoomSummaryDto(
         val id: String,
         val code: String,
         @SerialName("host_name") val hostName: String,
         @SerialName("max_players") val maxPlayers: Int,
         @SerialName("player_count") val playerCount: Int,
+        val settings: SettingsDto = SettingsDto(),
     )
 
     @Serializable
@@ -199,6 +236,7 @@ class SupabaseRoomRepository(private val supabase: SupabaseClient) : RoomReposit
         val game: String,
         @SerialName("host_id") val hostId: String,
         @SerialName("max_players") val maxPlayers: Int,
+        val settings: SettingsDto = SettingsDto(),
         val status: String,
         val members: List<MemberDto> = emptyList(),
     )

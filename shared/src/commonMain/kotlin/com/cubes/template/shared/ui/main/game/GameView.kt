@@ -46,6 +46,12 @@ import com.cubes.template.shared.domain.game.HandEvaluator
 import com.cubes.template.shared.domain.game.Player
 import com.cubes.template.shared.domain.game.RoundPhase
 import com.cubes.template.shared.resources.Res
+import com.cubes.template.shared.resources.online_next_round_soon
+import com.cubes.template.shared.resources.online_choosing
+import com.cubes.template.shared.resources.online_seconds_left
+import com.cubes.template.shared.resources.online_waiting_for
+import com.cubes.template.shared.resources.online_your_turn
+import com.cubes.template.shared.resources.online_player_left
 import com.cubes.template.shared.resources.game_dice_poker
 import com.cubes.template.shared.resources.game_done
 import com.cubes.template.shared.resources.game_home
@@ -74,6 +80,7 @@ import com.cubes.template.shared.resources.game_tiebreak_over
 import com.cubes.template.shared.resources.game_tiebreak
 import com.cubes.template.shared.resources.roll
 import com.cubes.template.shared.ui.common.AppTheme
+import com.cubes.template.shared.ui.common.ColorAccent
 import com.cubes.template.shared.ui.common.BoldFont
 import com.cubes.template.shared.ui.common.ColorBackground
 import com.cubes.template.shared.ui.common.ColorBlack
@@ -144,10 +151,10 @@ fun GameScreen(viewData: Game.ViewData) {
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     PlayersPanel(viewData)
-                    if (state.phase.isPlaying) TurnPanel(state) else ResultPanel(state)
+                    if (state.phase.isPlaying) TurnPanel(viewData) else ResultPanel(state)
                 }
 
-                ActionButtons(state, listener)
+                ActionButtons(viewData)
             }
         }
 
@@ -270,7 +277,11 @@ private fun PlayerRow(
         } else {
             Text(
                 text = stringResource(
-                    if (state.isParticipant(player.id)) Res.string.game_waiting else Res.string.game_sits_out
+                    when {
+                        player.id in state.leftIds -> Res.string.online_player_left
+                        state.isParticipant(player.id) -> Res.string.game_waiting
+                        else -> Res.string.game_sits_out
+                    }
                 ),
                 fontFamily = RegularFont(),
                 fontSize = 14.sp,
@@ -291,18 +302,39 @@ private fun StaticDiceRow(dice: List<Int>, dieSize: Dp, spacing: Dp, style: DieS
 }
 
 @Composable
-private fun TurnPanel(state: GameState) {
-    Text(
-        text = stringResource(Res.string.game_turn_of, state.currentPlayer.name),
-        fontFamily = ExtraBoldFont(),
-        fontSize = 28.sp,
-        color = ColorTextPrimary,
-        textAlign = TextAlign.Center,
+private fun TurnPanel(viewData: Game.ViewData) {
+    val state = viewData.state
+    val online = viewData.online
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 32.dp),
-    )
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            text = when {
+                online == null -> stringResource(Res.string.game_turn_of, state.currentPlayer.name)
+                viewData.isMyTurn -> stringResource(Res.string.online_your_turn)
+                else -> stringResource(Res.string.online_waiting_for, state.currentPlayer.name)
+            },
+            fontFamily = ExtraBoldFont(),
+            fontSize = 28.sp,
+            color = ColorTextPrimary,
+            textAlign = TextAlign.Center,
+        )
+        online?.secondsLeft?.let { seconds ->
+            Text(
+                text = stringResource(Res.string.online_seconds_left, seconds),
+                fontFamily = SemiBoldFont(),
+                fontSize = 15.sp,
+                color = if (seconds <= TIMER_WARNING_SECONDS) ColorAccent else ColorTextSecondary,
+            )
+        }
+    }
 }
+
+private const val TIMER_WARNING_SECONDS = 10
 
 @Composable
 private fun ResultPanel(state: GameState) {
@@ -403,7 +435,10 @@ private fun FinalStandingsTable(state: GameState) {
 }
 
 @Composable
-private fun ActionButtons(state: GameState, listener: GameViewListener) {
+private fun ActionButtons(viewData: Game.ViewData) {
+    val state = viewData.state
+    val listener = viewData.listener
+    val online = viewData.online != null
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -412,23 +447,43 @@ private fun ActionButtons(state: GameState, listener: GameViewListener) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         when (state.phase) {
-            RoundPhase.FirstRoll -> Button(
-                text = stringResource(Res.string.roll),
-                onClick = listener::onRollClick,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            RoundPhase.FirstRoll -> if (!online || viewData.isMyTurn) {
+                Button(
+                    text = stringResource(Res.string.roll),
+                    onClick = listener::onRollClick,
+                    enabled = viewData.canRoll,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
             RoundPhase.SecondRoll -> Unit
 
-            is RoundPhase.RoundOver -> Button(
-                text = stringResource(
-                    if (state.round >= state.totalRounds) Res.string.game_play_tiebreak else Res.string.game_next_round
-                ),
-                onClick = listener::onNextRoundClick,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            is RoundPhase.RoundOver -> if (online) {
+                Text(
+                    text = stringResource(Res.string.online_next_round_soon),
+                    fontFamily = SemiBoldFont(),
+                    fontSize = 15.sp,
+                    color = ColorTextSecondary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
+                Button(
+                    text = stringResource(
+                        if (state.round >= state.totalRounds) Res.string.game_play_tiebreak else Res.string.game_next_round
+                    ),
+                    onClick = listener::onNextRoundClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
 
-            is RoundPhase.MatchOver -> {
+            is RoundPhase.MatchOver -> if (online) {
+                Button(
+                    text = stringResource(Res.string.game_home),
+                    onClick = listener::onHomeClick,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
                 Button(
                     text = stringResource(Res.string.game_new_match),
                     onClick = listener::onNewMatchClick,
@@ -454,7 +509,8 @@ private fun RollDialogContent(viewData: Game.ViewData, dialog: Game.RollDialog) 
     val turn = state.turnOf(player.id)
     val ticks = viewData.rollTicksOf(player.id)
     val settled = !dialog.animating
-    val canSelect = settled && dialog.stage == Game.Stage.FIRST_ROLL
+    val controls = viewData.controls(player.id)
+    val canSelect = settled && dialog.stage == Game.Stage.FIRST_ROLL && controls
     val scoring = if (settled && turn.hasRolled) HandEvaluator.scoringIndices(turn.dice) else emptySet()
 
     DiceTable(modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
@@ -506,10 +562,23 @@ private fun RollDialogContent(viewData: Game.ViewData, dialog: Game.RollDialog) 
             when {
                 !settled -> Unit
 
+                viewData.online != null && viewData.online.myPlayerId != player.id -> if (dialog.stage == Game.Stage.FIRST_ROLL) {
+                    Text(
+                        text = stringResource(Res.string.online_choosing, player.name),
+                        fontFamily = SemiBoldFont(),
+                        fontSize = 15.sp,
+                        color = ColorWhite.copy(alpha = 0.85f),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                viewData.online != null && dialog.stage == Game.Stage.SECOND_ROLL -> Unit
+
                 dialog.stage == Game.Stage.FIRST_ROLL -> Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Button(
                         text = stringResource(Res.string.game_keep),
                         onClick = listener::onKeepClick,
+                        enabled = controls,
                         modifier = Modifier.weight(1f),
                         backgroundColor = ColorWhite,
                         textColor = ColorFeltDark,
@@ -517,7 +586,7 @@ private fun RollDialogContent(viewData: Game.ViewData, dialog: Game.RollDialog) 
                     Button(
                         text = stringResource(Res.string.game_reroll_selected),
                         onClick = listener::onRerollClick,
-                        enabled = turn.selected.isNotEmpty(),
+                        enabled = controls && turn.selected.isNotEmpty(),
                         modifier = Modifier.weight(1f),
 backgroundColor = ColorPaletteSand,
 textColor = ColorFeltDark,
